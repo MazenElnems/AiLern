@@ -264,7 +264,7 @@ namespace LMS.Infrastructure.Migrations
 
                             b1.HasIndex("Token");
 
-                            b1.ToTable("RefreshTokens");
+                            b1.ToTable("RefreshTokens", (string)null);
 
                             b1.WithOwner("ApplicationUser")
                                 .HasForeignKey("ApplicationUserId");

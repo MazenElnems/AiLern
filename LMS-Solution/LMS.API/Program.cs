@@ -1,11 +1,9 @@
 using LMS.API.ConfigurationOptions;
 using LMS.Core.ConfigurationOptions;
 using LMS.Core.Domain.Entities;
-using LMS.Core.Domain.RepositoryContracts;
 using LMS.Core.Services;
 using LMS.Core.Services.Interfaces;
 using LMS.Infrastructure.Data;
-using LMS.Infrastructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -22,9 +20,6 @@ builder.Services.AddOpenApi();
 // Custom Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICookieService, CookieService>();
-
-// Repositories
-builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 // swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -48,7 +43,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
 // JWT 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JWT"));
 builder.Services.Configure<RefreshTokenSettings>(builder.Configuration.GetSection("RefreshTokenSettings"));
-var jwt = builder.Configuration.Get<JwtOptions>();
+var jwt = builder.Configuration.GetSection("JWT").Get<JwtOptions>();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

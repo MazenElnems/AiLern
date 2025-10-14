@@ -1,7 +1,7 @@
 ﻿using LMS.API.ConfigurationOptions;
 using LMS.Core.ConfigurationOptions;
+using Microsoft.EntityFrameworkCore;
 using LMS.Core.Domain.Entities;
-using LMS.Core.Domain.RepositoryContracts;
 using LMS.Core.Models;
 using LMS.Core.Models.DTOs;
 using LMS.Core.Services.Interfaces;
@@ -18,16 +18,14 @@ namespace LMS.Core.Services
     public class AuthService : IAuthService
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly JwtOptions _jwt;
         private readonly RefreshTokenSettings _refreshToken;
 
-        public AuthService(UserManager<ApplicationUser> userManager, IOptions<JwtOptions> jwt, IOptions<RefreshTokenSettings> refreshTokenOptions, IRefreshTokenRepository refreshTokenRepository)
+        public AuthService(UserManager<ApplicationUser> userManager, IOptions<JwtOptions> jwt, IOptions<RefreshTokenSettings> refreshTokenOptions)
         {
             _userManager = userManager;
             _jwt = jwt.Value;
             _refreshToken = refreshTokenOptions.Value;
-            _refreshTokenRepository = refreshTokenRepository;
         }
 
         public async Task<Result> CreateUserAsync(string adminUserName, RegisterDto registerDto)
@@ -60,7 +58,6 @@ namespace LMS.Core.Services
 
             if (!roleResult.Succeeded)
             {
-                // Clean up: delete the user if role assignment fails
                 await _userManager.DeleteAsync(user);
                 var errors = roleResult.Errors.Select(e => e.Description).ToList();
                 return Result.Failure(errors, message: "Registration failed");
@@ -78,13 +75,26 @@ namespace LMS.Core.Services
 
             var token = await GenerateToken(user);
 
-            // TODO: Generate refreshtoken
+            var refreshToken = new RefreshToken
+            {
+                Token = GenerateRefreshToken(),
+                CreatedOn = DateTime.UtcNow,
+                ApplicationUserId = user.Id,
+                ExpiresOn = DateTime.UtcNow.AddDays(_refreshToken.DurationInDays)
+            };
+
+            user.RefreshTokens.Add(refreshToken);
+            var identityResult = await _userManager.UpdateAsync(user);
+
+            if (!identityResult.Succeeded)
+                return Result<TokenModel>.Failure(["can't generate new refresh token"], message: "Generate RefreshToken Successfully");
+
             var tokenModel = new TokenModel
             {
                 Token = token,
                 ExpiresOn = DateTime.UtcNow.AddMinutes(_jwt.DurationInMinutes),
-                RefreshToken = GenerateRefreshToken(),
-                RefreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshToken.DurationInDays)
+                RefreshToken = refreshToken.Token,
+                RefreshTokenExpiration = refreshToken.ExpiresOn
             };
 
             return Result<TokenModel>.Success(tokenModel, "Login successful");
@@ -95,12 +105,14 @@ namespace LMS.Core.Services
             if (refreshToken is null)
                 return Result<TokenModel>.Failure(["refresh token is required"], message: "Invalid RefreshToken");
 
-            var user = await _refreshTokenRepository.GetUserByRefreshToken(refreshToken);
+            var user = await _userManager.Users
+                .Include(u => u.RefreshTokens.Where(r => r.Token == refreshToken))
+                .FirstOrDefaultAsync(u => u.RefreshTokens.Any(r => r.Token == refreshToken && r.ExpiresOn > DateTime.UtcNow && r.RevokedOn == null));
 
             if (user is null)
                 return Result<TokenModel>.Failure(["refresh token is not exists"], message: "Invalid RefreshToken");
 
-            var oldRefreshToken = user.RefreshTokens.FirstOrDefault(r => r.Token == refreshToken);
+            var oldRefreshToken = user.RefreshTokens.First(r => r.Token == refreshToken);
 
             var newRefreshToken = new RefreshToken
             {
@@ -110,12 +122,13 @@ namespace LMS.Core.Services
                 ApplicationUserId = user.Id
             };
 
-            int rowsAffected = await _refreshTokenRepository.AddRefreshTokenAsync(newRefreshToken);
+            user.RefreshTokens.Add(newRefreshToken);
+            oldRefreshToken.RevokedOn = DateTime.UtcNow;
 
-            if(rowsAffected < 1)
+            var identityResult = await _userManager.UpdateAsync(user);
+
+            if (!identityResult.Succeeded)
                 return Result<TokenModel>.Failure(["can't generate new refresh token"], message: "Generate RefreshToken Successfully");
-
-            await _refreshTokenRepository.RevokeRefreshTokenAsync(oldRefreshToken);
 
             var tokenModel = new TokenModel
             {
@@ -128,6 +141,29 @@ namespace LMS.Core.Services
             return Result<TokenModel>.Success(tokenModel, message: "Generate RefreshToken Successfully");
         }
 
+        public async Task<Result> RevokeRefreshTokenAsync(string refreshToken)
+        {
+            if (refreshToken is null)
+                return Result.Failure(["refresh token is required"], message: "Invalid RefreshToken");
+
+            var user = await _userManager.Users
+                .Include(u => u.RefreshTokens.Where(r => r.Token == refreshToken))
+                .FirstOrDefaultAsync(u => u.RefreshTokens.Any(r => r.Token == refreshToken && r.ExpiresOn > DateTime.UtcNow && r.RevokedOn == null));
+
+            if (user is null)
+                return Result.Failure(["refresh token is not exists"], message: "Invalid RefreshToken");
+
+            var oldRefreshToken = user.RefreshTokens.First(r => r.Token == refreshToken);
+
+            oldRefreshToken.RevokedOn = DateTime.UtcNow;
+            var identityResult = await _userManager.UpdateAsync(user);
+
+            if (!identityResult.Succeeded)
+                return Result.Failure(["can't generate new refresh token"], message: "Generate RefreshToken Successfully");
+
+            return Result.Success("refresh token revoked Successfully");
+        }
+
         private async Task<string> GenerateToken(ApplicationUser user)
         {
             var userClaims = await _userManager.GetClaimsAsync(user);
@@ -136,9 +172,9 @@ namespace LMS.Core.Services
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                //new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim("uid", user.Id.ToString())
             }
             .Union(userClaims)
@@ -165,7 +201,5 @@ namespace LMS.Core.Services
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
         }
-
-
     }
 }

@@ -1,11 +1,9 @@
-﻿using LMS.Core.Domain.Entities;
-using LMS.Core.Models;
+﻿using LMS.Core.Models;
 using LMS.Core.Models.DTOs;
 using LMS.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace LMS.API.Controllers
 {
@@ -27,8 +25,8 @@ namespace LMS.API.Controllers
         {
             var result = await _authService.GetTokenAsync(loginDto);
 
-            if(!result.IsSuccess)
-                return BadRequest(new {result.Message, isAuthenticated = false, result.Errors});
+            if (!result.IsSuccess)
+                return BadRequest(new { result.Message, isAuthenticated = false, result.Errors });
 
             _cookieService.SetRefreshToken(Response, result.Data.RefreshToken, result.Data.RefreshTokenExpiration);
 
@@ -39,16 +37,17 @@ namespace LMS.API.Controllers
         [Authorize(Roles = UserRoles.Admin)]
         public async Task<IActionResult> Register(RegisterDto registerDto)
         {
-            var result = await _authService.CreateUserAsync(User.Identity?.Name, registerDto);
+            var username = User.FindFirst(ClaimTypes.Name)?.Value;
+            var result = await _authService.CreateUserAsync(username, registerDto);
 
             if (!result.IsSuccess)
                 return BadRequest(new { result.Message, result.Errors });
 
-            return Ok(new { isAuthenticated = true , result.Message});
+            return Ok(new { isAuthenticated = true, result.Message });
         }
 
         [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken() 
+        public async Task<IActionResult> RefreshToken()
         {
             var refreshToken = _cookieService.GetRefreshToken(Request);
 
@@ -61,9 +60,28 @@ namespace LMS.API.Controllers
                     result.Errors
                 });
 
-            _cookieService.SetRefreshToken(Response,result.Data.RefreshToken, result.Data.RefreshTokenExpiration);
+            _cookieService.SetRefreshToken(Response, result.Data.RefreshToken, result.Data.RefreshTokenExpiration);
 
             return Ok(result.Data);
+        }
+
+        [HttpPut("revoke-token")]
+        public async Task<IActionResult> RevokeRefreshToken()
+        {
+            var refreshToken = _cookieService.GetRefreshToken(Request);
+
+            var result = await _authService.RevokeRefreshTokenAsync(refreshToken);
+
+            if (!result.IsSuccess)
+                return BadRequest(new
+                {
+                    result.Message,
+                    result.Errors
+                });
+
+            _cookieService.RemoveRefreshToken(Response);
+
+            return Ok(new { result.Message });
         }
 
     }

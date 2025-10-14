@@ -13,5 +13,6 @@ namespace LMS.Core.Services.Interfaces
         Task<Result<TokenModel>> GetTokenAsync(LoginDto loginDto);
         Task<Result> CreateUserAsync(string adminUserName, RegisterDto registerDto);
         Task<Result<TokenModel>> GetRefreshTokenAsync(string refreshToken);
+        Task<Result> RevokeRefreshTokenAsync(string refreshToken);
     }
 }
