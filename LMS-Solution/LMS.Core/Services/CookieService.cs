@@ -22,7 +22,7 @@ namespace LMS.Core.Services
             {
                 HttpOnly = true,
                 Expires = expiresOn,
-                Path = "api/auth/refresh-token"
+                Path = "api/auth/"
             });
         }
     }

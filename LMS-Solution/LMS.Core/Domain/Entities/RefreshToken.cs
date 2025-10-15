@@ -6,7 +6,7 @@
         public DateTime ExpiresOn { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime? RevokedOn { get; set; }
-        public bool IsExpired => ExpiresOn >= DateTime.UtcNow;
+        public bool IsExpired => DateTime.UtcNow >= ExpiresOn;
         public bool IsActive => !IsExpired && RevokedOn is null;
 
         // Foreign Keys
