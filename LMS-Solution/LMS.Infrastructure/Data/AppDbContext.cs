@@ -1,4 +1,5 @@
 ﻿using LMS.Core.Domain.Entities;
+using LMS.Core.Domain.Entities.EntitiesConfiguration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,9 @@ namespace LMS.Infrastructure.Data
     public class AppDbContext : IdentityDbContext<ApplicationUser,IdentityRole<int>,int>
     {
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Admin> Admins { get; set; }
+        public DbSet<Student> Students { get; set; }
+        public DbSet<Instructor> Instructors { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options):
             base(options)
@@ -24,11 +28,9 @@ namespace LMS.Infrastructure.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<ApplicationUser>(entity =>
-            {
-                entity.OwnsMany(u => u.RefreshTokens)
-                      .HasIndex(r => r.Token);
-            });
+            builder.ApplyConfigurationsFromAssembly(typeof(ApplicationUserEntityTypeConfiguration).Assembly);
+
+            
         }
     }
 }
