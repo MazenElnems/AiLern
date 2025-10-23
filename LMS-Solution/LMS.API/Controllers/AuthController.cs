@@ -1,6 +1,6 @@
-﻿using LMS.Core.Models;
-using LMS.Core.Models.DTOs;
-using LMS.Core.Services.Interfaces;
+﻿using LMS.Core.DTOs.Authentication;
+using LMS.Core.Models;
+using LMS.Core.Services.Authentication.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

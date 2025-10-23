@@ -1,5 +1,7 @@
 ﻿using LMS.Core.Domain.Entities;
+using LMS.Core.Domain.RepositoriesInterfaces;
 using LMS.Infrastructure.Data;
+using LMS.Infrastructure.Repositories.Courses;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +13,8 @@ namespace LMS.Infrastructure.Extensions
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<ICourseRepository, CourseRepository>();
+
             // DbConext
             services.AddDbContext<AppDbContext>(options =>
             {

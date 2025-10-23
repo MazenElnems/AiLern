@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LMS.Core.Models.DTOs
+namespace LMS.Core.DTOs.Authentication
 {
     public class LoginDto
     {

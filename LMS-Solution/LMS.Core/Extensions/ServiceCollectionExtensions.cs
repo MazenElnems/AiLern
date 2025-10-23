@@ -1,7 +1,11 @@
 ﻿using LMS.API.ConfigurationOptions;
 using LMS.Core.ConfigurationOptions;
-using LMS.Core.Services;
-using LMS.Core.Services.Interfaces;
+using LMS.Core.Domain.Entities;
+using LMS.Core.DTOs.Course;
+using LMS.Core.Services.Authentication;
+using LMS.Core.Services.Authentication.Interfaces;
+using LMS.Core.Services.Courses;
+using LMS.Core.Services.Courses.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +21,7 @@ namespace LMS.Core.Extensions
             // Custom Services
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ICookieService, CookieService>();
+            services.AddScoped<ICourseService, CourseService>();
 
             // JWT 
             services.Configure<JwtOptions>(configuration.GetSection("JWT"));
@@ -43,6 +48,11 @@ namespace LMS.Core.Extensions
                         ClockSkew = TimeSpan.Zero
                     };
                 });
+
+            services.AddAutoMapper(cfg =>
+            {
+                cfg.CreateMap<CreateCourseDto, Course>();
+            });
 
             return services;
         }

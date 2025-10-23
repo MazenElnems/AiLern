@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LMS.Core.Services.Interfaces
+namespace LMS.Core.Services.Authentication.Interfaces
 {
     public interface ICookieService
     {

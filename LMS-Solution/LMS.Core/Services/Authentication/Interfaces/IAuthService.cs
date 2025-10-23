@@ -1,12 +1,12 @@
-﻿using LMS.Core.Models;
-using LMS.Core.Models.DTOs;
+﻿using LMS.Core.DTOs.Authentication;
+using LMS.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LMS.Core.Services.Interfaces
+namespace LMS.Core.Services.Authentication.Interfaces
 {
     public interface IAuthService
     {
