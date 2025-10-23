@@ -29,5 +29,12 @@ namespace LMS.Core.Services.Courses
             int id = await _courseRepository.AddAsync(course);
             return id;
         }
+
+        public async Task<List<GetAllCoursesDto>> GetAllCoursesAsync()
+        {
+            var courses = await _courseRepository.GetAllAsync();
+            var dto = _mapper.Map<List<GetAllCoursesDto>>(courses);
+            return dto;
+        }
     }
 }

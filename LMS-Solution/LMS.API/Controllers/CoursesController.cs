@@ -26,5 +26,13 @@ namespace LMS.API.Controllers
             int id = await _courseService.CreateAsync(dto, instructorId);
             return Ok(id);
         }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<GetAllCoursesDto>>> GetAll()
+        {
+            var dtos = await _courseService.GetAllCoursesAsync();
+            return dtos;
+        }
+        
     }
 }

@@ -52,6 +52,10 @@ namespace LMS.Core.Extensions
             services.AddAutoMapper(cfg =>
             {
                 cfg.CreateMap<CreateCourseDto, Course>();
+
+                cfg.CreateMap<Course, GetAllCoursesDto>()
+                   .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.UserName))
+                   .ForMember(dto => dto.SectionCourseName, opt => opt.MapFrom(src => src.Section == null ? null : src.Section.Name));
             });
 
             return services;
