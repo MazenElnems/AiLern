@@ -1,6 +1,5 @@
 ﻿using LMS.Core.Domain.Entities;
 
-namespace LMS.Shared.Domain.RepositoriesInterfaces;
 namespace LMS.Core.Domain.RepositoriesInterfaces;
 
 public interface ICourseRepository

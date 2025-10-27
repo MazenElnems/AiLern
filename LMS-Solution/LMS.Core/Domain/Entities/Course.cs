@@ -1,4 +1,5 @@
 ﻿using LMS.Core.Domain.Enums;
+using LMS.Shared.Domain.Entities;
 
 namespace LMS.Core.Domain.Entities
 {

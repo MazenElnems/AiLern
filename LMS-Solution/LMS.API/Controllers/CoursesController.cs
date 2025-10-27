@@ -1,16 +1,12 @@
-﻿using LMS.Shared.Services.Courses.Interfaces;
+﻿using LMS.Core.Services.Courses.Interfaces;
 using LMS.Shared.DTOs.Courses;
-using LMS.Core.DTOs.Course;
-using LMS.Core.Models;
-using LMS.Core.Services.Courses.Interfaces;
+using LMS.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+
 
 namespace LMS.API.Controllers;
 
-namespace LMS.API.Controllers
-{
 [Route("api/[controller]")]
 [ApiController]
 public class CoursesController : ControllerBase
@@ -27,7 +23,6 @@ public class CoursesController : ControllerBase
     public async Task<IActionResult> Create(CreateCourseDto dto)
     {
         int instructorId = 6;
-            int instructorId = Convert.ToInt32(User.FindFirst("uid")?.Value);
         int id = await _courseService.CreateAsync(dto, instructorId);
         return CreatedAtAction(nameof(GetById), new { id }, id);
     }
@@ -37,14 +32,13 @@ public class CoursesController : ControllerBase
     {
         var dto = await _courseService.GetAllCoursesAsync(query);
         return dto;
-            return Ok(id);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<GetCourseDto>> GetById(int id)
     {
         var dto = await _courseService.GetByIdAsync(id);
-        
+    
         if (dto is null)
             return NotFound($"Invalid course id {id}");
 

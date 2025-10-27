@@ -1,17 +1,12 @@
 ﻿using AutoMapper;
-using LMS.Shared.Domain.RepositoriesInterfaces;
-using LMS.Shared.Services.Courses.Interfaces;
 using LMS.Shared.DTOs.Courses;
 using LMS.Core.Domain.Entities;
 using LMS.Core.Domain.Enums;
 using LMS.Core.Domain.RepositoriesInterfaces;
-using LMS.Core.DTOs.Course;
 using LMS.Core.Services.Courses.Interfaces;
 
 namespace LMS.Core.Services.Courses;
 
-namespace LMS.Core.Services.Courses
-{
 internal class CourseService : ICourseService
 {
     private readonly ICourseRepository _courseRepository;

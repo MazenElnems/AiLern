@@ -1,7 +1,5 @@
 ﻿using LMS.Shared.DTOs.Courses;
-using LMS.Core.DTOs.Course;
 
-namespace LMS.Shared.Services.Courses.Interfaces;
 namespace LMS.Core.Services.Courses.Interfaces;
 
 public interface ICourseService

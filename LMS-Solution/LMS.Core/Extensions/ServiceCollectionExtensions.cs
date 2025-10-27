@@ -1,23 +1,17 @@
 ﻿using LMS.API.ConfigurationOptions;
 using LMS.Shared.ConfigurationOptions;
-using LMS.Shared.Services.Authentication;
-using LMS.Shared.Services.Authentication.Interfaces;
-using LMS.Shared.Services.Courses.Interfaces;
 using LMS.Shared.DTOs.Courses;
-using LMS.Core.ConfigurationOptions;
 using LMS.Core.Domain.Entities;
-using LMS.Core.DTOs.Course;
-using LMS.Core.Services.Authentication;
-using LMS.Core.Services.Authentication.Interfaces;
-using LMS.Core.Services.Courses;
-using LMS.Core.Services.Courses.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using LMS.Core.Domain.Entities;
 using LMS.Core.Services.Courses;
+using LMS.Core.Services.Authentication.Interfaces;
+using LMS.Core.Services.Authentication;
+using LMS.Core.Services.Courses.Interfaces;
+
 
 namespace LMS.Core.Extensions;
 
@@ -29,16 +23,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ICookieService, CookieService>();
         services.AddScoped<ICourseService, CourseService>();
-namespace LMS.Core.Extensions
-{
-    public static class ServiceCollectionExtensions
-    {
-        public static IServiceCollection AddRequiredServices(this IServiceCollection services, IConfiguration configuration)
-        {
-            // Custom Services
-            services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<ICookieService, CookieService>();
-            services.AddScoped<ICourseService, CourseService>();
 
         // JWT 
         services.Configure<JwtOptions>(configuration.GetSection("JWT"));
@@ -81,12 +65,4 @@ namespace LMS.Core.Extensions
 
         return services;
     }
-            services.AddAutoMapper(cfg =>
-            {
-                cfg.CreateMap<CreateCourseDto, Course>();
-            });
-
-            return services;
-        }
-
 }
