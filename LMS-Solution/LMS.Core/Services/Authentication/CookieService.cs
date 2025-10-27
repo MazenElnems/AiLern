@@ -1,6 +1,8 @@
-﻿using LMS.Core.Services.Authentication.Interfaces;
+﻿using LMS.Shared.Services.Authentication.Interfaces;
+using LMS.Core.Services.Authentication.Interfaces;
 using Microsoft.AspNetCore.Http;
 
+namespace LMS.Shared.Services.Authentication
 namespace LMS.Core.Services.Authentication
 {
     public class CookieService : ICookieService

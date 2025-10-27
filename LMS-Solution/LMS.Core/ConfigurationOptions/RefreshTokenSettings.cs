@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LMS.Core.ConfigurationOptions
+namespace LMS.Shared.ConfigurationOptions
 {
     public class RefreshTokenSettings
     {

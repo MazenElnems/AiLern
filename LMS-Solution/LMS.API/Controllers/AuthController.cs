@@ -1,4 +1,7 @@
-﻿using LMS.Core.DTOs.Authentication;
+﻿using LMS.Shared.Models;
+using LMS.Shared.Services.Authentication.Interfaces;
+using LMS.Shared.DTOs.Authentication;
+using LMS.Core.DTOs.Authentication;
 using LMS.Core.Models;
 using LMS.Core.Services.Authentication.Interfaces;
 using Microsoft.AspNetCore.Authorization;

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace LMS.Core.Domain.Entities.EntitiesConfiguration
+namespace LMS.Shared.Domain.Entities.EntitiesConfiguration
 {
     public class ApplicationUserEntityTypeConfiguration : IEntityTypeConfiguration<ApplicationUser>
     {

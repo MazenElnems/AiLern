@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace LMS.Core.Domain.Enums;
 
-namespace LMS.Core.Domain.Enums
+public enum CourseStatus
 {
-    public enum CourseStatus
-    {
-        Pending,
-        Approved,
-        Rejected
-    }
+    Pending,
+    Approved,
+    Rejected
 }

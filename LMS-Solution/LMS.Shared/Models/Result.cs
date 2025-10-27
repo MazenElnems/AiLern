@@ -1,4 +1,4 @@
-﻿namespace LMS.Core.Models
+﻿namespace LMS.Shared.Models
 {
     public class Result
     {

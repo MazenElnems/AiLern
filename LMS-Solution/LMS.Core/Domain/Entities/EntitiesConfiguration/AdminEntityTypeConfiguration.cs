@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LMS.Core.Domain.Entities.EntitiesConfiguration
+namespace LMS.Shared.Domain.Entities.EntitiesConfiguration
 {
     public class AdminEntityTypeConfiguration : IEntityTypeConfiguration<Admin>
     {
