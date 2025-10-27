@@ -1,5 +1,6 @@
-using LMS.Infrastructure.Extensions;
+using LMS.API.Middleware;
 using LMS.Core.Extensions;
+using LMS.Infrastructure.Extensions;
 using LMS.Infrastructure.Seeders.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +26,11 @@ using var scope =  app.Services.CreateScope();
 var seeder = scope.ServiceProvider.GetRequiredService<ICourseDataSeeder>();     // seed initial courses
 await seeder.SeedAsync();
 
+
 // Configure the HTTP request pipeline.
+
+app.UseCustomExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
