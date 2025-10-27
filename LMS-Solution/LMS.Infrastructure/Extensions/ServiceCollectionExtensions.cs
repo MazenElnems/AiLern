@@ -1,5 +1,9 @@
-﻿using LMS.Core.Domain.Entities;
-using LMS.Infrastructure.Data;
+﻿using LMS.Infrastructure.Data;
+using LMS.Infrastructure.Repositories.Courses;
+using LMS.Infrastructure.Seeders;
+using LMS.Infrastructure.Seeders.Interfaces;
+using LMS.Shared.Domain.Entities;
+using LMS.Shared.Domain.RepositoriesInterfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +15,10 @@ namespace LMS.Infrastructure.Extensions
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // DbConext
+            services.AddScoped<ICourseRepository, CourseRepository>();
+            services.AddScoped<ICourseDataSeeder,CourseDataSeeder>();
+
+            // DbContext
             services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));

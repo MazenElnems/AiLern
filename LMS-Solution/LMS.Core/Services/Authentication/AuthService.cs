@@ -1,10 +1,8 @@
 ﻿using LMS.API.ConfigurationOptions;
-using LMS.Core.ConfigurationOptions;
+using LMS.Shared.ConfigurationOptions;
 using Microsoft.EntityFrameworkCore;
-using LMS.Core.Domain.Entities;
-using LMS.Core.Models;
-using LMS.Core.Models.DTOs;
-using LMS.Core.Services.Interfaces;
+using LMS.Shared.Domain.Entities;
+using LMS.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -12,8 +10,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using LMS.Shared.Services.Authentication.Interfaces;
+using LMS.Shared.DTOs.Authentication;
 
-namespace LMS.Core.Services
+namespace LMS.Shared.Services.Authentication
 {
     public class AuthService : IAuthService
     {

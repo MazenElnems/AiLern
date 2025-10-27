@@ -1,0 +1,12 @@
+﻿using LMS.Shared.DTOs.Courses;
+
+namespace LMS.Shared.Services.Courses.Interfaces;
+
+public interface ICourseService
+{
+    Task<int> CreateAsync(CreateCourseDto dto, int instructorId);
+    Task<List<GetAllCoursesDto>> GetAllCoursesAsync(CouseQueryDto query);
+    Task<GetCourseDto?> GetByIdAsync(int id);
+    Task<bool> DeleteAsync(int id);
+    Task<bool> UpdateAsync(UpdateCourseDto dto);
+}

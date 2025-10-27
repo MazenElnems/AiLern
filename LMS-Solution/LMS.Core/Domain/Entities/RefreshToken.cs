@@ -1,4 +1,4 @@
-﻿namespace LMS.Core.Domain.Entities
+﻿namespace LMS.Shared.Domain.Entities
 {
     public class RefreshToken
     {

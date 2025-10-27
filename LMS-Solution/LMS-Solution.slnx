@@ -2,4 +2,5 @@
   <Project Path="LMS.API/LMS.API.csproj" />
   <Project Path="LMS.Core/LMS.Core.csproj" />
   <Project Path="LMS.Infrastructure/LMS.Infrastructure.csproj" />
+  <Project Path="LMS.Shared/LMS.Shared.csproj" Id="df0aadae-2dfa-4057-b00f-b45f5d0c360b" />
 </Solution>
