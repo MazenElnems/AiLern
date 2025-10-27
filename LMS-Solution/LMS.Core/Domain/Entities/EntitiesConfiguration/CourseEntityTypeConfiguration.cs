@@ -1,4 +1,5 @@
-﻿using LMS.Core.Domain.Enums;
+﻿using LMS.Core.Domain.Entities;
+using LMS.Core.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LMS.Core.Domain.Entities.EntitiesConfiguration
+namespace LMS.Shared.Domain.Entities.EntitiesConfiguration
 {
     public class CourseEntityTypeConfiguration : IEntityTypeConfiguration<Course>
     {

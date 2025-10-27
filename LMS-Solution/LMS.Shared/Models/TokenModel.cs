@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace LMS.Core.Models
+namespace LMS.Shared.Models
 {
     public class TokenModel
     {

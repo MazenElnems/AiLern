@@ -1,10 +1,12 @@
 ﻿using LMS.Core.Domain.Entities;
-using LMS.Core.DTOs.Course;
 
-namespace LMS.Core.Domain.RepositoriesInterfaces;
+namespace LMS.Shared.Domain.RepositoriesInterfaces;
 
 public interface ICourseRepository
 {
     Task<int> AddAsync(Course course);
-    Task<List<Course>> GetAllAsync(); 
+    Task<List<Course>> GetAllAsync(string sortBy, string order, string? status, int pageNo = 1, int pageSize = 10); 
+    Task<Course?> GetByIdAsync(int id);
+    Task<int> RemoveAsync(Course course);
+    Task<int> CommitAsync();
 }
