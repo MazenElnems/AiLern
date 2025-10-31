@@ -2,11 +2,17 @@ using LMS.API.Middleware;
 using LMS.Core.Extensions;
 using LMS.Infrastructure.Extensions;
 using LMS.Infrastructure.Seeders.Interfaces;
+using LMS.Shared.Domain.Entities;
+using LMS.Shared.DTOs.Authentication;
+using LMS.Shared.Models;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+builder.Services.AddAuthentication();
 
 // swagger & open api
 builder.Services.AddOpenApi();
@@ -45,6 +51,40 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapIdentityApi<ApplicationUser>();
+
+app.MapPost("/register-new", async (
+    RegisterDto request,
+    UserManager<ApplicationUser> userManager) =>
+{
+    var user = new ApplicationUser
+    {
+        UserName = request.UserName,
+        Email = request.Email,
+        FullName = request.FullName,
+        CreatedAt = DateTime.UtcNow
+    };
+
+    user.CreatedBy = "Mohamed";
+
+    var result = await userManager.CreateAsync(user, request.Password);
+
+    if (!result.Succeeded)
+    {
+        return Results.BadRequest(new
+        {
+            errors = result.Errors.Select(e => e.Description)
+        });
+    }
+
+    return Results.Ok(new UserInfoResponse
+    {
+        Id = user.Id,
+        Email = user.Email,
+        FullName = user.FullName,
+        CreatedAt = user.CreatedAt
+    });
+}).RequireAuthorization(cfg => cfg.RequireRole(UserRoles.Admin));
 app.MapControllers();
 
 app.Run();

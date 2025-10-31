@@ -28,19 +28,14 @@ public static class ServiceCollectionExtensions
         });
 
         // Identity
-        services.AddIdentityCore<ApplicationUser>(options =>
+        services.AddIdentityApiEndpoints<ApplicationUser>(cfg =>
         {
-            options.Password.RequireUppercase = true;
-            options.Password.RequireLowercase = true;
-            options.Password.RequiredLength = 6;
-            options.Password.RequireDigit = true;
-        })
-        .AddRoles<IdentityRole<int>>()
-        .AddEntityFrameworkStores<AppDbContext>()
-        .AddSignInManager<SignInManager<ApplicationUser>>()
-        .AddDefaultTokenProviders();
-
-        services.AddScoped<RoleManager<IdentityRole<int>>>();
+            cfg.User.RequireUniqueEmail = true;
+            cfg.Password.RequireNonAlphanumeric = true;
+            cfg.Password.RequireDigit = true;
+            cfg.Password.RequireUppercase = true;
+            cfg.Password.RequiredLength = 6;
+        }).AddEntityFrameworkStores<AppDbContext>();
 
         return services;
     }

@@ -8,6 +8,10 @@ public class RegisterDto
     [MaxLength(200)]
     public string UserName { get; set; }
     [Required]
+    [MaxLength(200)]
+    [EmailAddress]
+    public string Email { get; set;  }
+    [Required]
     public string FullName { get; set; }
     [Required]
     [MinLength(6)]

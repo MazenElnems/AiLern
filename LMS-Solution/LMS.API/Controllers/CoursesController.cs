@@ -1,4 +1,5 @@
 ﻿using LMS.Core.Services.Courses.Interfaces;
+using LMS.Core.Users;
 using LMS.Shared.DTOs.Courses;
 using LMS.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -12,17 +13,19 @@ namespace LMS.API.Controllers;
 public class CoursesController : ControllerBase
 {
     private readonly ICourseService _courseService;
+    private readonly IUserContext _userContext;
 
-    public CoursesController(ICourseService courseService)
+    public CoursesController(ICourseService courseService, IUserContext userContext)
     {
         _courseService = courseService;
+        _userContext = userContext;
     }
 
     [HttpPost]
-        [Authorize(Roles = UserRoles.Instructor)]
+    //[Authorize(Roles = UserRoles.Instructor)]
     public async Task<IActionResult> Create(CreateCourseDto dto)
     {
-        int instructorId = 6;
+        int instructorId = _userContext.GetCurrentUser()!.Id;
         int id = await _courseService.CreateAsync(dto, instructorId);
         return CreatedAtAction(nameof(GetById), new { id }, id);
     }
