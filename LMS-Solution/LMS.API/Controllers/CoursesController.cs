@@ -1,7 +1,11 @@
-﻿using LMS.Core.Services.Courses.Interfaces;
-using LMS.Core.Users;
+﻿using LMS.Core.Commands.Courses.CreateCommands;
+using LMS.Core.Commands.Courses.DeleteCommands;
+using LMS.Core.Commands.Courses.UpdateCommands;
+using LMS.Core.Queries.Courses.GetAllQueries;
+using LMS.Core.Queries.Courses.GetByIdQueries;
 using LMS.Shared.DTOs.Courses;
 using LMS.Shared.Models;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,61 +16,47 @@ namespace LMS.API.Controllers;
 [ApiController]
 public class CoursesController : ControllerBase
 {
-    private readonly ICourseService _courseService;
-    private readonly IUserContext _userContext;
+    private readonly IMediator _mediator;
 
-    public CoursesController(ICourseService courseService, IUserContext userContext)
+    public CoursesController(IMediator mediator)
     {
-        _courseService = courseService;
-        _userContext = userContext;
+        _mediator = mediator;
     }
 
     [HttpPost]
-    //[Authorize(Roles = UserRoles.Instructor)]
-    public async Task<IActionResult> Create(CreateCourseDto dto)
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<IActionResult> Create(CreateCourseCommand command)
     {
-        int instructorId = _userContext.GetCurrentUser()!.Id;
-        int id = await _courseService.CreateAsync(dto, instructorId);
+        int id = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetById), new { id }, id);
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<GetAllCoursesDto>>> GetAll([FromQuery] CouseQueryDto query)
+    public async Task<ActionResult<IEnumerable<GetAllCoursesDto>>> GetAll([FromQuery] GetAllCoursesQuery query)
     {
-        var dto = await _courseService.GetAllCoursesAsync(query);
+        var dto = await _mediator.Send(query);
         return dto;
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<GetCourseDto>> GetById(int id)
     {
-        var dto = await _courseService.GetByIdAsync(id);
-    
-        if (dto is null)
-            return NotFound($"Invalid course id {id}");
-
+        var dto = await _mediator.Send(new GetCourseByIdQuery(id));
         return dto;
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        bool isDeleted = await _courseService.DeleteAsync(id);
-
-        if (!isDeleted)
-            return NotFound();
-
+        await _mediator.Send(new DeleteCourseCommand(id));
         return NoContent();
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, UpdateCourseDto dto)
+    public async Task<IActionResult> Update(int id, UpdateCourseDetailsCommand command)
     {
-        dto.Id = id;
-        bool isUpdated  = await _courseService.UpdateAsync(dto);
-        if (!isUpdated)
-            return NotFound();
-
-        return Ok(dto);
+        command.Id = id;
+        await _mediator.Send(command);
+        return NoContent();
     }
 }

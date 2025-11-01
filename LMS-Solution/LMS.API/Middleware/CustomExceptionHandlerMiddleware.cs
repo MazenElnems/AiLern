@@ -1,4 +1,6 @@
-﻿namespace LMS.API.Middleware;
+﻿using LMS.Core.Exceptions;
+
+namespace LMS.API.Middleware;
 
 public class CustomExceptionHandlerMiddleware
 {
@@ -17,7 +19,13 @@ public class CustomExceptionHandlerMiddleware
         {
             await _next(httpContext);
         }
-        catch(Exception ex)
+        catch(ResourceNotFoundException ex)
+        {
+            httpContext.Response.StatusCode = 404;
+            await httpContext.Response.WriteAsync(ex.Message);
+            _logger.LogWarning(ex, "Resource not found.");
+        }
+        catch (Exception ex)
         {
             httpContext.Response.StatusCode = 500;
             await httpContext.Response.WriteAsync("something went wrong. Please try again later.");
