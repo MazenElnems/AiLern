@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<ICourseRepository, CourseRepository>();
-        services.AddScoped<ICourseDataSeeder,CourseDataSeeder>();
+        services.AddScoped<IDataSeeder,DataSeeder>();
 
         // DbContext
         services.AddScoped<ICourseRepository, CourseRepository>();
@@ -35,7 +35,9 @@ public static class ServiceCollectionExtensions
             cfg.Password.RequireDigit = true;
             cfg.Password.RequireUppercase = true;
             cfg.Password.RequiredLength = 6;
-        }).AddEntityFrameworkStores<AppDbContext>();
+        })
+            .AddRoles<IdentityRole<int>>()
+            .AddEntityFrameworkStores<AppDbContext>();
 
         return services;
     }

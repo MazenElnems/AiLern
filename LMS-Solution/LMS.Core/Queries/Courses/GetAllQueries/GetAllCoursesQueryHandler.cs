@@ -2,6 +2,7 @@
 using LMS.Core.Domain.RepositoriesInterfaces;
 using LMS.Shared.DTOs.Courses;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 
 namespace LMS.Core.Queries.Courses.GetAllQueries;
 
