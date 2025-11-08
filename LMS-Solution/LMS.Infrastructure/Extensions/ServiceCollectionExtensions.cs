@@ -1,6 +1,7 @@
 ﻿using LMS.Core.Domain.RepositoriesInterfaces;
 using LMS.Infrastructure.Data;
 using LMS.Infrastructure.Repositories.Courses;
+using LMS.Infrastructure.Repositories.UsersManagement;
 using LMS.Infrastructure.Seeders;
 using LMS.Infrastructure.Seeders.Interfaces;
 using LMS.Shared.Domain.Entities;
@@ -17,6 +18,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<ICourseDataSeeder,CourseDataSeeder>();
+        services.AddScoped<IUsersRepository, UserManagementRepository>();
 
         // DbContext
         services.AddScoped<ICourseRepository, CourseRepository>();
@@ -27,6 +29,7 @@ public static class ServiceCollectionExtensions
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
         });
 
+
         // Identity
         services.AddIdentityApiEndpoints<ApplicationUser>(cfg =>
         {
@@ -35,7 +38,7 @@ public static class ServiceCollectionExtensions
             cfg.Password.RequireDigit = true;
             cfg.Password.RequireUppercase = true;
             cfg.Password.RequiredLength = 6;
-        }).AddEntityFrameworkStores<AppDbContext>();
+        }).AddRoles<IdentityRole<int>>().AddEntityFrameworkStores<AppDbContext>();
 
         return services;
     }

@@ -39,7 +39,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Approved,
                 ApprovedDate = DateTime.UtcNow.AddDays(-20),
                 CreatedAt = DateTime.UtcNow.AddDays(-40),
-                InstructorId = 6,
+                InstructorId = 4,
                 Approvedby = 3
             },
             new Course
@@ -50,7 +50,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Approved,
                 ApprovedDate = DateTime.UtcNow.AddDays(-18),
                 CreatedAt = DateTime.UtcNow.AddDays(-38),
-                InstructorId = 6,
+                InstructorId = 4,
                 Approvedby = 3
             },
             new Course
@@ -61,7 +61,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Approved,
                 ApprovedDate = DateTime.UtcNow.AddDays(-15),
                 CreatedAt = DateTime.UtcNow.AddDays(-30),
-                InstructorId = 6,
+                InstructorId = 4,
                 Approvedby = 3
             },
             new Course
@@ -72,7 +72,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Approved,
                 ApprovedDate = DateTime.UtcNow.AddDays(-12),
                 CreatedAt = DateTime.UtcNow.AddDays(-28),
-                InstructorId = 6,
+                InstructorId = 4,
                 Approvedby = 3
             },
             new Course
@@ -83,7 +83,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Approved,
                 ApprovedDate = DateTime.UtcNow.AddDays(-10),
                 CreatedAt = DateTime.UtcNow.AddDays(-25),
-                InstructorId = 6,
+                InstructorId = 4,
                 Approvedby = 3
             },
             new Course
@@ -94,7 +94,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Approved,
                 ApprovedDate = DateTime.UtcNow.AddDays(-8),
                 CreatedAt = DateTime.UtcNow.AddDays(-22),
-                InstructorId = 6,
+                InstructorId = 4,
                 Approvedby = 3
             },
             new Course
@@ -105,7 +105,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Approved,
                 ApprovedDate = DateTime.UtcNow.AddDays(-6),
                 CreatedAt = DateTime.UtcNow.AddDays(-20),
-                InstructorId = 6,
+                InstructorId = 4,
                 Approvedby = 3
             },
             new Course
@@ -116,7 +116,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Pending,
                 ApprovedDate = null,
                 CreatedAt = DateTime.UtcNow.AddDays(-15),
-                InstructorId = 6
+                InstructorId = 4
             },
             new Course
             {
@@ -126,7 +126,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Pending,
                 ApprovedDate = null,
                 CreatedAt = DateTime.UtcNow.AddDays(-10),
-                InstructorId = 6
+                InstructorId = 4
             },
             new Course
             {
@@ -136,7 +136,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Approved,
                 ApprovedDate = DateTime.UtcNow.AddDays(-5),
                 CreatedAt = DateTime.UtcNow.AddDays(-18),
-                InstructorId = 6,
+                InstructorId = 4,
                 Approvedby = 3
             },
             new Course
@@ -147,7 +147,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Approved,
                 ApprovedDate = DateTime.UtcNow.AddDays(-3),
                 CreatedAt = DateTime.UtcNow.AddDays(-16),
-                InstructorId = 6,
+                InstructorId = 4,
                 Approvedby = 3
             },
             new Course
@@ -158,7 +158,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Pending,
                 ApprovedDate = null,
                 CreatedAt = DateTime.UtcNow.AddDays(-10),
-                InstructorId = 6
+                InstructorId = 4
             },
             new Course
             {
@@ -168,7 +168,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Rejected,
                 ApprovedDate = null,
                 CreatedAt = DateTime.UtcNow.AddDays(-8),
-                InstructorId = 6
+                InstructorId = 4
             },
             new Course
             {
@@ -178,7 +178,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Approved,
                 ApprovedDate = DateTime.UtcNow.AddDays(-2),
                 CreatedAt = DateTime.UtcNow.AddDays(-12),
-                InstructorId = 6,
+                InstructorId = 4,
                 Approvedby = 3
             },
             new Course
@@ -189,7 +189,7 @@ public class CourseDataSeeder : ICourseDataSeeder
                 CourseStatus = CourseStatus.Approved,
                 ApprovedDate = DateTime.UtcNow.AddDays(-1),
                 CreatedAt = DateTime.UtcNow.AddDays(-10),
-                InstructorId = 6,
+                InstructorId = 4,
                 Approvedby = 3
             }
         };

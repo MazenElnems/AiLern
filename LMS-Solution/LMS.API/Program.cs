@@ -1,11 +1,16 @@
 using LMS.API.Middleware;
+using LMS.Core.Domain.RepositoriesInterfaces;
 using LMS.Core.Extensions;
+using LMS.Core.Queries.Users.GetAllByRoleIdQueries;
 using LMS.Infrastructure.Extensions;
+using LMS.Infrastructure.Repositories.UsersManagement;
 using LMS.Infrastructure.Seeders.Interfaces;
 using LMS.Shared.Domain.Entities;
 using LMS.Shared.DTOs.Authentication;
 using LMS.Shared.Models;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +29,8 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 // Add Core Services
 builder.Services.AddRequiredServices(builder.Configuration);
+
+
 
 var app = builder.Build();
 
