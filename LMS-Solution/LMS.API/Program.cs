@@ -1,4 +1,4 @@
-using LMS.API.Middleware;
+﻿using LMS.API.Middleware;
 using LMS.Core.Extensions;
 using LMS.Infrastructure.Extensions;
 using LMS.Infrastructure.Seeders.Interfaces;
@@ -29,7 +29,7 @@ var app = builder.Build();
 
 // Seed initial data
 using var scope =  app.Services.CreateScope();
-var seeder = scope.ServiceProvider.GetRequiredService<ICourseDataSeeder>();     // seed initial courses
+var seeder = scope.ServiceProvider.GetRequiredService<IDataSeeder>();     // seed initial courses
 await seeder.SeedAsync();
 
 

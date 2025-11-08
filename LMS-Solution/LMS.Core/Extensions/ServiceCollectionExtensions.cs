@@ -4,7 +4,9 @@ using LMS.Core.Services.Authentication;
 using LMS.Core.Services.Authentication.Interfaces;
 using LMS.Core.Users;
 using LMS.Shared.ConfigurationOptions;
+using LMS.Shared.Domain.Entities;
 using LMS.Shared.DTOs.Courses;
+using LMS.Shared.DTOs.Users;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,6 +21,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ICookieService, CookieService>();
         services.AddScoped<IUserContext, UserContext>();
+        services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
+
 
         services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
 
@@ -59,6 +63,7 @@ public static class ServiceCollectionExtensions
                .ForMember(dto => dto.CourseStatus, opt => opt.MapFrom(src => src.CourseStatus.ToString()));
 
             cfg.CreateMap<Course, GetAllCoursesDto>();
+            cfg.CreateMap<ApplicationUser, GetUserByIdDto>();
         });
 
         return services;

@@ -1,6 +1,6 @@
 ﻿namespace LMS.Infrastructure.Seeders.Interfaces;
 
-public interface ICourseDataSeeder
+public interface IDataSeeder
 {
     Task SeedAsync();
 }
