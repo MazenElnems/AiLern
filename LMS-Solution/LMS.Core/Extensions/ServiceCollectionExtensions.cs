@@ -2,16 +2,11 @@
 using LMS.Core.Domain.Entities;
 using LMS.Core.Services.Authentication;
 using LMS.Core.Services.Authentication.Interfaces;
-using LMS.Core.Services.Courses;
-using LMS.Core.Services.Courses.Interfaces;
 using LMS.Core.Users;
 using LMS.Shared.ConfigurationOptions;
 using LMS.Shared.DTOs.Courses;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 
 namespace LMS.Core.Extensions;
@@ -23,8 +18,9 @@ public static class ServiceCollectionExtensions
         // Custom Services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ICookieService, CookieService>();
-        services.AddScoped<ICourseService, CourseService>();
         services.AddScoped<IUserContext, UserContext>();
+
+        services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
 
         // JWT 
         services.Configure<JwtOptions>(configuration.GetSection("JWT"));
