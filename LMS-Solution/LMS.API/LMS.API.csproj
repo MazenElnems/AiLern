@@ -18,7 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\LMS.Core\LMS.Core.csproj" />
     <ProjectReference Include="..\LMS.Infrastructure\LMS.Infrastructure.csproj" />
-    <ProjectReference Include="..\LMS.Shared\LMS.Shared.csproj" />
   </ItemGroup>
 
 </Project>

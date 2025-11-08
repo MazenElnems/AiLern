@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
-using LMS.Core.Domain.RepositoriesInterfaces;
-using LMS.Shared.DTOs.Courses;
+using LMS.Core.DTOs.Courses;
+using LMS.Domin.RepositoriesInterfaces;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 
 namespace LMS.Core.Queries.Courses.GetAllQueries;
 

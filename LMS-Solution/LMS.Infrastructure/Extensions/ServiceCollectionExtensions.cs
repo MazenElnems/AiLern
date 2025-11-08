@@ -1,13 +1,14 @@
-﻿using LMS.Core.Domain.RepositoriesInterfaces;
+﻿using LMS.Domin.Entities;
+using LMS.Domin.RepositoriesInterfaces;
 using LMS.Infrastructure.Data;
 using LMS.Infrastructure.Repositories.Courses;
 using LMS.Infrastructure.Seeders;
 using LMS.Infrastructure.Seeders.Interfaces;
-using LMS.Shared.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using LMS.Infrastructure.Repositories.Users; 
 
 namespace LMS.Infrastructure.Extensions;
 
@@ -16,10 +17,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<ICourseRepository, CourseRepository>();
+        services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IDataSeeder,DataSeeder>();
-
-        // DbContext
-        services.AddScoped<ICourseRepository, CourseRepository>();
 
         // DbConext
         services.AddDbContext<AppDbContext>(options =>
@@ -28,7 +27,7 @@ public static class ServiceCollectionExtensions
         });
 
         // Identity
-        services.AddIdentityApiEndpoints<ApplicationUser>(cfg =>
+        services.AddIdentity<ApplicationUser,IdentityRole<int>>(cfg =>
         {
             cfg.User.RequireUniqueEmail = true;
             cfg.Password.RequireNonAlphanumeric = true;

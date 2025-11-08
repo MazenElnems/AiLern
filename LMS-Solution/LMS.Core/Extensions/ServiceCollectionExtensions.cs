@@ -1,12 +1,7 @@
-﻿using LMS.API.ConfigurationOptions;
-using LMS.Core.Domain.Entities;
-using LMS.Core.Services.Authentication;
-using LMS.Core.Services.Authentication.Interfaces;
-using LMS.Core.Users;
-using LMS.Shared.ConfigurationOptions;
-using LMS.Shared.Domain.Entities;
-using LMS.Shared.DTOs.Courses;
-using LMS.Shared.DTOs.Users;
+﻿using LMS.Core.CurrentUser;
+using LMS.Core.DTOs.Courses;
+using LMS.Core.DTOs.Users;
+using LMS.Domin.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,39 +13,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddRequiredServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Custom Services
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<ICookieService, CookieService>();
         services.AddScoped<IUserContext, UserContext>();
-        services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
-
 
         services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
-
-        // JWT 
-        services.Configure<JwtOptions>(configuration.GetSection("JWT"));
-        services.Configure<RefreshTokenSettings>(configuration.GetSection("RefreshTokenSettings"));
-        var jwt = configuration.GetSection("JWT").Get<JwtOptions>();
-
-        //services.AddAuthentication(options =>
-        //{
-        //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        //    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        //})
-        //    .AddJwtBearer(o =>
-        //    {
-        //        o.RequireHttpsMetadata = true;
-        //        o.TokenValidationParameters = new TokenValidationParameters
-        //        {
-        //            ValidateIssuerSigningKey = true,
-        //            ValidateIssuer = true,
-        //            ValidateAudience = true,
-        //            ValidateLifetime = true,
-        //            ValidIssuer = jwt?.Issuer,
-        //            ValidAudience = jwt?.Audience,
-        //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt?.Key)),
-        //            ClockSkew = TimeSpan.Zero
-        //        };
-        //    });
 
         services.AddAutoMapper(cfg =>
         {
@@ -62,6 +27,7 @@ public static class ServiceCollectionExtensions
                .ForMember(dto => dto.Owner, opt => opt.MapFrom(src => src.Admin == null ? null : src.Admin.UserName))
                .ForMember(dto => dto.CourseStatus, opt => opt.MapFrom(src => src.CourseStatus.ToString()));
 
+            cfg.CreateMap<ApplicationUser, GetUsersByRoleDto>();
             cfg.CreateMap<Course, GetAllCoursesDto>();
             cfg.CreateMap<ApplicationUser, GetUserByIdDto>();
         });

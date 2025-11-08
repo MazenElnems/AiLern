@@ -1,6 +1,6 @@
 <Solution>
   <Project Path="LMS.API/LMS.API.csproj" />
   <Project Path="LMS.Core/LMS.Core.csproj" />
+  <Project Path="LMS.Domin/LMS.Domin.csproj" Id="f6b4e71d-5aa4-4ee7-a258-269a998eb6e1" />
   <Project Path="LMS.Infrastructure/LMS.Infrastructure.csproj" />
-  <Project Path="LMS.Shared/LMS.Shared.csproj" Id="df0aadae-2dfa-4057-b00f-b45f5d0c360b" />
 </Solution>

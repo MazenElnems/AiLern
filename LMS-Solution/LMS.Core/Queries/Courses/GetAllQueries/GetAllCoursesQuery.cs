@@ -1,5 +1,5 @@
-﻿using LMS.Shared.DTOs.Courses;
-using LMS.Shared.Models;
+﻿using LMS.Core.Constants;
+using LMS.Core.DTOs.Courses;
 using MediatR;
 
 namespace LMS.Core.Queries.Courses.GetAllQueries;

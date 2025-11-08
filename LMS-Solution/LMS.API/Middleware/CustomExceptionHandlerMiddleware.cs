@@ -1,4 +1,4 @@
-﻿using LMS.Core.Exceptions;
+﻿using LMS.Core.CustomExceptions;
 
 namespace LMS.API.Middleware;
 

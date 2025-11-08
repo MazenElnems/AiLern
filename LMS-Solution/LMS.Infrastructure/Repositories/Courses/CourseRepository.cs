@@ -1,9 +1,8 @@
-﻿using LMS.Shared.Domain.Entities;
-using LMS.Infrastructure.Data;
+﻿using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using LMS.Core.Domain.Entities;
-using LMS.Shared.Models;
-using LMS.Core.Domain.RepositoriesInterfaces;
+using LMS.Core.Constants;
+using LMS.Domin.RepositoriesInterfaces;
+using LMS.Domin.Entities;
 
 namespace LMS.Infrastructure.Repositories.Courses;
 

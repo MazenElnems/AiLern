@@ -1,4 +1,4 @@
-﻿using LMS.Shared.DTOs.Users;
+﻿using LMS.Core.DTOs.Users;
 using MediatR;
 using System;
 using System.Collections.Generic;

@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using LMS.Core.Domain.Entities;
-using LMS.Core.Domain.RepositoriesInterfaces;
-using LMS.Core.Exceptions;
-using LMS.Shared.DTOs.Courses;
+using LMS.Core.CustomExceptions;
+using LMS.Core.DTOs.Courses;
+using LMS.Domin.Entities;
+using LMS.Domin.RepositoriesInterfaces;
 using MediatR;
 
 namespace LMS.Core.Queries.Courses.GetByIdQueries;

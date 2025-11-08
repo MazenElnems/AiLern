@@ -1,4 +1,4 @@
-﻿using LMS.Shared.DTOs.Courses;
+﻿using LMS.Core.DTOs.Courses;
 using MediatR;
 
 namespace LMS.Core.Queries.Courses.GetByIdQueries;
