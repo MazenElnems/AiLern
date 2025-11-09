@@ -7,9 +7,6 @@ public class ApplicationUserEntityTypeConfiguration : IEntityTypeConfiguration<A
 {
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {
-        builder.OwnsMany(u => u.RefreshTokens)
-                  .HasIndex(r => r.Token);
-
         builder.HasDiscriminator<string>("Role")
         .HasValue<Admin>("Admin")
         .HasValue<Student>("Student")
