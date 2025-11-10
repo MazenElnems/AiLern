@@ -15,6 +15,24 @@ public class UsersRepository : IUsersRepository
         _db = db;
     }
 
+    public async Task AddRefreshToken(RefreshToken refreshToken)
+    {
+        await _db.RefreshTokens.AddAsync(refreshToken);
+        await CommitAsync();
+    }
+
+    public async Task<int> CommitAsync()
+    {
+        return await _db.SaveChangesAsync();
+    }
+
+    public async Task<RefreshToken?> GetRefreshTokenAsync(string refreshToken)
+    {
+        return await _db.RefreshTokens
+            .Include(r => r.User)
+            .FirstOrDefaultAsync(r => r.Token == refreshToken && r.ExpiresOn > DateTime.UtcNow && r.RevokesOn == null);
+    }
+
     public async Task<List<ApplicationUser>> GetUsersByRoleIdAsync(int roleId, string sortBy, string order, int pageNo = 1, int pageSize = 10)
     {
         IQueryable<ApplicationUser> query = _db.Users;
