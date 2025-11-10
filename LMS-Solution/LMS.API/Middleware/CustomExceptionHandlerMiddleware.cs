@@ -19,6 +19,12 @@ public class CustomExceptionHandlerMiddleware
         {
             await _next(httpContext);
         }
+        catch(InvalidUserEmailOrPasswordException ex)
+        {
+            httpContext.Response.StatusCode = 400;
+            await httpContext.Response.WriteAsync(ex.Message);
+            _logger.LogWarning("Invalid User Login Attempts");
+        }
         catch(ResourceNotFoundException ex)
         {
             httpContext.Response.StatusCode = 404;

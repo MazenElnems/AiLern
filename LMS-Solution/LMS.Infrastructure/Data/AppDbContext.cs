@@ -8,6 +8,7 @@ namespace LMS.Infrastructure.Data
 {
     public class AppDbContext : IdentityDbContext<ApplicationUser,IdentityRole<int>,int>
     {
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Admin> Admins { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Instructor> Instructors { get; set; }
