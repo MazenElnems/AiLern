@@ -26,11 +26,16 @@ public class UsersRepository : IUsersRepository
         return await _db.SaveChangesAsync();
     }
 
-    public async Task<RefreshToken?> GetRefreshTokenAsync(string refreshToken)
+    public async Task<RefreshToken?> GetRefreshTokenAsync(string refreshToken, bool includeUser = false)
     {
-        return await _db.RefreshTokens
-            .Include(r => r.User)
-            .FirstOrDefaultAsync(r => r.Token == refreshToken && r.ExpiresOn > DateTime.UtcNow && r.RevokesOn == null);
+        IQueryable<RefreshToken> query = _db.RefreshTokens;
+
+        if (includeUser)
+            query = query
+            .Include(r => r.User);
+
+        var result = await query.FirstOrDefaultAsync(r => r.Token == refreshToken && r.ExpiresOn > DateTime.UtcNow && r.RevokesOn == null);
+        return result;
     }
 
     public async Task<List<ApplicationUser>> GetUsersByRoleIdAsync(int roleId, string sortBy, string order, int pageNo = 1, int pageSize = 10)
