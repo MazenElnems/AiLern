@@ -11,6 +11,12 @@ public class RevokeRefreshTokenCommandHandler : IRequestHandler<RevokeRefreshTok
     private readonly IUsersRepository _usersRepository;
     private readonly ILogger<RevokeRefreshTokenCommandHandler> _logger;
 
+    public RevokeRefreshTokenCommandHandler(IUsersRepository usersRepository, ILogger<RevokeRefreshTokenCommandHandler> logger)
+    {
+        _usersRepository = usersRepository;
+        _logger = logger;
+    }
+
     public async Task Handle(RevokeRefreshTokenCommand request, CancellationToken cancellationToken)
     {
         try

@@ -33,7 +33,7 @@ public class GetRefreshTokenCommandHandler : IRequestHandler<GetRefreshTokenComm
 
     public async Task<GetTokenResponseDto> Handle(GetRefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var oldRefreshToken = await _usersRepository.GetRefreshTokenAsync(request.RefreshToken)
+        var oldRefreshToken = await _usersRepository.GetRefreshTokenAsync(request.RefreshToken, includeUser:true)
             ?? throw new ResourceNotFoundException(nameof(RefreshToken), request.RefreshToken);
 
         var user = oldRefreshToken.User;
