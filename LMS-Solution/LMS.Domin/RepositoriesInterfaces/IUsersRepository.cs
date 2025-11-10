@@ -8,4 +8,5 @@ public interface IUsersRepository
     Task AddRefreshToken(RefreshToken refreshToken);
     Task<RefreshToken?> GetRefreshTokenAsync(string  refreshToken, bool includeUser = false);
     Task<int> CommitAsync();
+    Task<Student?> GetStudentByStudentId(int studentId);
 }

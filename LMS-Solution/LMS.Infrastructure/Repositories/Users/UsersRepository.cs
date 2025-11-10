@@ -67,4 +67,9 @@ public class UsersRepository : IUsersRepository
 
         return await query.ToListAsync();
     }
+
+    public async Task<Student?> GetStudentByStudentId(int studentId)
+    {
+        return await _db.Students.FirstOrDefaultAsync(std => std.StudentId == studentId);
+    }
 }

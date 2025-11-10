@@ -31,6 +31,12 @@ public class CustomExceptionHandlerMiddleware
             await httpContext.Response.WriteAsync(ex.Message);
             _logger.LogWarning(ex, "Resource not found.");
         }
+        catch (DuplicatedUserException ex)
+        {
+            httpContext.Response.StatusCode = 400;
+            await httpContext.Response.WriteAsync(ex.Message);
+            _logger.LogWarning(ex, "this user is already exists");
+        }
         catch (Exception ex)
         {
             httpContext.Response.StatusCode = 500;
