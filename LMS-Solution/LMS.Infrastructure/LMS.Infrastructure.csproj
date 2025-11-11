@@ -19,4 +19,9 @@
     <ProjectReference Include="..\LMS.Core\LMS.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repositories\Instructors\" />
+    <Folder Include="Repositories\Students\" />
+  </ItemGroup>
+
 </Project>
