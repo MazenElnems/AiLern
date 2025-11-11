@@ -41,7 +41,7 @@ namespace LMS.Core.Commands.Students.CreateCommands
                 var CurrentUser = _currentUser.GetCurrentUser();
                 student.CreatedBy = "System";
                 student.CreatedAt = DateTime.UtcNow;
-                if(_usersRepository.GetStudentByStudentId(request.StudentId) != null)
+                if(await _usersRepository.GetStudentByStudentId(request.StudentId) != null)
                 {
                     throw new DuplicatedUserException("the student id is already exists");
                 }
@@ -53,11 +53,11 @@ namespace LMS.Core.Commands.Students.CreateCommands
                 
                 }
             }
-            catch(DuplicatedUserException ex)
+            catch (DuplicatedUserException ex)
             {
                 throw;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(
                 $"An error occurred while Create Student with ID {request.StudentId}");
