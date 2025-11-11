@@ -70,6 +70,7 @@ public class UsersRepository : IUsersRepository
 
     public async Task<Student?> GetStudentByStudentId(int studentId)
     {
-        return await _db.Students.FirstOrDefaultAsync(std => std.StudentId == studentId);
+        var std =await _db.Students.FirstOrDefaultAsync(std => std.StudentId == studentId);
+        return  std;
     }
 }

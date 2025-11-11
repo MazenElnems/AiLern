@@ -1,4 +1,6 @@
-﻿using LMS.Core.Commands.Courses.CreateCommands;
+﻿using FluentValidation;
+using FluentValidation.AspNetCore;
+using LMS.Core.Commands.Courses.CreateCommands;
 using LMS.Core.Commands.Instructors.CreateInstructorsCommands;
 using LMS.Core.Commands.Students.CreateCommands;
 using LMS.Core.ConfigurationOptions;
@@ -25,7 +27,13 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<IAuthService, AuthService>();
 
+        //MediatR
         services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
+
+        // Validator
+        services
+            .AddFluentValidationAutoValidation()
+            .AddValidatorsFromAssemblyContaining<CreateStudentCommandValidator>();
 
         // JWT 
         services.Configure<JwtOptions>(configuration.GetSection("JWT"));
