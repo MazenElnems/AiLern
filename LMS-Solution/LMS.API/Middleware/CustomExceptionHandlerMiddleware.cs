@@ -19,7 +19,13 @@ public class CustomExceptionHandlerMiddleware
         {
             await _next(httpContext);
         }
-        catch(InvalidUserEmailOrPasswordException ex)
+        catch(UnAuthorizedException ex)
+        {
+            httpContext.Response.StatusCode = 401;
+            await httpContext.Response.WriteAsync(ex.Message);
+            _logger.LogWarning("User not authenticated");
+        }
+        catch (InvalidUserEmailOrPasswordException ex)
         {
             httpContext.Response.StatusCode = 400;
             await httpContext.Response.WriteAsync(ex.Message);
@@ -31,7 +37,7 @@ public class CustomExceptionHandlerMiddleware
             await httpContext.Response.WriteAsync(ex.Message);
             _logger.LogWarning(ex, "Resource not found.");
         }
-        catch (DuplicatedUserException ex)
+        catch (UserCreationException ex)
         {
             httpContext.Response.StatusCode = 400;
             await httpContext.Response.WriteAsync(ex.Message);

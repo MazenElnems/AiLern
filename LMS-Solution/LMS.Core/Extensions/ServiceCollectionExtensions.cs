@@ -1,4 +1,5 @@
 ﻿using LMS.Core.Commands.Courses.CreateCommands;
+using LMS.Core.Commands.Instructors.CreateInstructorsCommands;
 using LMS.Core.Commands.Students.CreateCommands;
 using LMS.Core.ConfigurationOptions;
 using LMS.Core.CurrentUser;
@@ -56,13 +57,13 @@ public static class ServiceCollectionExtensions
         {
             cfg.CreateMap<CreateCourseDto, Course>();
             cfg.CreateMap<CreateStudentCommand, Student>();
+            cfg.CreateMap<CreateInstructorCommand, Instructor>();
 
             cfg.CreateMap<Course, GetCourseDto>()
                .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.UserName))
                .ForMember(dto => dto.Course, opt => opt.MapFrom(src => src.Section == null ? null : src.Section.Name))
                .ForMember(dto => dto.Owner, opt => opt.MapFrom(src => src.Admin == null ? null : src.Admin.UserName))
                .ForMember(dto => dto.CourseStatus, opt => opt.MapFrom(src => src.CourseStatus.ToString()));
-
 
             cfg.CreateMap<ApplicationUser, GetUsersByRoleDto>();
             cfg.CreateMap<Course, GetAllCoursesDto>();
