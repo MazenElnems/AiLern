@@ -8,6 +8,5 @@ public class DeleteUserRoleCommand : IRequest
 {
     [JsonIgnore]
     public int Id { get; set; }
-    [Required]
     public string? Role { get; set; }
 }
