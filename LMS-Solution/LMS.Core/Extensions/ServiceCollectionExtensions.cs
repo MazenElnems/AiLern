@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
-using LMS.Core.Commands.Courses.CreateCommands;
+using LMS.Core.Commands.Admins.CreateAdminCommands;
 using LMS.Core.Commands.Instructors.CreateInstructorsCommands;
 using LMS.Core.Commands.Students.CreateCommands;
 using LMS.Core.ConfigurationOptions;
@@ -10,6 +10,7 @@ using LMS.Core.DTOs.Users;
 using LMS.Core.Services.Auth;
 using LMS.Core.Services.Auth.Interfaces;
 using LMS.Domin.Entities;
+using LMS.Domin.Enums;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,6 +46,7 @@ public static class ServiceCollectionExtensions
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
+            // Prevent Login without Email Confirmation
             .AddJwtBearer(o =>
             {
                 o.RequireHttpsMetadata = true;
@@ -66,6 +68,9 @@ public static class ServiceCollectionExtensions
             cfg.CreateMap<CreateCourseDto, Course>();
             cfg.CreateMap<CreateStudentCommand, Student>();
             cfg.CreateMap<CreateInstructorCommand, Instructor>();
+
+            cfg.CreateMap<CreateAdminCommand, Admin>()
+                .ForMember(a => a.AdminLevel, opt => opt.MapFrom(src => Enum.Parse<AdminLevels>(src.AdminLevel)));
 
             cfg.CreateMap<Course, GetCourseDto>()
                .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.UserName))

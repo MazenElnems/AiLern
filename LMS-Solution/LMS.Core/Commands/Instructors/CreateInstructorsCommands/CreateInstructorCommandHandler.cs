@@ -16,11 +16,9 @@ public class CreateInstructorCommandHandler : IRequestHandler<CreateInstructorCo
     private readonly IUserContext _currentUser;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<CreateInstructorCommandHandler> _logger;
-    private readonly IUsersRepository _usersRepository;
 
-    public CreateInstructorCommandHandler(IUsersRepository usersRepository, ILogger<CreateInstructorCommandHandler> logger, UserManager<ApplicationUser> user, IUserContext currentUser, IMapper mapper)
+    public CreateInstructorCommandHandler(ILogger<CreateInstructorCommandHandler> logger, UserManager<ApplicationUser> user, IUserContext currentUser, IMapper mapper)
     {
-        _usersRepository = usersRepository;
         _logger = logger;
         _userManager = user;
         _currentUser = currentUser;
@@ -39,7 +37,7 @@ public class CreateInstructorCommandHandler : IRequestHandler<CreateInstructorCo
             instructor.CreatedBy = currentUser.UserName;
             instructor.CreatedAt = DateTime.UtcNow;
 
-            var result = await _userManager.CreateAsync(instructor);
+            var result = await _userManager.CreateAsync(instructor, request.Password);
 
             if (!result.Succeeded)
                 throw new UserCreationException();

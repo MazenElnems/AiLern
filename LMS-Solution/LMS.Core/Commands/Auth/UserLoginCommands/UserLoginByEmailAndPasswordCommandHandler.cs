@@ -40,6 +40,14 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
             if (!await _userManager.CheckPasswordAsync(user, request.Password))
                 throw new InvalidUserEmailOrPasswordException();
 
+
+            // Email Confirmation 
+
+            //if(!user.EmailConfirmed)
+            //{
+            //    var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            //}
+
             var roles = await _userManager.GetRolesAsync(user);
             var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role));
 
