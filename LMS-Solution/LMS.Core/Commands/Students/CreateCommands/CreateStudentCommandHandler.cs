@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace LMS.Core.Commands.Students.CreateCommands;
 
-public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand>
+public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand,int>
 {
     private readonly IMapper _mapper;
     private readonly IUserContext _currentUser;
@@ -26,7 +26,7 @@ public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand>
         _usersRepository = usersRepository;
     }
 
-    public async Task Handle(CreateStudentCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
     {
         try
         {
@@ -44,6 +44,8 @@ public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand>
             var result = await _userManager.CreateAsync(student,request.Password);
             if (!result.Succeeded)
                 throw new UserCreationException(message:string.Join(", ",result.Errors.Select(e=>e.Description)));
+
+            return student.Id;
         }
         catch(UserCreationException ex)
         {
