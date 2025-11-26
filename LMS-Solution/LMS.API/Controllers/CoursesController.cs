@@ -1,4 +1,5 @@
-﻿using LMS.Core.Commands.Courses.CreateCommands;
+﻿using LMS.Core.Commands.Courses.ApproveCommands;
+using LMS.Core.Commands.Courses.CreateCommands;
 using LMS.Core.Commands.Courses.DeleteCommands;
 using LMS.Core.Commands.Courses.RejectCommands;
 using LMS.Core.Commands.Courses.UpdateCommands;
@@ -7,6 +8,7 @@ using LMS.Core.DTOs.Courses;
 using LMS.Core.Queries.Courses.GetAllQueries;
 using LMS.Core.Queries.Courses.GetApprovedQueries;
 using LMS.Core.Queries.Courses.GetByIdQueries;
+using LMS.Core.Queries.Courses.GetPendingQueries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -75,6 +77,21 @@ public class CoursesController : ControllerBase
         command.Id = id;
         var reason = await _mediator.Send(command);
         return reason;
+    }
+
+    [HttpGet("status/pending")]
+    public async Task<ActionResult<IEnumerable<GetCourseDto>>> GetPending([FromQuery] GetPendingCoursesQuery query)
+    {
+        var dto = await _mediator.Send(query);
+        return dto;
+
+    }
+    [HttpPut("{id}/approve")]
+    public async Task<IActionResult> Approve(int id ,ApproveCourseCommand command)
+    {
+        command.Id = id;
+        await _mediator.Send(command);
+        return NoContent();
     }
 
 }
