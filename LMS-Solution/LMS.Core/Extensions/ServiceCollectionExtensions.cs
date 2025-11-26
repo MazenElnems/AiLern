@@ -78,6 +78,10 @@ public static class ServiceCollectionExtensions
                .ForMember(dto => dto.Owner, opt => opt.MapFrom(src => src.Admin == null ? null : src.Admin.UserName))
                .ForMember(dto => dto.CourseStatus, opt => opt.MapFrom(src => src.CourseStatus.ToString()));
 
+            cfg.CreateMap<Course, GetApprovedCoursesDto>()
+               .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.UserName))
+               .ForMember(dto => dto.Course, opt => opt.MapFrom(src => src.Section == null ? null : src.Section.Name));
+
             cfg.CreateMap<ApplicationUser, GetUsersByRoleDto>();
             cfg.CreateMap<Course, GetAllCoursesDto>();
             cfg.CreateMap<ApplicationUser, GetUserByIdDto>();

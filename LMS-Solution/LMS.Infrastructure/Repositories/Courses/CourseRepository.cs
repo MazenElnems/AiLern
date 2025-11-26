@@ -36,7 +36,22 @@ internal class CourseRepository : ICourseRepository
         // 3) Pagination
 
         if (status != null)
-            query = query.Where(c => c.CourseStatus.ToString().ToLower() == status.ToLower());
+            query = query.Where(c => c.CourseStatus.ToString().ToLower() == status.ToLower()).Select(c => new Course
+            {
+                Id = c.Id,
+                Description = c.Description,
+                Name = c.Name,
+                Code = c.Code,
+                CourseStatus = c.CourseStatus,
+                ApprovedDate = c.ApprovedDate,
+                CreatedAt = c.CreatedAt,
+                InstructorId = c.InstructorId,
+                Instructor = new Instructor { UserName = c.Instructor.UserName },
+                Approvedby = c.Approvedby,
+                SectionCourseId = c.SectionCourseId,
+                Section = new Course { Name = (c.Section == null ? null : c.Section.Name)! },
+                Admin = new Admin { UserName = c.Admin == null ? null : c.Admin.UserName }
+            });
 
         if (sortBy != null && order != null)
         {

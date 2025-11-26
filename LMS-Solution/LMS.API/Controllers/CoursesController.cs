@@ -1,9 +1,11 @@
 ﻿using LMS.Core.Commands.Courses.CreateCommands;
 using LMS.Core.Commands.Courses.DeleteCommands;
+using LMS.Core.Commands.Courses.RejectCommands;
 using LMS.Core.Commands.Courses.UpdateCommands;
 using LMS.Core.Constants;
 using LMS.Core.DTOs.Courses;
 using LMS.Core.Queries.Courses.GetAllQueries;
+using LMS.Core.Queries.Courses.GetApprovedQueries;
 using LMS.Core.Queries.Courses.GetByIdQueries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -59,4 +61,20 @@ public class CoursesController : ControllerBase
         await _mediator.Send(command);
         return NoContent();
     }
+
+    [HttpGet("approved-courses")]
+    public async Task<ActionResult<IEnumerable<GetApprovedCoursesDto>>> GetApproved([FromQuery] GetApprovedCoursesQuery command)
+    {
+        var dto = await _mediator.Send(command);
+        return dto;
+    }
+
+    [HttpPut("{id}/reject")]
+    public async Task<ActionResult<string>> Reject(int id,RejectCourseCommand command)
+    {
+        command.Id = id;
+        var reason = await _mediator.Send(command);
+        return reason;
+    }
+
 }
