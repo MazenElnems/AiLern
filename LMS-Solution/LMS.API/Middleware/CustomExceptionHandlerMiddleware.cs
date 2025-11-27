@@ -1,4 +1,4 @@
-﻿using LMS.Core.CustomExceptions;
+﻿using LMS.Domin.Exceptions;
 
 namespace LMS.API.Middleware;
 
@@ -19,7 +19,13 @@ public class CustomExceptionHandlerMiddleware
         {
             await _next(httpContext);
         }
-        catch(UnAuthorizedException ex)
+        catch(CourseUpdateException ex)
+        {
+            httpContext.Response.StatusCode = 400;
+            await httpContext.Response.WriteAsync(ex.Message);
+            _logger.LogWarning("Course update failed.");
+        }
+        catch (UnAuthorizedException ex)
         {
             httpContext.Response.StatusCode = 401;
             await httpContext.Response.WriteAsync(ex.Message);

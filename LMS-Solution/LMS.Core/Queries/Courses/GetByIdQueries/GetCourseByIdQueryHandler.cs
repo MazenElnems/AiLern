@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using LMS.Core.CustomExceptions;
 using LMS.Core.DTOs.Courses;
 using LMS.Domin.Entities;
+using LMS.Domin.Exceptions;
 using LMS.Domin.RepositoriesInterfaces;
 using MediatR;
 
@@ -20,7 +20,7 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Get
 
     public async Task<GetCourseDto> Handle(GetCourseByIdQuery request, CancellationToken cancellationToken)
     {
-        var course = await _courseRepository.GetByIdAsync(request.Id)
+        var course = await _courseRepository.GetByIdWithDetailsAsync(request.Id)
             ?? throw new ResourceNotFoundException(nameof(Course), request.Id.ToString());
         var dto = _mapper.Map<GetCourseDto>(course);
         return dto;

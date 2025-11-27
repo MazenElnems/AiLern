@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using LMS.Core.Commands.Admins.CreateAdminCommands;
+using LMS.Core.Commands.Courses.CreateCommands;
 using LMS.Core.Commands.Instructors.CreateInstructorsCommands;
 using LMS.Core.Commands.Students.CreateCommands;
 using LMS.Core.ConfigurationOptions;
@@ -65,18 +66,18 @@ public static class ServiceCollectionExtensions
 
         services.AddAutoMapper(cfg =>
         {
-            cfg.CreateMap<CreateCourseDto, Course>();
+            cfg.CreateMap<CreateCourseCommand, Course>();
             cfg.CreateMap<CreateStudentCommand, Student>();
             cfg.CreateMap<CreateInstructorCommand, Instructor>();
 
-            cfg.CreateMap<CreateAdminCommand, Admin>()
-                .ForMember(a => a.AdminLevel, opt => opt.MapFrom(src => Enum.Parse<AdminLevels>(src.AdminLevel)));
+            cfg.CreateMap<CreateAdminCommand, Admin>();
 
             cfg.CreateMap<Course, GetCourseDto>()
                .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.UserName))
-               .ForMember(dto => dto.Course, opt => opt.MapFrom(src => src.Section == null ? null : src.Section.Name))
-               .ForMember(dto => dto.Owner, opt => opt.MapFrom(src => src.Admin == null ? null : src.Admin.UserName))
                .ForMember(dto => dto.CourseStatus, opt => opt.MapFrom(src => src.CourseStatus.ToString()));
+
+            cfg.CreateMap<Course, GetApprovedCoursesDto>()
+               .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.UserName));
 
             cfg.CreateMap<ApplicationUser, GetUsersByRoleDto>();
             cfg.CreateMap<Course, GetAllCoursesDto>();

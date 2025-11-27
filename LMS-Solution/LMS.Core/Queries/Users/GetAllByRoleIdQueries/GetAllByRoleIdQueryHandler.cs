@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using LMS.Core.CustomExceptions;
 using LMS.Core.DTOs.Users;
 using LMS.Domin.Entities;
+using LMS.Domin.Exceptions;
 using LMS.Domin.RepositoriesInterfaces;
 using MediatR;
 

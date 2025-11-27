@@ -25,9 +25,5 @@ public class CreateAdminCommandValidator : AbstractValidator<CreateAdminCommand>
             .NotEmpty()
             .Matches(@"^01\d{9}$")
             .WithMessage("Phone number must start with '01' and contain 11 digits.");
-
-        RuleFor(s => s.AdminLevel)
-            .Must(s => new[] { AdminAccessLevels.Admin, AdminAccessLevels.Staff }.Contains(s))
-            .WithMessage($"Admin level should be {AdminAccessLevels.Admin} or {AdminAccessLevels.Staff}");
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using LMS.Core.Constants;
 using LMS.Domin.RepositoriesInterfaces;
 using LMS.Domin.Entities;
+using System.Linq.Expressions;
 
 namespace LMS.Infrastructure.Repositories.Courses;
 
@@ -27,21 +28,38 @@ internal class CourseRepository : ICourseRepository
         return await _db.SaveChangesAsync();
     }
 
-    public async Task<List<Course>> GetAllAsync(string sortBy, string order, string? status, int pageNo = 1, int pageSize = 10)
+    public async Task<List<Course>> GetPagedCourses(string searchString,string sortBy, string order, int pageNo = 1, int pageSize = 10)
     {
-        IQueryable<Course> query = _db.Courses;
+        return await GetPagedCoursesWithFilterAsync(
+            c => true,
+            searchString,
+            sortBy,
+            order,
+            pageNo,
+            pageSize
+        );
+    }
+
+    public async Task<List<Course>> GetPagedCoursesWithFilterAsync(Expression<Func<Course, bool>> filter, string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10)
+    {
+        IQueryable<Course> query = _db.Courses
+            .Include(i => i.Instructor);
 
         // 1) Filter
         // 2) Sorting
         // 3) Pagination
 
-        if (status != null)
-            query = query.Where(c => c.CourseStatus.ToString().ToLower() == status.ToLower());
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            var lowerSearch = searchString.ToLower();
+            query = query.Where(c => c.Name.ToLower().Contains(lowerSearch) || c.Description.ToLower().Contains(lowerSearch));
+        }
+
+        if (filter != null)
+            query = query.Where(filter);
 
         if (sortBy != null && order != null)
         {
-        
-
             query = (sortBy.ToLower(), order.ToLower()) switch
             {
                 (CourseSortByOptions.Name, SortOrderOptions.ASC) => query.OrderBy(c => c.Name),
@@ -58,32 +76,19 @@ internal class CourseRepository : ICourseRepository
 
         return await query.ToListAsync();
     }
-    
-    public async Task<Course?> GetByIdAsync(int id)
-    {
-        return await _db.Courses
-            .Select(c => new Course
-            {
-                Id = c.Id,
-                Description = c.Description,
-                Name = c.Name,
-                Code = c.Code,
-                CourseStatus = c.CourseStatus,
-                ApprovedDate = c.ApprovedDate,
-                CreatedAt = c.CreatedAt,
-                InstructorId = c.InstructorId,
-                Instructor = new Instructor { UserName = c.Instructor.UserName },
-                Approvedby = c.Approvedby,
-                SectionCourseId = c.SectionCourseId,
-                Section = new Course { Name = (c.Section == null ? null : c.Section.Name)! },
-                Admin = new Admin { UserName = c.Admin == null ? null : c.Admin.UserName }
-            })
+
+    public async Task<Course?> GetByIdAsync(int id) =>
+        await _db.Courses.FirstOrDefaultAsync(c => c.Id == id);
+
+    public async Task<Course?> GetByIdWithDetailsAsync(int id) =>
+        await _db.Courses
+            .Include(c => c.Instructor)
             .FirstOrDefaultAsync(c => c.Id == id);
-    }
 
     public async Task<int> RemoveAsync(Course course)
     {
         _db.Remove(course);
         return await _db.SaveChangesAsync();
     }
+
 }
