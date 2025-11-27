@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using LMS.Core.DTOs.Courses;
-using LMS.Domin.RepositoriesInterfaces;
+using LMS.Domin.Contracts;
 using MediatR;
 
 namespace LMS.Core.Queries.Courses.GetAllQueries;

@@ -1,7 +1,8 @@
 ﻿using LMS.API.Middleware;
 using LMS.Core.Extensions;
 using LMS.Infrastructure.Extensions;
-using LMS.Infrastructure.Seeders.Interfaces;
+using LMS.Infrastructure.Services.Seeders;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +13,37 @@ builder.Services.AddAuthentication();
 
 // swagger & open api
 builder.Services.AddOpenApi();
+// swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Add the "Authorization" header input in Swagger UI
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer' followed by your token. Example: Bearer eyJhbGciOiJIUzI1..."
+    });
+
+    // Make sure Swagger uses this security scheme for all endpoints
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+});
 
 // Add Infrastructure Services 
 builder.Services.AddInfrastructureServices(builder.Configuration);

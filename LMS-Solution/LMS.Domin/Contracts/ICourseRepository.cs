@@ -1,7 +1,7 @@
 ﻿using LMS.Domin.Entities;
 using System.Linq.Expressions;
 
-namespace LMS.Domin.RepositoriesInterfaces;
+namespace LMS.Domin.Contracts;
 
 public interface ICourseRepository
 {

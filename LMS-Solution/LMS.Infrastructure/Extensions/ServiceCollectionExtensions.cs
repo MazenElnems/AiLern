@@ -1,14 +1,15 @@
-﻿using LMS.Domin.Entities;
-using LMS.Domin.RepositoriesInterfaces;
+﻿using LMS.Core.ConfigurationOptions;
+using LMS.Domin.Contracts;
+using LMS.Domin.Entities;
 using LMS.Infrastructure.Data;
 using LMS.Infrastructure.Repositories.Courses;
-using LMS.Infrastructure.Seeders;
-using LMS.Infrastructure.Seeders.Interfaces;
+using LMS.Infrastructure.Repositories.Users;
+using LMS.Infrastructure.Services.Email;
+using LMS.Infrastructure.Services.Seeders;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using LMS.Infrastructure.Repositories.Users; 
 
 namespace LMS.Infrastructure.Extensions;
 
@@ -19,6 +20,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IDataSeeder,DataSeeder>();
+        services.AddTransient<IMailSender,MailSender>();
+
+        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
 
         // DbConext
         services.AddDbContext<AppDbContext>(options =>
@@ -27,16 +31,18 @@ public static class ServiceCollectionExtensions
         });
 
         // Identity
-        services.AddIdentity<ApplicationUser,IdentityRole<int>>(cfg =>
+        services.AddIdentity<ApplicationUser, IdentityRole<int>>(cfg =>
         {
             cfg.User.RequireUniqueEmail = true;
             cfg.Password.RequireNonAlphanumeric = true;
             cfg.Password.RequireDigit = true;
             cfg.Password.RequireUppercase = true;
             cfg.Password.RequiredLength = 6;
+            cfg.SignIn.RequireConfirmedEmail = true;
         })
             .AddRoles<IdentityRole<int>>()
-            .AddEntityFrameworkStores<AppDbContext>();
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
 
         return services;
     }

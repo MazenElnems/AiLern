@@ -3,14 +3,12 @@ using LMS.Core.Commands.Courses.CreateCommands;
 using LMS.Core.Commands.Courses.DeleteCommands;
 using LMS.Core.Commands.Courses.RejectCommands;
 using LMS.Core.Commands.Courses.UpdateCommands;
-using LMS.Core.Constants;
 using LMS.Core.DTOs.Courses;
 using LMS.Core.Queries.Courses.GetAllQueries;
 using LMS.Core.Queries.Courses.GetApprovedQueries;
 using LMS.Core.Queries.Courses.GetByIdQueries;
 using LMS.Core.Queries.Courses.GetPendingQueries;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 

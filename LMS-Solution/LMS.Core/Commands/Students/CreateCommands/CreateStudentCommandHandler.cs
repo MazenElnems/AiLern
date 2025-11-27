@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using LMS.Core.CurrentUser;
+using LMS.Domin.Contracts;
 using LMS.Domin.Entities;
 using LMS.Domin.Exceptions;
-using LMS.Domin.RepositoriesInterfaces;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
