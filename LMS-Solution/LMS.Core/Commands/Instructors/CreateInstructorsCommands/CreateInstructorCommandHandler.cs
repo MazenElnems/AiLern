@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
-using LMS.Core.Commands.Students.CreateCommands;
 using LMS.Core.CurrentUser;
 using LMS.Core.CustomExceptions;
 using LMS.Domin.Entities;
-using LMS.Domin.RepositoriesInterfaces;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;

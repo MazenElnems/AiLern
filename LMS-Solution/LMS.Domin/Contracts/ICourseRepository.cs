@@ -1,6 +1,6 @@
 ﻿using LMS.Domin.Entities;
 
-namespace LMS.Domin.RepositoriesInterfaces;
+namespace LMS.Domin.Contracts;
 
 public interface ICourseRepository
 {

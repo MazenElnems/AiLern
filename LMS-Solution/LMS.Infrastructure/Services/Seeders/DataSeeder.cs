@@ -1,9 +1,8 @@
 ﻿using LMS.Domin.Entities;
 using LMS.Domin.Enums;
 using LMS.Infrastructure.Data;
-using LMS.Infrastructure.Seeders.Interfaces;
 
-namespace LMS.Infrastructure.Seeders;
+namespace LMS.Infrastructure.Services.Seeders;
 
 public class DataSeeder : IDataSeeder
 {

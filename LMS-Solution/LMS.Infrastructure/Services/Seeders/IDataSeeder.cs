@@ -1,4 +1,4 @@
-﻿namespace LMS.Infrastructure.Seeders.Interfaces;
+﻿namespace LMS.Infrastructure.Services.Seeders;
 
 public interface IDataSeeder
 {

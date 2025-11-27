@@ -46,7 +46,6 @@ public static class ServiceCollectionExtensions
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
-            // Prevent Login without Email Confirmation
             .AddJwtBearer(o =>
             {
                 o.RequireHttpsMetadata = true;

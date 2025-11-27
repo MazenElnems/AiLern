@@ -1,8 +1,8 @@
 ﻿using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using LMS.Core.Constants;
-using LMS.Domin.RepositoriesInterfaces;
 using LMS.Domin.Entities;
+using LMS.Domin.Contracts;
 
 namespace LMS.Infrastructure.Repositories.Courses;
 

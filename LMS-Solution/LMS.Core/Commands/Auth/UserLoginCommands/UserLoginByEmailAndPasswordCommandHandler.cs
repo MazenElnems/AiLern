@@ -2,8 +2,8 @@
 using LMS.Core.CustomExceptions;
 using LMS.Core.DTOs.Auth.Request;
 using LMS.Core.Services.Auth.Interfaces;
+using LMS.Domin.Contracts;
 using LMS.Domin.Entities;
-using LMS.Domin.RepositoriesInterfaces;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -20,14 +20,16 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
     private readonly IAuthService _authService;
     private readonly RefreshTokenOptions _refreshToken;
     private readonly IUsersRepository _usersRepository;
+    private readonly IMailSender _emailSender;
 
-    public UserLoginByEmailAndPasswordCommandHandler(IAuthService authService, ILogger<UserLoginByEmailAndPasswordCommandHandler> logger, UserManager<ApplicationUser> userManager, IOptions<RefreshTokenOptions> refreshToken, IUsersRepository usersRepository)
+    public UserLoginByEmailAndPasswordCommandHandler(IAuthService authService, ILogger<UserLoginByEmailAndPasswordCommandHandler> logger, UserManager<ApplicationUser> userManager, IOptions<RefreshTokenOptions> refreshToken, IUsersRepository usersRepository, IMailSender emailSender)
     {
         _authService = authService;
         _logger = logger;
         _userManager = userManager;
         _refreshToken = refreshToken.Value;
         _usersRepository = usersRepository;
+        _emailSender = emailSender;
     }
 
     public async Task<GetTokenResponseDto> Handle(UserLoginByEmailAndPasswordCommand request, CancellationToken cancellationToken)
@@ -43,10 +45,16 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
 
             // Email Confirmation 
 
-            //if(!user.EmailConfirmed)
-            //{
-            //    var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            //}
+            if (!user.EmailConfirmed)
+            {
+                var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var template = await File.ReadAllTextAsync("D:\\Graduation Project\\repo\\application\\LMS-Solution\\LMS.Infrastructure\\EmailTemplates\\ConfirmationEmail.html");
+                var html = template
+                    .Replace("{{ConfirmationLink}}", $"https://localhost:7080/email-confirm?token={emailConfirmationToken}&email={request.Email}");
+
+                await _emailSender.SendAsync(request.Email, "Email Confirmation", html);
+                return new GetTokenResponseDto();
+            }
 
             var roles = await _userManager.GetRolesAsync(user);
             var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role));

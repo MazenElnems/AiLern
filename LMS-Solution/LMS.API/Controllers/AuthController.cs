@@ -1,4 +1,5 @@
-﻿using LMS.Core.Commands.Auth.UserLoginCommands;
+﻿using LMS.Core.Commands.Auth.EmailConfirmationCommands;
+using LMS.Core.Commands.Auth.UserLoginCommands;
 using LMS.Core.Commands.Auth.UserRefreshTokenCommands;
 using LMS.Core.Commands.Auth.UserRevokeRefreshTokenCommands;
 using LMS.Core.DTOs.Auth.Request;
@@ -34,6 +35,13 @@ public class AuthController : ControllerBase
 
     [HttpPut("revoke-token")]
     public async Task<IActionResult> RevokeRefreshToken(RevokeRefreshTokenCommand command)
+    {
+        await _mediator.Send(command);
+        return NoContent();
+    }
+
+    [HttpPost("email-confirm")]
+    public async Task<IActionResult> ConfirmEmail(UserEmailConfirmationCommand command)
     {
         await _mediator.Send(command);
         return NoContent();
