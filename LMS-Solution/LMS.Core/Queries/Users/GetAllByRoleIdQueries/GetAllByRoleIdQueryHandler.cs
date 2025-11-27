@@ -3,7 +3,6 @@ using LMS.Core.DTOs.Users;
 using LMS.Domin.Contracts;
 using LMS.Domin.Entities;
 using LMS.Domin.Exceptions;
-using LMS.Domin.RepositoriesInterfaces;
 using MediatR;
 
 namespace LMS.Core.Queries.Users.GetAllByRoleIdQueries;
