@@ -1,5 +1,6 @@
-﻿using System.Security.Claims;
+﻿using LMS.Domin.Exceptions;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace LMS.Core.CurrentUser;
 
@@ -12,14 +13,12 @@ public class UserContext : IUserContext
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public CurrentUserIdentity? GetCurrentUser()
+    public CurrentUserIdentity GetCurrentUser()
     {
         var httpContext = _httpContextAccessor.HttpContext;
 
-        if(httpContext.User.Identity is null || !httpContext.User.Identity.IsAuthenticated)
-        {
-            return null;
-        }
+        if (httpContext?.User.Identity is null || !httpContext.User.Identity.IsAuthenticated)
+            throw new UnAuthorizedException("User is not authenticated");
 
         var id = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var userName = httpContext.User.FindFirst(ClaimTypes.Name)?.Value;

@@ -2,5 +2,5 @@
 
 public interface IUserContext
 {
-    CurrentUserIdentity? GetCurrentUser();
+    CurrentUserIdentity GetCurrentUser();
 }

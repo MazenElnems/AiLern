@@ -11,6 +11,7 @@ namespace LMS.Core.Queries.Courses.GetApprovedQueries
 {
     public class GetApprovedCoursesQuery : IRequest<List<GetApprovedCoursesDto>>
     {
+        public string? SearchString { get; set; }
         public string? SortBy { get; set; }
         public string? Order { get; set; } = SortOrderOptions.DESC;
         public int PageNumber { get; set; } = 1;

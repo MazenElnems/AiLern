@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
-using LMS.Core.Commands.Students.CreateCommands;
 using LMS.Core.CurrentUser;
-using LMS.Core.CustomExceptions;
 using LMS.Domin.Entities;
-using LMS.Domin.RepositoriesInterfaces;
+using LMS.Domin.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -31,11 +29,7 @@ public class CreateInstructorCommandHandler : IRequestHandler<CreateInstructorCo
         {
             var instructor = _mapper.Map<Instructor>(request);
 
-            var currentUser = _currentUser.GetCurrentUser()
-                ?? throw new UnAuthorizedException("User is not authenticated");
-
-            instructor.CreatedBy = currentUser.UserName;
-            instructor.CreatedAt = DateTime.UtcNow;
+            var currentUser = _currentUser.GetCurrentUser();
 
             var result = await _userManager.CreateAsync(instructor, request.Password);
 

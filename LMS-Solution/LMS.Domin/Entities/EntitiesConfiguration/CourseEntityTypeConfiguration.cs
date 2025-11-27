@@ -45,24 +45,8 @@ public class CourseEntityTypeConfiguration : IEntityTypeConfiguration<Course>
             .HasColumnType("DATETIME2")
             .IsRequired();
 
-        builder.Property(c => c.ApprovedDate)
-            .HasColumnType("DATETIME2")
-            .IsRequired(false);
-
         builder.Property(c => c.CourseStatus)
-            .HasConversion<int>()
+            .HasConversion<string>()
             .HasDefaultValue(CourseStatus.Pending);
-
-        builder.HasOne(c => c.Admin)
-            .WithMany()
-            .HasForeignKey(c => c.Approvedby)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.NoAction);
-
-        builder.HasOne(c => c.Section)
-            .WithOne()
-            .HasForeignKey<Course>(c => c.SectionCourseId)
-            .IsRequired(false).OnDelete(DeleteBehavior.NoAction);
-
     }
 }

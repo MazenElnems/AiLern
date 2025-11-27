@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LMS.Core.CurrentUser;
 using LMS.Domin.Entities;
+using LMS.Domin.Exceptions;
 using LMS.Domin.RepositoriesInterfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -29,7 +30,7 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, i
             var currentUser = _userContext.GetCurrentUser();
 
             var course = _mapper.Map<Course>(request);
-            course.InstructorId = currentUser!.Id;
+            course.InstructorId = currentUser.Id;
 
             _logger.LogInformation("Creating new course {@Course}", request);
             int id = await _courseRepository.AddAsync(course);

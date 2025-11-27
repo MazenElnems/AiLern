@@ -28,7 +28,6 @@ public class CoursesController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = UserRoles.Instructor)]
     public async Task<IActionResult> Create(CreateCourseCommand command)
     {
         int id = await _mediator.Send(command);
@@ -79,7 +78,7 @@ public class CoursesController : ControllerBase
         return reason;
     }
 
-    [HttpGet("status/pending")]
+    [HttpGet("pending-courses")]
     public async Task<ActionResult<IEnumerable<GetCourseDto>>> GetPending([FromQuery] GetPendingCoursesQuery query)
     {
         var dto = await _mediator.Send(query);
@@ -87,11 +86,9 @@ public class CoursesController : ControllerBase
 
     }
     [HttpPut("{id}/approve")]
-    public async Task<IActionResult> Approve(int id ,ApproveCourseCommand command)
+    public async Task<IActionResult> Approve(int id)
     {
-        command.Id = id;
-        await _mediator.Send(command);
+        await _mediator.Send(new ApproveCourseCommand(id));
         return NoContent();
     }
-
 }
