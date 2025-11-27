@@ -1,5 +1,4 @@
 ﻿using LMS.Core.ConfigurationOptions;
-using LMS.Core.CustomExceptions;
 using LMS.Core.DTOs.Auth.Request;
 using LMS.Core.Services.Auth.Interfaces;
 using LMS.Domin.Contracts;

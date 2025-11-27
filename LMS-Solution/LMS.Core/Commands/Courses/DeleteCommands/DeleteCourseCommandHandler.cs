@@ -1,6 +1,6 @@
-﻿using LMS.Core.CustomExceptions;
-using LMS.Domin.Contracts;
-using LMS.Domin.Entities;
+﻿using LMS.Domin.Entities;
+using LMS.Domin.Exceptions;
+using LMS.Domin.RepositoriesInterfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

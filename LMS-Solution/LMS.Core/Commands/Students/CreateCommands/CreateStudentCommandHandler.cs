@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using LMS.Core.CurrentUser;
-using LMS.Core.CustomExceptions;
-using LMS.Domin.Contracts;
 using LMS.Domin.Entities;
+using LMS.Domin.Exceptions;
+using LMS.Domin.RepositoriesInterfaces;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -32,12 +32,8 @@ public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand,
         {
             var student = _mapper.Map<Student>(request);
 
-            var CurrentUser = _currentUser.GetCurrentUser()
-                ?? throw new UnAuthorizedException("User is not authenticated");
+            var CurrentUser = _currentUser.GetCurrentUser();
 
-            student.CreatedBy = CurrentUser.UserName;
-            student.CreatedAt = DateTime.UtcNow;
-            
             if(_usersRepository.GetStudentByStudentId(request.StudentId) != null)
                 throw new UserCreationException("the student id is already exists");
 

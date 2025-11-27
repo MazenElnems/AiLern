@@ -1,4 +1,4 @@
-﻿namespace LMS.Core.CustomExceptions;
+﻿namespace LMS.Domin.Exceptions;
 
 public class ResourceNotFoundException : Exception
 {

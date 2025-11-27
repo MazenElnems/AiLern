@@ -7,7 +7,6 @@ public class AdminEntityTypeConfiguration : IEntityTypeConfiguration<Admin>
 {
     public void Configure(EntityTypeBuilder<Admin> builder)
     {
-        builder.Property(a => a.AdminLevel)
-            .HasConversion<int>();
+
     }
 }

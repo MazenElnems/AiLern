@@ -18,7 +18,13 @@ public class GetAllCoursesQueryHandler : IRequestHandler<GetAllCoursesQuery, Lis
 
     public async Task<List<GetAllCoursesDto>> Handle(GetAllCoursesQuery request, CancellationToken cancellationToken)
     {
-        var courses = await _courseRepository.GetAllAsync(request.SortBy, request.Order, request.Status, request.PageNumber, request.PageSize);
+        var courses = await _courseRepository.GetPagedCourses(
+            request.SearchString!,
+            request.SortBy!,
+            request.Order!,
+            request.PageNumber,
+            request.PageSize
+        );
         var dto = _mapper.Map<List<GetAllCoursesDto>>(courses);
         return dto;
     }

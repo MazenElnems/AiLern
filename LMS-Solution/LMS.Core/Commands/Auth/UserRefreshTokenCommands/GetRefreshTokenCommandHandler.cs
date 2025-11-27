@@ -1,10 +1,11 @@
 ﻿using LMS.Core.Commands.Auth.UserLoginCommands;
 using LMS.Core.ConfigurationOptions;
-using LMS.Core.CustomExceptions;
 using LMS.Core.DTOs.Auth.Request;
 using LMS.Core.Services.Auth.Interfaces;
 using LMS.Domin.Contracts;
 using LMS.Domin.Entities;
+using LMS.Domin.Exceptions;
+using LMS.Domin.RepositoriesInterfaces;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;

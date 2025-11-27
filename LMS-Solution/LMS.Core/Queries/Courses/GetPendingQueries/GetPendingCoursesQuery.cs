@@ -2,9 +2,9 @@
 using LMS.Core.DTOs.Courses;
 using MediatR;
 
-namespace LMS.Core.Queries.Courses.GetAllQueries;
+namespace LMS.Core.Queries.Courses.GetPendingQueries;
 
-public class GetAllCoursesQuery : IRequest<List<GetAllCoursesDto>>
+public class GetPendingCoursesQuery : IRequest<List<GetCourseDto>>
 {
     public string? SearchString { get; set; }
     public string? SortBy { get; set; }
