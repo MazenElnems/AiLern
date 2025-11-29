@@ -1,6 +1,8 @@
 ﻿using LMS.Core.Commands.Courses.ApproveCommands;
+using LMS.Core.Commands.Courses.ApproveEntrollmentsCommands;
 using LMS.Core.Commands.Courses.CreateCommands;
 using LMS.Core.Commands.Courses.DeleteCommands;
+using LMS.Core.Commands.Courses.DeleteEnrollmentCommands;
 using LMS.Core.Commands.Courses.RejectCommands;
 using LMS.Core.Commands.Courses.RejectEnrollmentCommands;
 using LMS.Core.Commands.Courses.UpdateCommands;
@@ -90,6 +92,20 @@ public class CoursesController : ControllerBase
     public async Task<IActionResult> Approve(int id)
     {
         await _mediator.Send(new ApproveCourseCommand(id));
+        return NoContent();
+    }
+
+    [HttpPut("{id}/enrollments/{studentId}/approve")]
+    public async Task<IActionResult> ApproveEnrollment(int id,int studentId)
+    {
+        await _mediator.Send(new ApproveEnrollmentCommand(id, studentId));
+        return NoContent();
+    }
+
+    [HttpDelete("{id}/enrollments/{studentId}")]
+    public async Task<IActionResult> DeleteEnrollment(int id,int studentId)
+    {
+        await _mediator.Send(new DeleteEnrollmentCommand(id, studentId));
         return NoContent();
     }
     [HttpPut("{id}/enrollments/{studentId}/reject")]
