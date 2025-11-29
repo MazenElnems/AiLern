@@ -19,7 +19,6 @@ public interface ICourseRepository
 
 
 
-    Task<Enrollment> GetEnrollmentByIdAsync(int courseId, int studentId);
     Task<List<Enrollment>> GetAllEnrollmentAsync();
 
 }

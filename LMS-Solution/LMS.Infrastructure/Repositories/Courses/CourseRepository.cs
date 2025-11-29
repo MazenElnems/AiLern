@@ -102,10 +102,7 @@ internal class CourseRepository : ICourseRepository
         _db.Remove(enrollment);
         return await _db.SaveChangesAsync();
     }
-    public async Task<Enrollment?> GetEnrollmentByIdAsync(int courseId, int studentId)
-    {
-        return await _db.Enrollments.FindAsync(courseId, studentId);
-    }
+
     public async Task<List<Enrollment>> GetAllEnrollmentAsync()
     {
         return await _db.Enrollments
