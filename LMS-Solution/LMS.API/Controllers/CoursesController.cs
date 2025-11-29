@@ -2,12 +2,15 @@
 using LMS.Core.Commands.Courses.CreateCommands;
 using LMS.Core.Commands.Courses.DeleteCommands;
 using LMS.Core.Commands.Courses.RejectCommands;
+using LMS.Core.Commands.Courses.RejectEnrollmentCommands;
 using LMS.Core.Commands.Courses.UpdateCommands;
 using LMS.Core.DTOs.Courses;
 using LMS.Core.Queries.Courses.GetAllQueries;
 using LMS.Core.Queries.Courses.GetApprovedQueries;
 using LMS.Core.Queries.Courses.GetByIdQueries;
 using LMS.Core.Queries.Courses.GetPendingQueries;
+using LMS.Core.Queries.Courses.GetStudentsByCourseId;
+using LMS.Domin.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -88,5 +91,19 @@ public class CoursesController : ControllerBase
     {
         await _mediator.Send(new ApproveCourseCommand(id));
         return NoContent();
+    }
+    [HttpPut("{id}/enrollments/{studentId}/reject")]
+    public async Task<ActionResult<string>> RejectEnrollment(int id ,int studentId,RejectEnrollmentCommand command)
+    {
+        command.CourseId = id ;
+        command.StudentId= studentId;
+        var reason = await _mediator.Send(command);
+        return reason;
+    }
+    [HttpGet("{id}/students")]
+    public async Task<ActionResult<List<string>>> GetStudentsByCourseId(int id)
+    {
+        var en = await _mediator.Send(new GetStudentsByCourseIdQuery(id));
+        return en;
     }
 }

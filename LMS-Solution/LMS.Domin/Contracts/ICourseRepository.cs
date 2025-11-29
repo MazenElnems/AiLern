@@ -12,4 +12,7 @@ public interface ICourseRepository
     Task<List<Course>> GetPagedCoursesWithFilterAsync(Expression<Func<Course, bool>> filter, string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10); 
     Task<int> RemoveAsync(Course course);
     Task<int> CommitAsync();
+    Task<Enrollment> GetEnrollmentByIdAsync(int courseId, int studentId);
+    Task<List<Enrollment>> GetAllEnrollmentAsync();
+
 }
