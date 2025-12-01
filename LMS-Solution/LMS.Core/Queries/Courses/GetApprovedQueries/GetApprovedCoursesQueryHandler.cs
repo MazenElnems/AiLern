@@ -21,7 +21,7 @@ public class GetApprovedCoursesQueryHandler : IRequestHandler<GetApprovedCourses
     {
         var courses = await _courseRepository.GetPagedCoursesWithFilterAsync(
             c => c.CourseStatus == CourseStatus.Approved,
-            request.SearchString,
+            request.SearchString!,
             request.SortBy!,
             request.Order!,
             request.PageNumber,

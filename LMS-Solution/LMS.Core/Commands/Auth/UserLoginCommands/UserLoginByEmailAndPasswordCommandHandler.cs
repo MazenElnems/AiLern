@@ -48,9 +48,9 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
             if (!user.EmailConfirmed)
             {
                 var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                var template = await File.ReadAllTextAsync("D:\\Graduation Project\\repo\\application\\LMS-Solution\\LMS.Infrastructure\\EmailTemplates\\ConfirmationEmail.html");
+                var template = await File.ReadAllTextAsync("EmailTemplates\\ConfirmationEmail.html");
                 var html = template
-                    .Replace("{{ConfirmationLink}}", $"https://localhost:7080/email-confirm?token={emailConfirmationToken}&email={request.Email}");
+                    .Replace("{{ConfirmationLink}}", $"https://localhost:7080/api/auth/email-confirm?token={emailConfirmationToken}&userId={user.Id}");
 
                 await _emailSender.SendAsync(request.Email, "Email Confirmation", html);
                 return new GetTokenResponseDto();
