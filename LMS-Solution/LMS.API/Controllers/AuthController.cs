@@ -1,4 +1,6 @@
 ﻿using LMS.Core.Commands.Auth.EmailConfirmationCommands;
+using LMS.Core.Commands.Auth.PasswordReSetCommands;
+using LMS.Core.Commands.Auth.ResendEmailConfirmationCommands;
 using LMS.Core.Commands.Auth.UserLoginCommands;
 using LMS.Core.Commands.Auth.UserRefreshTokenCommands;
 using LMS.Core.Commands.Auth.UserRevokeRefreshTokenCommands;
@@ -40,8 +42,27 @@ public class AuthController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("email-confirm")]
-    public async Task<IActionResult> ConfirmEmail(UserEmailConfirmationCommand command)
+    [HttpGet("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail([FromQuery] UserEmailConfirmationCommand command)
+    {
+        var response = await _mediator.Send(command);
+        
+        if(response.IsConfirmed)
+            return Ok(response);
+
+        return BadRequest(response);
+    }
+
+    // TODO: Implement Resend Confirmation Email
+    [HttpPost("resend-confirmation-email")]
+    public async Task<IActionResult> ResendConfirmationEmail(ResendEmailConfirmationCommand command)
+    {
+        await _mediator.Send(command);
+        return NoContent();
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPasswod(UserPasswordResetCommand command)
     {
         await _mediator.Send(command);
         return NoContent();

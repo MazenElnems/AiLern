@@ -22,7 +22,7 @@ public class GetPendingCoursesQueryHandler : IRequestHandler<GetPendingCoursesQu
     {
         var courses = await _courseRepository.GetPagedCoursesWithFilterAsync(
             c => c.CourseStatus == CourseStatus.Pending,
-            request.SearchString,
+            request.SearchString!,
             request.SortBy!,
             request.Order!,
             request.PageNumber,
