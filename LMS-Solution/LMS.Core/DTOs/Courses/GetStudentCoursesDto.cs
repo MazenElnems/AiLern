@@ -1,6 +1,6 @@
 ﻿namespace LMS.Core.DTOs.Courses;
 
-public class GetApprovedCoursesDto
+public class GetStudentCoursesDto
 {
     public int Id { get; set; }
     public string Code { get; set; }

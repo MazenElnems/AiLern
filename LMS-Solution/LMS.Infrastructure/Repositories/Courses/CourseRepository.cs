@@ -1,7 +1,9 @@
-﻿using LMS.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using LMS.Core.Constants;
+﻿using LMS.Core.Constants;
+using LMS.Domin.Contracts;
 using LMS.Domin.Entities;
+using LMS.Domin.Enums;
+using LMS.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using LMS.Domin.Contracts;
 using LMS.Domin.Enums;
