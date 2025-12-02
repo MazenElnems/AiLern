@@ -1,9 +1,10 @@
-﻿using LMS.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using LMS.Core.Constants;
-using LMS.Domin.Entities;
-using System.Linq.Expressions;
+﻿using LMS.Core.Constants;
 using LMS.Domin.Contracts;
+using LMS.Domin.Entities;
+using LMS.Domin.Enums;
+using LMS.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace LMS.Infrastructure.Repositories.Courses;
 
@@ -108,5 +109,30 @@ internal class CourseRepository : ICourseRepository
         return await _db.Enrollments
             .Include(s =>s.Student)
             .ToListAsync(); 
+    }
+
+    public async Task<List<Course>> GetStudentCoursesAsync(int id, string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10)
+    {
+        IQueryable<Course> query = _db.Courses.Include(e => e.Instructor).
+            Where(e => e.Enrollments.Any(s => s.Status == EnrollmentStatus.Approved && s.Student_id == id));
+            
+            
+        if (sortBy != null && order != null)
+        {
+            query = (sortBy.ToLower(), order.ToLower()) switch
+            {
+                (UserManagementSortByOptions.FullName, SortOrderOptions.ASC) => query.OrderBy(u => u.Name),
+                (UserManagementSortByOptions.FullName, SortOrderOptions.DESC) => query.OrderByDescending(u => u.Name),
+                (UserManagementSortByOptions.UserName, SortOrderOptions.ASC) => query.OrderBy(u => u.Name),
+                (UserManagementSortByOptions.UserName, SortOrderOptions.DESC) => query.OrderByDescending(u => u.Name),
+                _ => query
+            };
+        }
+
+        query = query
+            .Skip((pageNo - 1) * pageSize)
+            .Take(pageSize);
+
+        return await query.ToListAsync();
     }
 }

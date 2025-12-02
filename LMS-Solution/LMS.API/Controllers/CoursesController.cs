@@ -8,11 +8,9 @@ using LMS.Core.Commands.Courses.RejectEnrollmentCommands;
 using LMS.Core.Commands.Courses.UpdateCommands;
 using LMS.Core.DTOs.Courses;
 using LMS.Core.Queries.Courses.GetAllQueries;
-using LMS.Core.Queries.Courses.GetApprovedQueries;
 using LMS.Core.Queries.Courses.GetByIdQueries;
 using LMS.Core.Queries.Courses.GetPendingQueries;
 using LMS.Core.Queries.Courses.GetStudentsByCourseId;
-using LMS.Domin.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -66,12 +64,7 @@ public class CoursesController : ControllerBase
         return NoContent();
     }
 
-    [HttpGet("approved-courses")]
-    public async Task<ActionResult<IEnumerable<GetApprovedCoursesDto>>> GetApproved([FromQuery] GetApprovedCoursesQuery command)
-    {
-        var dto = await _mediator.Send(command);
-        return dto;
-    }
+
 
     [HttpPut("{id}/reject")]
     public async Task<ActionResult<string>> Reject(int id,RejectCourseCommand command)
@@ -81,13 +74,14 @@ public class CoursesController : ControllerBase
         return reason;
     }
 
-    [HttpGet("pending-courses")]
-    public async Task<ActionResult<IEnumerable<GetCourseDto>>> GetPending([FromQuery] GetPendingCoursesQuery query)
+    [HttpGet("status")]
+    public async Task<ActionResult<IEnumerable<GetCourseDto>>> GetByStatus([FromQuery] GetCoursesByStatusQuery query )
     {
         var dto = await _mediator.Send(query);
         return dto;
 
     }
+
     [HttpPut("{id}/approve")]
     public async Task<IActionResult> Approve(int id)
     {

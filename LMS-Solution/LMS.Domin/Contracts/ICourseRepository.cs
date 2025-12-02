@@ -21,4 +21,7 @@ public interface ICourseRepository
 
     Task<List<Enrollment>> GetAllEnrollmentAsync();
 
+    Task<List<Course>> GetStudentCoursesAsync(int id , string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10);
+
+
 }

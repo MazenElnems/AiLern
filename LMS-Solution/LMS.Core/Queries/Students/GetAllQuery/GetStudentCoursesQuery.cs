@@ -5,12 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace LMS.Core.Queries.Courses.GetApprovedQueries
+namespace LMS.Core.Queries.Students.GetAllQuery
 {
-    public class GetApprovedCoursesQuery : IRequest<List<GetApprovedCoursesDto>>
+    public class GetStudentCoursesQuery : IRequest<List<GetStudentCoursesDto>>
     {
+        [JsonIgnore]
+        public int Id { get; set; } 
         public string? SearchString { get; set; }
         public string? SortBy { get; set; }
         public string? Order { get; set; } = SortOrderOptions.DESC;
