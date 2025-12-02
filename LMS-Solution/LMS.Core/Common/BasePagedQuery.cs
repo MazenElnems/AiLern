@@ -1,10 +1,8 @@
 ﻿using LMS.Core.Constants;
-using LMS.Core.DTOs.Courses;
-using MediatR;
 
-namespace LMS.Core.Queries.Courses.GetApprovedQueries;
+namespace LMS.Core.Common;
 
-public class GetApprovedCoursesQuery : IRequest<List<GetApprovedCoursesDto>>
+public abstract class BasePagedQuery 
 {
     public string? SearchString { get; set; }
     public string? SortBy { get; set; }

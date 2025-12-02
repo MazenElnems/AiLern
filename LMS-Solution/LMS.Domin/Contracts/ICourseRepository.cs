@@ -13,12 +13,11 @@ public interface ICourseRepository
     Task<int> RemoveAsync(Course course);
     Task<int> CommitAsync();
 
-    Task<Enrollment> GetEnrollmentByIdAsync(int courseId, int studentId);
+    Task<Enrollment?> GetEnrollmentByIdAsync(int courseId, int studentId);
 
     Task<int> RemoveEnrollmentAsync(Enrollment enrollment);
 
-
+    Task<List<Student>> GetStudentsByCourseIdAsync(int courseId);
 
     Task<List<Enrollment>> GetAllEnrollmentAsync();
-
 }

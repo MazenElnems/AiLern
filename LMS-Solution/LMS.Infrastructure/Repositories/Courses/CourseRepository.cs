@@ -4,6 +4,7 @@ using LMS.Core.Constants;
 using LMS.Domin.Entities;
 using System.Linq.Expressions;
 using LMS.Domin.Contracts;
+using LMS.Domin.Enums;
 
 namespace LMS.Infrastructure.Repositories.Courses;
 
@@ -108,5 +109,12 @@ internal class CourseRepository : ICourseRepository
         return await _db.Enrollments
             .Include(s =>s.Student)
             .ToListAsync(); 
+    }
+
+    public async Task<List<Student>> GetStudentsByCourseIdAsync(int courseId)
+    {
+        return await _db.Students
+            .Where(s => s.Enrollments.Any(e => e.Course_id == courseId && e.Status == EnrollmentStatus.Approved))
+            .ToListAsync();
     }
 }

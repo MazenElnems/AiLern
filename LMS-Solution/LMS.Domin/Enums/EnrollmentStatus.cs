@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace LMS.Domin.Enums;
 
-namespace LMS.Domin.Enums
+public enum EnrollmentStatus
 {
-    public enum EnrollmentStatus
-    {
-        Pending,
-        Approved,
-        Rejected
-
-    }
+    Pending,
+    Approved,
+    Rejected,
+    Edited
 }

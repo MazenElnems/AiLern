@@ -1,42 +1,49 @@
-﻿using LMS.Domin.Contracts;
+﻿using AutoMapper;
+using LMS.Core.DTOs.Students;
+using LMS.Domin.Contracts;
 using LMS.Domin.Entities;
-using LMS.Domin.Enums;
 using LMS.Domin.Exceptions;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
-namespace LMS.Core.Queries.Courses.GetStudentsByCourseId
+namespace LMS.Core.Queries.Courses.GetStudentsByCourseId;
+
+public class GetStudentsByCourseIdQueryHandler : IRequestHandler<GetStudentsByCourseIdQuery, List<GetStudentsByCourseIdDto>>
 {
+    private readonly ICourseRepository _courseRepository;
+    private readonly IMapper _mapper;
+    private readonly ILogger<GetStudentsByCourseIdQueryHandler> _logger;
 
-    public class GetStudentsByCourseIdQueryHandler : IRequestHandler<GetStudentsByCourseIdQuery, List<string>>
+    public GetStudentsByCourseIdQueryHandler(ICourseRepository courseRepository, IMapper mapper, ILogger<GetStudentsByCourseIdQueryHandler> logger)
     {
-        private readonly ICourseRepository _courseRepository;
+        _courseRepository = courseRepository;
+        _mapper = mapper;
+        _logger = logger;
+    }
 
-
-        public GetStudentsByCourseIdQueryHandler(ICourseRepository courseRepository)
+    public async Task<List<GetStudentsByCourseIdDto>> Handle(GetStudentsByCourseIdQuery request, CancellationToken cancellationToken)
+    {
+        try
         {
-            _courseRepository = courseRepository;
+            // select course from db
+            var course = await _courseRepository.GetByIdAsync(request.Id)
+                ?? throw new ResourceNotFoundException(nameof(Course), request.Id.ToString());
 
+            var students = await _courseRepository.GetStudentsByCourseIdAsync(request.Id);
+
+            var dto = _mapper.Map<List<GetStudentsByCourseIdDto>>(students);
+
+            return dto;
+        }
+        catch (ResourceNotFoundException ex)
+        {
+            throw;
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError("an exception happen while getting students in course with id: {CourseId}", request.Id);
+            throw;
         }
 
-        public async Task<List<string>> Handle(GetStudentsByCourseIdQuery request, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var course = await _courseRepository.GetByIdAsync(request.Id)
-                    ?? throw new ResourceNotFoundException(nameof(Course), request.Id.ToString());
-
-                var enrollments = await _courseRepository.GetAllEnrollmentAsync();
-
-                var students = enrollments.FindAll(e => e.Course_id == request.Id && e.Status == EnrollmentStatus.Approved)
-                    .Select(s => s.Student.FullName);
-
-                return students.ToList();
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                throw;
-            }
-
-        }
     }
 }

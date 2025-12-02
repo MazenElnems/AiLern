@@ -1,5 +1,6 @@
 ﻿using LMS.Core.Commands.Courses.ApproveCommands;
 using LMS.Core.Commands.Courses.ApproveEntrollmentsCommands;
+using LMS.Core.Commands.Courses.CourseEnrollmentsCommands;
 using LMS.Core.Commands.Courses.CreateCommands;
 using LMS.Core.Commands.Courses.DeleteCommands;
 using LMS.Core.Commands.Courses.DeleteEnrollmentCommands;
@@ -7,12 +8,13 @@ using LMS.Core.Commands.Courses.RejectCommands;
 using LMS.Core.Commands.Courses.RejectEnrollmentCommands;
 using LMS.Core.Commands.Courses.UpdateCommands;
 using LMS.Core.DTOs.Courses;
+using LMS.Core.DTOs.Students;
 using LMS.Core.Queries.Courses.GetAllQueries;
 using LMS.Core.Queries.Courses.GetApprovedQueries;
+using LMS.Core.Queries.Courses.GetAvailableCoursesQueries;
 using LMS.Core.Queries.Courses.GetByIdQueries;
 using LMS.Core.Queries.Courses.GetPendingQueries;
 using LMS.Core.Queries.Courses.GetStudentsByCourseId;
-using LMS.Domin.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -86,8 +88,8 @@ public class CoursesController : ControllerBase
     {
         var dto = await _mediator.Send(query);
         return dto;
-
     }
+
     [HttpPut("{id}/approve")]
     public async Task<IActionResult> Approve(int id)
     {
@@ -108,18 +110,40 @@ public class CoursesController : ControllerBase
         await _mediator.Send(new DeleteEnrollmentCommand(id, studentId));
         return NoContent();
     }
+
     [HttpPut("{id}/enrollments/{studentId}/reject")]
     public async Task<ActionResult<string>> RejectEnrollment(int id ,int studentId,RejectEnrollmentCommand command)
     {
         command.CourseId = id ;
-        command.StudentId= studentId;
+        command.StudentId = studentId;
         var reason = await _mediator.Send(command);
         return reason;
     }
+
     [HttpGet("{id}/students")]
-    public async Task<ActionResult<List<string>>> GetStudentsByCourseId(int id)
+    public async Task<ActionResult<List<GetStudentsByCourseIdDto>>> GetStudentsByCourseId(int id)
     {
-        var en = await _mediator.Send(new GetStudentsByCourseIdQuery(id));
-        return en;
+        var dto = await _mediator.Send(new GetStudentsByCourseIdQuery(id));
+        return dto;
+    }
+
+    [HttpPost("{id}/enroll")]
+    public async Task<IActionResult> EnrollCourse(int id)
+    {
+        await _mediator.Send(new EnrollCourseCommand(id));
+        return Created();
+    }
+
+    [HttpGet("available-courses")]
+    public async Task<ActionResult<List<GetAvailableCoursesDto>>> GetAvailableCourses([FromQuery] GetAvailableCoursesQuery query)
+    {
+        var dto = await _mediator.Send(query);
+        return dto;
+    }
+
+    [HttpGet("enrollment-requests")]
+    public async Task<ActionResult<List<GetAllCoursesDto>>> GetCoursesWithEnrollmentRequests([FromQuery] GetWithEnrollmentRequestsQuery query)
+    {
+
     }
 }
