@@ -1,4 +1,4 @@
-﻿namespace LMS.Core.DTOs.Users;
+﻿namespace LMS.Domin.DTOs.Users;
 
 public class UserInfoResponse
 {

@@ -1,6 +1,5 @@
 ﻿using LMS.Core.Common;
-using LMS.Core.DTOs.Students;
-using LMS.Domin.Entities;
+using LMS.Domin.DTOs.Students;
 using MediatR;
 using System.Text.Json.Serialization;
 

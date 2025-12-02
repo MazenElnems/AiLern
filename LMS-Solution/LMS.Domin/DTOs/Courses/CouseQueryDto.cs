@@ -1,6 +1,6 @@
-﻿using LMS.Core.Constants;
+﻿using LMS.Domin.Constants;
 
-namespace LMS.Core.DTOs.Courses;
+namespace LMS.Domin.DTOs.Courses;
 
 public class CouseQueryDto
 {

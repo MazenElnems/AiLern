@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LMS.Core.DTOs.Courses;
+namespace LMS.Domin.DTOs.Courses;
 
 public class CreateCourseDto
 {

@@ -1,4 +1,4 @@
-﻿namespace LMS.Core.DTOs.Students;
+﻿namespace LMS.Domin.DTOs.Students;
 
 public class GetStudentsByCourseIdDto
 {

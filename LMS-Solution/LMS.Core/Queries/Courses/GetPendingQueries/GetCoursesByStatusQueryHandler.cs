@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using LMS.Core.DTOs.Courses;
 using LMS.Domin.Contracts;
+using LMS.Domin.DTOs.Courses;
 using LMS.Domin.Enums;
 using MediatR;
 

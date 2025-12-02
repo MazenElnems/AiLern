@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using LMS.Core.DTOs.Users;
+using LMS.Domin.DTOs.Users;
 using LMS.Domin.Entities;
 using LMS.Domin.Exceptions;
 using MediatR;

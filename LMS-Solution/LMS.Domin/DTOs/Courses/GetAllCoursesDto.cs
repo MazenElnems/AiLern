@@ -1,4 +1,4 @@
-﻿namespace LMS.Core.DTOs.Courses;
+﻿namespace LMS.Domin.DTOs.Courses;
 
 public class GetAllCoursesDto
 {

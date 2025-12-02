@@ -1,4 +1,5 @@
-﻿using LMS.Domin.Entities;
+﻿using LMS.Domin.DTOs.Courses;
+using LMS.Domin.Entities;
 using System.Linq.Expressions;
 
 namespace LMS.Domin.Contracts;
@@ -12,16 +13,10 @@ public interface ICourseRepository
     Task<List<Course>> GetPagedCoursesWithFilterAsync(Expression<Func<Course, bool>> filter, string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10);
     Task<int> RemoveAsync(Course course);
     Task<int> CommitAsync();
-
     Task<Enrollment?> GetEnrollmentByIdAsync(int courseId, int studentId);
-
     Task<int> RemoveEnrollmentAsync(Enrollment enrollment);
-
     Task<List<Student>> GetStudentsByCourseIdAsync(int courseId);
-
     Task<List<Enrollment>> GetAllEnrollmentAsync();
-
     Task<List<Course>> GetStudentCoursesAsync(int id , string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10);
-
-
+    Task<List<GetEnrollmentRequestsDto>> GetEnrollmentRequestsAsync(int courseId);
 }

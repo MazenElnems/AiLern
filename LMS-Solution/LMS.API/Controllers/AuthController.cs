@@ -3,9 +3,7 @@ using LMS.Core.Commands.Auth.UserLoginCommands;
 using LMS.Core.Commands.Auth.UserRefreshTokenCommands;
 using LMS.Core.Commands.Auth.UserRevokeRefreshTokenCommands;
 using LMS.Core.DTOs.Auth.Request;
-using LMS.Domin.Entities;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS.API.Controllers;

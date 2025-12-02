@@ -1,4 +1,4 @@
-﻿namespace LMS.Core.DTOs.Auth;
+﻿namespace LMS.Domin.DTOs.Auth;
 
 public class LoginRequestDto
 {

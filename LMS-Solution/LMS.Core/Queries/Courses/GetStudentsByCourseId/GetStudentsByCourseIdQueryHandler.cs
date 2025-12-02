@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using LMS.Core.DTOs.Students;
 using LMS.Domin.Contracts;
+using LMS.Domin.DTOs.Students;
 using LMS.Domin.Entities;
 using LMS.Domin.Exceptions;
 using MediatR;

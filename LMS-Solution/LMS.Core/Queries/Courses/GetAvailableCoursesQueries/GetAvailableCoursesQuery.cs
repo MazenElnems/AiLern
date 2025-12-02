@@ -1,5 +1,5 @@
 ﻿using LMS.Core.Common;
-using LMS.Core.DTOs.Courses;
+using LMS.Domin.DTOs.Courses;
 using MediatR;
 
 namespace LMS.Core.Queries.Courses.GetAvailableCoursesQueries;

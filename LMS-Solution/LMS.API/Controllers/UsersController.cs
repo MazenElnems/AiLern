@@ -1,8 +1,8 @@
 ﻿using LMS.Core.Commands.Users.DeleteUserRoleCommands;
 using LMS.Core.Commands.Users.UpdateCommands;
-using LMS.Core.DTOs.Users;
 using LMS.Core.Queries.Users.GetAllByRoleIdQueries;
 using LMS.Core.Queries.Users.GetByIdQueries;
+using LMS.Domin.DTOs.Users;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,12 +1,9 @@
-﻿using LMS.Core.Constants;
-using LMS.Domin.DTOs.Courses;
-using MediatR;
+﻿using LMS.Domin.Constants;
 
-namespace LMS.Core.Queries.Courses.GetPendingQueries;
+namespace LMS.Domin.Common;
 
-public class GetCoursesByStatusQuery : IRequest<List<GetCourseDto>>
+public abstract class BasePagedQuery 
 {
-    public string Status { get; set; }
     public string? SearchString { get; set; }
     public string? SortBy { get; set; }
     public string? Order { get; set; } = SortOrderOptions.DESC;

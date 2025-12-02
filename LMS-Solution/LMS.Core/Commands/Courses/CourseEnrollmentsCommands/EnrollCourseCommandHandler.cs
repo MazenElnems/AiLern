@@ -32,6 +32,9 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand>
 
             if(course.CourseStatus != CourseStatus.Approved)
                 throw new CourseEnrollmentException("Cannot enroll in a course that is not approved.");
+            
+            if(await _courseRepository.GetEnrollmentByIdAsync(currentStudentId, request.CourseId) != null)
+                throw new CourseEnrollmentException("Student is already enrolled in this course.");
 
             var enrollment = new Enrollment
             {
