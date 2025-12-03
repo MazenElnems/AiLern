@@ -30,7 +30,7 @@ internal class CourseRepository : ICourseRepository
         return await _db.SaveChangesAsync();
     }
 
-    public async Task<List<Course>> GetPagedCourses(string searchString,string sortBy, string order, int pageNo = 1, int pageSize = 10)
+    public async Task<(List<Course>, int)> GetPagedCourses(string searchString,string sortBy, string order, int pageNo = 1, int pageSize = 10)
     {
         return await GetPagedCoursesWithFilterAsync(
             c => true,
@@ -42,7 +42,7 @@ internal class CourseRepository : ICourseRepository
         );
     }
 
-    public async Task<List<Course>> GetPagedCoursesWithFilterAsync(Expression<Func<Course, bool>> filter, string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10)
+    public async Task<(List<Course>, int)> GetPagedCoursesWithFilterAsync(Expression<Func<Course, bool>> filter, string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10)
     {
         IQueryable<Course> query = _db.Courses
             .Include(i => i.Instructor);
@@ -60,6 +60,8 @@ internal class CourseRepository : ICourseRepository
         if (filter != null)
             query = query.Where(filter);
 
+        int totalResults = await query.CountAsync();
+
         if (sortBy != null && order != null)
         {
             query = (sortBy.ToLower(), order.ToLower()) switch
@@ -76,7 +78,7 @@ internal class CourseRepository : ICourseRepository
             .Skip((pageNo - 1) * pageSize)
             .Take(pageSize);
 
-        return await query.ToListAsync();
+        return (await query.ToListAsync(), totalResults);
     }
 
     public async Task<Course?> GetByIdAsync(int id) =>

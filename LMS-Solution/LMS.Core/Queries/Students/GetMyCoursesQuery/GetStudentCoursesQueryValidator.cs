@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using LMS.Core.Queries.Students.GetMyCoursesQuery;
 
 namespace LMS.Core.Queries.Students.GetAllQuery
 {

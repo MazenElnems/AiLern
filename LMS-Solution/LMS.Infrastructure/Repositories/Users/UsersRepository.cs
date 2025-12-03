@@ -38,16 +38,15 @@ public class UsersRepository : IUsersRepository
         return result;
     }
 
-    public async Task<List<ApplicationUser>> GetUsersByRoleIdAsync(int roleId, string sortBy, string order, int pageNo = 1, int pageSize = 10)
+    public async Task<(List<ApplicationUser>,int)> GetUsersByRoleIdAsync(int roleId, string sortBy, string order, int pageNo = 1, int pageSize = 10)
     {
         IQueryable<ApplicationUser> query = _db.Users;
 
         var role = await _db.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
 
-        if (role == null)
-            return null!;
-
         query = query.Where(u => u.Role == role.Name);
+
+        var count = await query.CountAsync();
 
         if (sortBy != null && order != null)
         {
@@ -65,7 +64,7 @@ public class UsersRepository : IUsersRepository
             .Skip((pageNo - 1) * pageSize)
             .Take(pageSize);
 
-        return await query.ToListAsync();
+        return (await query.ToListAsync(),count);
     }
 
     public async Task<Student?> GetStudentByStudentId(int studentId)

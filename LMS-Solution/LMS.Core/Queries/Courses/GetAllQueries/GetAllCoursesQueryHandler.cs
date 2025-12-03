@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
 using LMS.Domin.Contracts;
+using LMS.Domin.DTOs;
 using LMS.Domin.DTOs.Courses;
 using MediatR;
 
 namespace LMS.Core.Queries.Courses.GetAllQueries;
 
-public class GetAllCoursesQueryHandler : IRequestHandler<GetAllCoursesQuery, List<GetAllCoursesDto>>
+public class GetAllCoursesQueryHandler : IRequestHandler<GetAllCoursesQuery, PaginationResult<GetAllCoursesDto>>
 {
     private readonly ICourseRepository _courseRepository;
     private readonly IMapper _mapper;
@@ -16,16 +17,18 @@ public class GetAllCoursesQueryHandler : IRequestHandler<GetAllCoursesQuery, Lis
         _mapper = mapper;
     }
 
-    public async Task<List<GetAllCoursesDto>> Handle(GetAllCoursesQuery request, CancellationToken cancellationToken)
+    public async Task<PaginationResult<GetAllCoursesDto>> Handle(GetAllCoursesQuery request, CancellationToken cancellationToken)
     {
-        var courses = await _courseRepository.GetPagedCourses(
+        var (courses, totalResult) = await _courseRepository.GetPagedCourses(
             request.SearchString!,
             request.SortBy!,
             request.Order!,
             request.PageNumber,
             request.PageSize
         );
+        
         var dto = _mapper.Map<List<GetAllCoursesDto>>(courses);
-        return dto;
+
+        return new PaginationResult<GetAllCoursesDto>(request.PageNumber, request.PageSize, totalResult, dto);
     }
 }

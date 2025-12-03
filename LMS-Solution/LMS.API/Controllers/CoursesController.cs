@@ -16,6 +16,7 @@ using MediatR;
 using LMS.Core.Queries.Courses.GetEnrollmentRequestsQueries;
 using LMS.Domin.DTOs.Courses;
 using LMS.Domin.DTOs.Students;
+using LMS.Domin.DTOs;
 
 
 namespace LMS.API.Controllers;
@@ -39,7 +40,7 @@ public class CoursesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<GetAllCoursesDto>>> GetAll([FromQuery] GetAllCoursesQuery query)
+    public async Task<ActionResult<PaginationResult<GetAllCoursesDto>>> GetAll([FromQuery] GetAllCoursesQuery query)
     {
         var dto = await _mediator.Send(query);
         return dto;
@@ -121,7 +122,7 @@ public class CoursesController : ControllerBase
     }
 
     [HttpGet("available-courses")]
-    public async Task<ActionResult<List<GetAvailableCoursesDto>>> GetAvailableCourses([FromQuery] GetAvailableCoursesQuery query)
+    public async Task<ActionResult<PaginationResult<GetAvailableCoursesDto>>> GetAvailableCourses([FromQuery] GetAvailableCoursesQuery query)
     {
         var dto = await _mediator.Send(query);
         return dto;

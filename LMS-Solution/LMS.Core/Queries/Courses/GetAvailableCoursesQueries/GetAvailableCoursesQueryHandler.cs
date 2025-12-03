@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using LMS.Domin.Contracts;
+using LMS.Domin.DTOs;
 using LMS.Domin.DTOs.Courses;
 using LMS.Domin.Enums;
 using MediatR;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace LMS.Core.Queries.Courses.GetAvailableCoursesQueries;
 
-public class GetAvailableCoursesQueryHandler : IRequestHandler<GetAvailableCoursesQuery, List<GetAvailableCoursesDto>>
+public class GetAvailableCoursesQueryHandler : IRequestHandler<GetAvailableCoursesQuery, PaginationResult<GetAvailableCoursesDto>>
 {
     private readonly ILogger<GetAvailableCoursesQueryHandler> _logger;
     private readonly ICourseRepository _courseRepository;
@@ -20,14 +21,14 @@ public class GetAvailableCoursesQueryHandler : IRequestHandler<GetAvailableCours
         _mapper = mapper;
     }
 
-    public async Task<List<GetAvailableCoursesDto>> Handle(GetAvailableCoursesQuery request, CancellationToken cancellationToken)
+    public async Task<PaginationResult<GetAvailableCoursesDto>> Handle(GetAvailableCoursesQuery request, CancellationToken cancellationToken)
     {
         try
         {
             _logger.LogInformation("Handling GetAvailableCoursesQuery with SearchString: {SearchString}, SortBy: {SortBy}, Order: {Order}, PageNumber: {PageNumber}, PageSize: {PageSize}",
                 request.SearchString, request.SortBy, request.Order, request.PageNumber, request.PageSize);
 
-            var courses = await _courseRepository.GetPagedCoursesWithFilterAsync(
+            var (courses,totalReslt) = await _courseRepository.GetPagedCoursesWithFilterAsync(
                 c => c.CourseStatus == CourseStatus.Approved,
                 request.SearchString!,
                 request.SortBy!,
@@ -37,7 +38,8 @@ public class GetAvailableCoursesQueryHandler : IRequestHandler<GetAvailableCours
             );
 
             var dto = _mapper.Map<List<GetAvailableCoursesDto>>(courses);
-            return dto;
+
+            return new PaginationResult<GetAvailableCoursesDto>(request.PageNumber, request.PageSize, totalReslt, dto);
         }
         catch(Exception ex)
         {
