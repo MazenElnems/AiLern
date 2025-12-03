@@ -12,15 +12,13 @@ namespace LMS.Core.Commands.Students.CreateCommands;
 public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand,int>
 {
     private readonly IMapper _mapper;
-    private readonly IUserContext _currentUser;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<CreateStudentCommandHandler> _logger;
     private readonly IUsersRepository _usersRepository;
 
-    public CreateStudentCommandHandler(IMapper mapper, IUserContext currentUser, UserManager<ApplicationUser> user, ILogger<CreateStudentCommandHandler> logger, IUsersRepository usersRepository)
+    public CreateStudentCommandHandler(IMapper mapper, UserManager<ApplicationUser> user, ILogger<CreateStudentCommandHandler> logger, IUsersRepository usersRepository)
     {
         _mapper = mapper;
-        _currentUser = currentUser;
         _userManager = user;
         _logger = logger;
         _usersRepository = usersRepository;
@@ -32,9 +30,7 @@ public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand,
         {
             var student = _mapper.Map<Student>(request);
 
-            var CurrentUser = _currentUser.GetCurrentUser();
-
-            if(_usersRepository.GetStudentByStudentId(request.StudentId) != null)
+            if(await _usersRepository.GetStudentByStudentId(request.StudentId) != null)
                 throw new UserCreationException("the student id is already exists");
 
             var result = await _userManager.CreateAsync(student,request.Password);

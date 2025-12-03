@@ -52,10 +52,7 @@ internal class CourseRepository : ICourseRepository
         // 3) Pagination
 
         if (!string.IsNullOrEmpty(searchString))
-        {
-            var lowerSearch = searchString.ToLower();
-            query = query.Where(c => c.Name.ToLower().Contains(lowerSearch) || c.Description.ToLower().Contains(lowerSearch));
-        }
+            query = query.Where(c => EF.Functions.Like(c.Name, $"%{searchString}%") && EF.Functions.Like(c.Description, $"%{searchString}%"));
 
         if (filter != null)
             query = query.Where(filter);
