@@ -1,9 +1,11 @@
-﻿using LMS.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using LMS.Core.Constants;
-using LMS.Domin.Entities;
-using System.Linq.Expressions;
+﻿using LMS.Core.Constants;
 using LMS.Domin.Contracts;
+using LMS.Domin.DTOs.Courses;
+using LMS.Domin.Entities;
+using LMS.Domin.Enums;
+using LMS.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace LMS.Infrastructure.Repositories.Courses;
 
@@ -28,7 +30,7 @@ internal class CourseRepository : ICourseRepository
         return await _db.SaveChangesAsync();
     }
 
-    public async Task<List<Course>> GetPagedCourses(string searchString,string sortBy, string order, int pageNo = 1, int pageSize = 10)
+    public async Task<(List<Course>, int)> GetPagedCourses(string searchString,string sortBy, string order, int pageNo = 1, int pageSize = 10)
     {
         return await GetPagedCoursesWithFilterAsync(
             c => true,
@@ -40,7 +42,7 @@ internal class CourseRepository : ICourseRepository
         );
     }
 
-    public async Task<List<Course>> GetPagedCoursesWithFilterAsync(Expression<Func<Course, bool>> filter, string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10)
+    public async Task<(List<Course>, int)> GetPagedCoursesWithFilterAsync(Expression<Func<Course, bool>> filter, string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10)
     {
         IQueryable<Course> query = _db.Courses
             .Include(i => i.Instructor);
@@ -54,6 +56,8 @@ internal class CourseRepository : ICourseRepository
 
         if (filter != null)
             query = query.Where(filter);
+
+        int totalResults = await query.CountAsync();
 
         if (sortBy != null && order != null)
         {
@@ -71,7 +75,7 @@ internal class CourseRepository : ICourseRepository
             .Skip((pageNo - 1) * pageSize)
             .Take(pageSize);
 
-        return await query.ToListAsync();
+        return (await query.ToListAsync(), totalResults);
     }
 
     public async Task<Course?> GetByIdAsync(int id) =>
@@ -88,4 +92,68 @@ internal class CourseRepository : ICourseRepository
         return await _db.SaveChangesAsync();
     }
 
+    public async Task<Enrollment?> GetEnrollmentByIdAsync(int courseId, int studentId)
+    {
+        var enrollment = await _db.Enrollments.FindAsync(courseId, studentId);
+        return enrollment;
+    }
+
+    public async Task<int> RemoveEnrollmentAsync(Enrollment enrollment)
+    {
+        _db.Remove(enrollment);
+        return await _db.SaveChangesAsync();
+    }
+
+    public async Task<List<Enrollment>> GetAllEnrollmentAsync()
+    {
+        return await _db.Enrollments
+            .Include(s =>s.Student)
+            .ToListAsync(); 
+    }
+
+    public async Task<List<Student>> GetStudentsByCourseIdAsync(int courseId)
+    {
+        return await _db.Students
+            .Where(s => s.Enrollments.Any(e => e.Course_id == courseId && e.Status == EnrollmentStatus.Approved))
+            .ToListAsync();
+    }
+
+    public async Task<List<Course>> GetStudentCoursesAsync(int id, string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10)
+    {
+        IQueryable<Course> query = _db.Courses.Include(e => e.Instructor).
+            Where(e => e.Enrollments.Any(s => s.Status == EnrollmentStatus.Approved && s.Student_id == id));
+
+
+        if (sortBy != null && order != null)
+        {
+            query = (sortBy.ToLower(), order.ToLower()) switch
+            {
+                (UserManagementSortByOptions.FullName, SortOrderOptions.ASC) => query.OrderBy(u => u.Name),
+                (UserManagementSortByOptions.FullName, SortOrderOptions.DESC) => query.OrderByDescending(u => u.Name),
+                (UserManagementSortByOptions.UserName, SortOrderOptions.ASC) => query.OrderBy(u => u.Name),
+                (UserManagementSortByOptions.UserName, SortOrderOptions.DESC) => query.OrderByDescending(u => u.Name),
+                _ => query
+            };
+        }
+
+        query = query
+            .Skip((pageNo - 1) * pageSize)
+            .Take(pageSize);
+
+        return await query.ToListAsync();
+    }
+
+    public async Task<List<GetEnrollmentRequestsDto>> GetEnrollmentRequestsAsync(int courseId)
+    {
+        return await _db.Enrollments
+            .Where(e => e.Status == EnrollmentStatus.Pending)
+            .Select(e => new GetEnrollmentRequestsDto
+            {
+                Id = e.Student.Id,
+                Name = e.Student.FullName,
+                Email = e.Student.Email!,
+                StudentId = e.Student.StudentId,
+                RequestAt = e.Requested_at
+            }).ToListAsync();
+    }
 }

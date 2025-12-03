@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <Folder Include="Repositories\Instructors\" />
-    <Folder Include="Repositories\Students\" />
   </ItemGroup>
 
 </Project>

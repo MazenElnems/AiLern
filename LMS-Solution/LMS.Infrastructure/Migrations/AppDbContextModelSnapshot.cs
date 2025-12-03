@@ -147,6 +147,32 @@ namespace LMS.Infrastructure.Migrations
                     b.ToTable("Courses", (string)null);
                 });
 
+            modelBuilder.Entity("LMS.Domin.Entities.Enrollment", b =>
+                {
+                    b.Property<int>("Course_id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Student_id")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Requested_at")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("DATETIME2")
+                        .HasDefaultValueSql("SYSDATETIME()");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Pending");
+
+                    b.HasKey("Course_id", "Student_id");
+
+                    b.HasIndex("Student_id");
+
+                    b.ToTable("Enrollments");
+                });
+
             modelBuilder.Entity("LMS.Domin.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -351,6 +377,25 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Instructor");
                 });
 
+            modelBuilder.Entity("LMS.Domin.Entities.Enrollment", b =>
+                {
+                    b.HasOne("LMS.Domin.Entities.Course", "Course")
+                        .WithMany("Enrollments")
+                        .HasForeignKey("Course_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LMS.Domin.Entities.Student", "Student")
+                        .WithMany("Enrollments")
+                        .HasForeignKey("Student_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("LMS.Domin.Entities.RefreshToken", b =>
                 {
                     b.HasOne("LMS.Domin.Entities.ApplicationUser", "User")
@@ -413,9 +458,19 @@ namespace LMS.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("LMS.Domin.Entities.Course", b =>
+                {
+                    b.Navigation("Enrollments");
+                });
+
             modelBuilder.Entity("LMS.Domin.Entities.Instructor", b =>
                 {
                     b.Navigation("Courses");
+                });
+
+            modelBuilder.Entity("LMS.Domin.Entities.Student", b =>
+                {
+                    b.Navigation("Enrollments");
                 });
 #pragma warning restore 612, 618
         }

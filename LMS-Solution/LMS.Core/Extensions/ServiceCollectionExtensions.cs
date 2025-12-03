@@ -6,12 +6,12 @@ using LMS.Core.Commands.Instructors.CreateInstructorsCommands;
 using LMS.Core.Commands.Students.CreateCommands;
 using LMS.Core.ConfigurationOptions;
 using LMS.Core.CurrentUser;
-using LMS.Core.DTOs.Courses;
-using LMS.Core.DTOs.Users;
 using LMS.Core.Services.Auth;
 using LMS.Core.Services.Auth.Interfaces;
+using LMS.Domin.DTOs.Courses;
+using LMS.Domin.DTOs.Students;
+using LMS.Domin.DTOs.Users;
 using LMS.Domin.Entities;
-using LMS.Domin.Enums;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -75,8 +75,13 @@ public static class ServiceCollectionExtensions
                .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.UserName))
                .ForMember(dto => dto.CourseStatus, opt => opt.MapFrom(src => src.CourseStatus.ToString()));
 
-            cfg.CreateMap<Course, GetApprovedCoursesDto>()
+            cfg.CreateMap<Course, GetStudentCoursesDto>()
                .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.UserName));
+
+            cfg.CreateMap<Course, GetAvailableCoursesDto>()
+               .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.FullName));
+
+            cfg.CreateMap<Student, GetStudentsByCourseIdDto>();
 
             cfg.CreateMap<ApplicationUser, GetUsersByRoleDto>();
             cfg.CreateMap<Course, GetAllCoursesDto>();

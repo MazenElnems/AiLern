@@ -1,4 +1,6 @@
 ﻿using LMS.Core.Commands.Students.CreateCommands;
+using LMS.Core.Queries.Students.GetMyCoursesQuery;
+using LMS.Domin.DTOs.Courses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,5 +23,11 @@ public class StudentsController : ControllerBase
     {
         await _mediator.Send(command);
         return Created();
+    }
+    [HttpGet("my-courses")]
+    public async Task<ActionResult<List<GetStudentCoursesDto>>> GetCourses([FromQuery]GetStudentCoursesQuery query)
+    {
+        var dto = await _mediator.Send(query);
+        return dto;
     }
 }

@@ -1,8 +1,9 @@
 ﻿using LMS.Core.Commands.Users.DeleteUserRoleCommands;
 using LMS.Core.Commands.Users.UpdateCommands;
-using LMS.Core.DTOs.Users;
 using LMS.Core.Queries.Users.GetAllByRoleIdQueries;
 using LMS.Core.Queries.Users.GetByIdQueries;
+using LMS.Domin.DTOs;
+using LMS.Domin.DTOs.Users;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,7 +37,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("roles/{roleid}")]
-    public async Task<ActionResult<IEnumerable<GetUsersByRoleDto>>> GetUsersByRoleId(int roleid, [FromQuery] GetAllByRoleIdQuery query)
+    public async Task<ActionResult<PaginationResult<GetUsersByRoleDto>>> GetUsersByRoleId(int roleid, [FromQuery] GetAllByRoleIdQuery query)
     {
         query.RoleId = roleid;
         var dto = await _mediator.Send(query);
