@@ -1,4 +1,4 @@
-﻿using LMS.Core.Constants;
+﻿using LMS.Domin.Constants;
 using LMS.Domin.DTOs.Courses;
 using MediatR;
 

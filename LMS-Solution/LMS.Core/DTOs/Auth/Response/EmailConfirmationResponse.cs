@@ -1,8 +1,8 @@
 ﻿namespace LMS.Core.DTOs.Auth.Response;
 
-public class EmailConfirmationResponse(bool isConfirmed,string passwordToken ,int? userId = null)
+public class EmailConfirmationResponse(bool isConfirmed,string passwordToken ,string? email = null)
 {
     public bool IsConfirmed { get; set; } = isConfirmed;
-    public int? UserId{ get; set; } = userId;
+    public string Email{ get; set; } = email;
     public string PasswordToken { get; set; } = passwordToken;
 }

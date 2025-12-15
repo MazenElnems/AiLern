@@ -1,4 +1,4 @@
-﻿using LMS.Core.Constants;
+﻿using LMS.Domin.Constants;
 using LMS.Domin.Contracts;
 using LMS.Domin.Entities;
 using LMS.Infrastructure.Data;
@@ -72,4 +72,12 @@ public class UsersRepository : IUsersRepository
         var std =await _db.Students.FirstOrDefaultAsync(std => std.StudentId == studentId);
         return  std;
     }
+
+    public async Task RevokeRefreshTokensByUserIdAsync(int userId)
+    {
+        await _db.RefreshTokens
+            .Where(rt => rt.UserId == userId && rt.RevokesOn == null && rt.ExpiresOn > DateTime.UtcNow)
+            .ExecuteUpdateAsync(setter => setter.SetProperty(r => r.RevokesOn, DateTime.UtcNow));
+    }
+
 }

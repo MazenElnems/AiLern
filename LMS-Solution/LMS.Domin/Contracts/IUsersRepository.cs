@@ -1,5 +1,4 @@
 ﻿using LMS.Domin.Entities;
-using Microsoft.AspNetCore.Identity;
 
 namespace LMS.Domin.Contracts;
 
@@ -10,4 +9,5 @@ public interface IUsersRepository
     Task<RefreshToken?> GetRefreshTokenAsync(string  refreshToken, bool includeUser = false);
     Task<int> CommitAsync();
     Task<Student?> GetStudentByStudentId(int studentId);
+    Task RevokeRefreshTokensByUserIdAsync(int userId);
 }

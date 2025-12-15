@@ -20,20 +20,20 @@ public class UserEmailConfirmationCommandHandler : IRequestHandler<UserEmailConf
 
     public async Task<EmailConfirmationResponse> Handle(UserEmailConfirmationCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByIdAsync(request.UserId.ToString())
-            ?? throw new ResourceNotFoundException("User", request.UserId.ToString());
+        var user = await _userManager.FindByEmailAsync(request.Email)
+            ?? throw new ResourceNotFoundException("User", request.Email);
 
-        _logger.LogInformation("Confirming email for user with ID {UserId}", request.UserId);
+        _logger.LogInformation("Confirming email for user with email {Email}", request.Email);
 
         var result = await _userManager.ConfirmEmailAsync(user, request.Token);
 
         if (!result.Succeeded)
         {
-            _logger.LogWarning("Email confirmation failed for user with ID {UserId}. Errors: {Errors}", request.UserId, string.Join(", ", result.Errors.Select(e => e.Description)));
+            _logger.LogWarning("Email confirmation failed for user with email {Email}. Errors: {Errors}", request.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
             return new EmailConfirmationResponse(false,string.Empty);
         }
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-        return new EmailConfirmationResponse(true, token, user.Id);
+        return new EmailConfirmationResponse(true, token, user.Email);
     }
 }
