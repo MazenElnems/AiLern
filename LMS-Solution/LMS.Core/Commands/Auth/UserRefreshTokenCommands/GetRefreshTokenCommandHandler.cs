@@ -73,7 +73,8 @@ public class GetRefreshTokenCommandHandler : IRequestHandler<GetRefreshTokenComm
             Email = user.Email,
             AccessToken = accessToken,
             ExpiresOn = accessTokenExpiration,
-            RefreshToken = newRefreshToken
+            RefreshToken = newRefreshToken,
+            Role = roles.FirstOrDefault() ?? "Student"
         };
 
         return response;
