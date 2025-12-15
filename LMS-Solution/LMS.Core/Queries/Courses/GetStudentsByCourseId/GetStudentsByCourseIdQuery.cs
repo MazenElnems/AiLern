@@ -1,4 +1,4 @@
-﻿using LMS.Core.Common;
+﻿using LMS.Domin.Common;
 using LMS.Domin.DTOs.Students;
 using MediatR;
 using System.Text.Json.Serialization;

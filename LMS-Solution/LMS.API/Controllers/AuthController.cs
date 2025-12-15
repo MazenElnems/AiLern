@@ -53,7 +53,6 @@ public class AuthController : ControllerBase
         return BadRequest(response);
     }
 
-    // TODO: Implement Resend Confirmation Email
     [HttpPost("resend-confirmation-email")]
     public async Task<IActionResult> ResendConfirmationEmail(ResendEmailConfirmationCommand command)
     {

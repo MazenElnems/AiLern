@@ -6,5 +6,5 @@ namespace LMS.Core.Commands.Auth.EmailConfirmationCommands;
 public class UserEmailConfirmationCommand : IRequest<EmailConfirmationResponse>
 {
     public string Token { get; set; }
-    public int UserId { get; set; }
+    public string Email { get; set; }
 }

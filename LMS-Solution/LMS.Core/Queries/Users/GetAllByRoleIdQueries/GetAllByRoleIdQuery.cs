@@ -1,4 +1,4 @@
-﻿using LMS.Core.Common;
+﻿using LMS.Domin.Common;
 using LMS.Domin.DTOs;
 using LMS.Domin.DTOs.Users;
 using MediatR;

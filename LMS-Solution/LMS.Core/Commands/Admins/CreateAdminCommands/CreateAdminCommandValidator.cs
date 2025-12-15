@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using LMS.Core.Constants;
 
 namespace LMS.Core.Commands.Admins.CreateAdminCommands;
 

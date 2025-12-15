@@ -1,4 +1,4 @@
-﻿using LMS.Core.Constants;
+﻿using LMS.Domin.Constants;
 using LMS.Domin.Entities;
 using LMS.Domin.Exceptions;
 using MediatR;
