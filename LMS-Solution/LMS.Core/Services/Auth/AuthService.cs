@@ -1,7 +1,5 @@
 ﻿using LMS.Core.ConfigurationOptions;
 using LMS.Core.Services.Auth.Interfaces;
-using LMS.Domin.Entities;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -25,6 +23,7 @@ internal class AuthService : IAuthService
 
     public (string, DateTime) GetAccessTokenAsync(List<Claim> claims)
     {
+        _logger.LogInformation("Generating access token.");
         var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 

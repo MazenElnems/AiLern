@@ -1,5 +1,4 @@
-﻿using LMS.Domin.Entities;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 namespace LMS.Core.Services.Auth.Interfaces;
 
