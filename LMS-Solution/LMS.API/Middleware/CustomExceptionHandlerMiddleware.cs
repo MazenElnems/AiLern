@@ -25,6 +25,12 @@ public class CustomExceptionHandlerMiddleware
             await httpContext.Response.WriteAsync("can't reset the password, please try again!");
             _logger.LogWarning("Password reset failed.");
         }
+        catch(EmailConfirmationException ex)
+        {
+            httpContext.Response.StatusCode = 400;
+            await httpContext.Response.WriteAsync("Email confirmation failed.");
+            _logger.LogWarning("Email confirmation failed.");
+        }
         catch (CourseUpdateException ex)
         {
             httpContext.Response.StatusCode = 400;

@@ -32,6 +32,8 @@ public static class ServiceCollectionExtensions
         //MediatR
         services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
 
+        services.Configure<ApplicationDomain>(configuration.GetSection("Domain"));
+
         // Validator
         services
             .AddFluentValidationAutoValidation()

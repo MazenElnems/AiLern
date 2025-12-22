@@ -21,8 +21,15 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
     private readonly RefreshTokenOptions _refreshToken;
     private readonly IUsersRepository _usersRepository;
     private readonly IMailSender _emailSender;
+    private readonly ApplicationDomain _applicationDomain;
 
-    public UserLoginByEmailAndPasswordCommandHandler(IAuthService authService, ILogger<UserLoginByEmailAndPasswordCommandHandler> logger, UserManager<ApplicationUser> userManager, IOptions<RefreshTokenOptions> refreshToken, IUsersRepository usersRepository, IMailSender emailSender)
+    public UserLoginByEmailAndPasswordCommandHandler(IAuthService authService,
+        ILogger<UserLoginByEmailAndPasswordCommandHandler> logger,
+        UserManager<ApplicationUser> userManager,
+        IOptions<RefreshTokenOptions> refreshToken,
+        IUsersRepository usersRepository, 
+        IMailSender emailSender,
+        IOptions<ApplicationDomain> applicationDomainOptions)
     {
         _authService = authService;
         _logger = logger;
@@ -30,6 +37,7 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
         _refreshToken = refreshToken.Value;
         _usersRepository = usersRepository;
         _emailSender = emailSender;
+        _applicationDomain = applicationDomainOptions.Value;
     }
 
     public async Task<GetTokenResponseDto> Handle(UserLoginByEmailAndPasswordCommand request, CancellationToken cancellationToken)
@@ -43,14 +51,14 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
                 throw new InvalidUserEmailOrPasswordException();
 
 
-            // Email Confirmation 
+            // Is Email Confirmed 
 
             if (!user.EmailConfirmed)
             {
                 var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 var template = await File.ReadAllTextAsync("EmailTemplates\\ConfirmationEmail.html");
                 var html = template
-                    .Replace("{{ConfirmationLink}}", $"https://localhost:7080/api/auth/email-confirm?token={emailConfirmationToken}&email={user.Email}");
+                    .Replace("{{ConfirmationLink}}", $"{_applicationDomain.Domain}/api/auth/email-confirm?token={emailConfirmationToken}&email={user.Email}");
 
                 await _emailSender.SendAsync(request.Email, "Email Confirmation", html);
                 return new GetTokenResponseDto();
@@ -88,7 +96,7 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
                 AccessToken = accessToken,
                 ExpiresOn = accessTokenExpiration,
                 RefreshToken = refreshToken,
-                Role = roles.FirstOrDefault() ?? "Student"
+                Role = roles.First()
             };
 
             return response;

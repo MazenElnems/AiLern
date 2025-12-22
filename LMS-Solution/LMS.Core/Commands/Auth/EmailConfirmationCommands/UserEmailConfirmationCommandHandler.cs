@@ -1,5 +1,4 @@
-﻿using LMS.Core.DTOs.Auth.Response;
-using LMS.Domin.Entities;
+﻿using LMS.Domin.Entities;
 using LMS.Domin.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -7,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace LMS.Core.Commands.Auth.EmailConfirmationCommands;
 
-public class UserEmailConfirmationCommandHandler : IRequestHandler<UserEmailConfirmationCommand, EmailConfirmationResponse>
+public class UserEmailConfirmationCommandHandler : IRequestHandler<UserEmailConfirmationCommand>
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<UserEmailConfirmationCommandHandler> _logger;
@@ -18,10 +17,16 @@ public class UserEmailConfirmationCommandHandler : IRequestHandler<UserEmailConf
         _userManager = userManager;
     }
 
-    public async Task<EmailConfirmationResponse> Handle(UserEmailConfirmationCommand request, CancellationToken cancellationToken)
+    public async Task Handle(UserEmailConfirmationCommand request, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByEmailAsync(request.Email)
             ?? throw new ResourceNotFoundException("User", request.Email);
+
+        if(user.EmailConfirmed)
+        {
+            _logger.LogInformation("Email already confirmed for user with email {Email}", request.Email);
+            return;
+        }
 
         _logger.LogInformation("Confirming email for user with email {Email}", request.Email);
 
@@ -30,10 +35,9 @@ public class UserEmailConfirmationCommandHandler : IRequestHandler<UserEmailConf
         if (!result.Succeeded)
         {
             _logger.LogWarning("Email confirmation failed for user with email {Email}. Errors: {Errors}", request.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
-            return new EmailConfirmationResponse(false,string.Empty);
+            throw new EmailConfirmationException("Email confirmation failed. Please ensure the token is valid and has not expired.");
         }
 
-        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-        return new EmailConfirmationResponse(true, token, user.Email);
+        return;
     }
 }
