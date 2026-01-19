@@ -1,5 +1,5 @@
 ﻿using LMS.Core.Commands.Admins.CreateAdminCommands;
-using LMS.Domin.Contracts;
+using LMS.Domin.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;

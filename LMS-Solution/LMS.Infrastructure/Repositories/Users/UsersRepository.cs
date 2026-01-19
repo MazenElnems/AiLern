@@ -1,5 +1,5 @@
 ﻿using LMS.Domin.Constants;
-using LMS.Domin.Contracts;
+using LMS.Domin.Repositories;
 using LMS.Domin.Entities;
 using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;

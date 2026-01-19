@@ -1,5 +1,5 @@
 ﻿using LMS.Core.ConfigurationOptions;
-using LMS.Domin.Contracts;
+using LMS.Domin.Repositories;
 using LMS.Domin.Entities;
 using LMS.Infrastructure.Data;
 using LMS.Infrastructure.Repositories.Courses;

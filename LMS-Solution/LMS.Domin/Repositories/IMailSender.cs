@@ -1,4 +1,4 @@
-﻿namespace LMS.Domin.Contracts;
+﻿namespace LMS.Domin.Repositories;
 
 public interface IMailSender
 {

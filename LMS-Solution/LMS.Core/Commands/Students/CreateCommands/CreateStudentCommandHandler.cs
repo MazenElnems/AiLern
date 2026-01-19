@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using LMS.Core.CurrentUser;
-using LMS.Domin.Contracts;
+using LMS.Domin.Repositories;
 using LMS.Domin.Entities;
 using LMS.Domin.Exceptions;
 using MediatR;

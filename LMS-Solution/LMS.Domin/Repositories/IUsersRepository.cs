@@ -1,6 +1,6 @@
 ﻿using LMS.Domin.Entities;
 
-namespace LMS.Domin.Contracts;
+namespace LMS.Domin.Repositories;
 
 public interface IUsersRepository
 {

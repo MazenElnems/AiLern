@@ -1,7 +1,7 @@
 ﻿using LMS.Core.ConfigurationOptions;
 using LMS.Core.DTOs.Auth.Request;
 using LMS.Core.Services.Auth.Interfaces;
-using LMS.Domin.Contracts;
+using LMS.Domin.Repositories;
 using LMS.Domin.Entities;
 using LMS.Domin.Exceptions;
 using MediatR;

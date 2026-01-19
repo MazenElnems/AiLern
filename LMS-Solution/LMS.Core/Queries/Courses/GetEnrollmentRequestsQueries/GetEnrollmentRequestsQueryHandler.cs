@@ -1,4 +1,4 @@
-﻿using LMS.Domin.Contracts;
+﻿using LMS.Domin.Repositories;
 using LMS.Domin.DTOs.Courses;
 using LMS.Domin.Entities;
 using LMS.Domin.Enums;
