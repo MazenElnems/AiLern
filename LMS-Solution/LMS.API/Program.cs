@@ -1,25 +1,9 @@
 ﻿using LMS.API.Middleware;
 using LMS.Core.Extensions;
 using LMS.Infrastructure.Extensions;
-using LMS.Infrastructure.Services.Seeders;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins(
-                  "http://localhost:5173",
-                  "http://localhost:3000",
-                  "http://127.0.0.1:5173"
-              )
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
-    });
-});
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -67,12 +51,6 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddRequiredServices(builder.Configuration);
 
 var app = builder.Build();
-
-// Seed initial data
-using var scope =  app.Services.CreateScope();
-var seeder = scope.ServiceProvider.GetRequiredService<IDataSeeder>();     // seed initial courses
-await seeder.SeedAsync();
-
 
 // Configure the HTTP request pipeline.
 

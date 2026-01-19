@@ -5,7 +5,6 @@ using LMS.Infrastructure.Data;
 using LMS.Infrastructure.Repositories.Courses;
 using LMS.Infrastructure.Repositories.Users;
 using LMS.Infrastructure.Services.Email;
-using LMS.Infrastructure.Services.Seeders;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +18,6 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
-        services.AddScoped<IDataSeeder,DataSeeder>();
         services.AddTransient<IMailSender,MailSender>();
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
