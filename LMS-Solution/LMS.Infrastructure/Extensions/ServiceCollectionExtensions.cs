@@ -21,7 +21,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IDataSeeder,DataSeeder>();
         services.AddTransient<IMailSender,MailSender>();
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
