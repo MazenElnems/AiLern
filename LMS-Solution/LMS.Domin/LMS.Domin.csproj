@@ -17,4 +17,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.10" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Common\Errors\" />
+  </ItemGroup>
+
 </Project>

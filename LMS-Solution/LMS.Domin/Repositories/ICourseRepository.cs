@@ -1,22 +1,9 @@
-﻿using LMS.Domin.DTOs.Courses;
-using LMS.Domin.Entities;
-using System.Linq.Expressions;
+﻿using LMS.Domin.Entities;
 
 namespace LMS.Domin.Repositories;
 
-public interface ICourseRepository
+public interface ICourseRepository : IBaseRepository<Course>
 {
-    Task<int> AddAsync(Course course);
-    Task<Course?> GetByIdAsync(int id);
     Task<Course?> GetByIdWithDetailsAsync(int id);
-    Task<(List<Course>, int)> GetPagedCourses(string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10);
-    Task<(List<Course>, int)> GetPagedCoursesWithFilterAsync(Expression<Func<Course, bool>> filter, string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10);
-    Task<int> RemoveAsync(Course course);
-    Task<int> CommitAsync();
-    Task<Enrollment?> GetEnrollmentByIdAsync(int courseId, int studentId);
-    Task<int> RemoveEnrollmentAsync(Enrollment enrollment);
     Task<List<Student>> GetStudentsByCourseIdAsync(int courseId);
-    Task<List<Enrollment>> GetAllEnrollmentAsync();
-    Task<List<Course>> GetStudentCoursesAsync(int id , string searchString, string sortBy, string order, int pageNo = 1, int pageSize = 10);
-    Task<List<GetEnrollmentRequestsDto>> GetEnrollmentRequestsAsync(int courseId);
 }

@@ -9,12 +9,12 @@ namespace LMS.Core.Commands.Courses.RejectCommands;
 
 internal class RejectCourseCommandHandler : IRequestHandler<RejectCourseCommand, string>
 {
-    private readonly ICourseRepository _courseRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<RejectCourseCommandHandler> _logger;
 
-    public RejectCourseCommandHandler(ICourseRepository courseRepository, ILogger<RejectCourseCommandHandler> logger)
+    public RejectCourseCommandHandler(IUnitOfWork unitOfWork, ILogger<RejectCourseCommandHandler> logger)
     {
-        _courseRepository = courseRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
@@ -22,7 +22,7 @@ internal class RejectCourseCommandHandler : IRequestHandler<RejectCourseCommand,
     {
         try
         {
-            var course = await _courseRepository.GetByIdAsync(request.Id)
+            var course = await _unitOfWork.Courses.GetByIdAsync(request.Id)
                 ?? throw new ResourceNotFoundException(nameof(Course), request.Id.ToString());
 
             if (course.CourseStatus == CourseStatus.Rejected)
@@ -33,7 +33,7 @@ internal class RejectCourseCommandHandler : IRequestHandler<RejectCourseCommand,
 
             _logger.LogInformation("Rejecting course with ID {CourseId}", request.Id);
             course.CourseStatus = CourseStatus.Rejected;
-            var rowsEffect = await _courseRepository.CommitAsync();
+            var rowsEffect = await _unitOfWork.CommitAsync();
 
             if (rowsEffect == 0)
                 _logger.LogWarning("Course status is not updatde");

@@ -20,20 +20,20 @@ public class GetRefreshTokenCommandHandler : IRequestHandler<GetRefreshTokenComm
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IAuthService _authService;
     private readonly RefreshTokenOptions _refreshToken;
-    private readonly IUsersRepository _usersRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public GetRefreshTokenCommandHandler(UserManager<ApplicationUser> userManager, ILogger<UserLoginByEmailAndPasswordCommandHandler> logger, IAuthService authService, IOptions<RefreshTokenOptions> refreshToken, IUsersRepository usersRepository)
+    public GetRefreshTokenCommandHandler(UserManager<ApplicationUser> userManager, ILogger<UserLoginByEmailAndPasswordCommandHandler> logger, IAuthService authService, IOptions<RefreshTokenOptions> refreshToken, IUnitOfWork unitOfWork)
     {
         _logger = logger;
         _authService = authService;
         _refreshToken = refreshToken.Value;
-        _usersRepository = usersRepository;
+        _unitOfWork = unitOfWork;
         _userManager = userManager;
     }
 
     public async Task<GetTokenResponseDto> Handle(GetRefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var oldRefreshToken = await _usersRepository.GetRefreshTokenAsync(request.RefreshToken, includeUser:true)
+        var oldRefreshToken = await _unitOfWork.Users.GetRefreshTokenAsync(request.RefreshToken, includeUser:true)
             ?? throw new ResourceNotFoundException(nameof(RefreshToken), request.RefreshToken);
 
         var user = oldRefreshToken.User;
@@ -52,7 +52,6 @@ public class GetRefreshTokenCommandHandler : IRequestHandler<GetRefreshTokenComm
         var (accessToken, accessTokenExpiration) = _authService.GetAccessTokenAsync(claims);
 
         oldRefreshToken.RevokesOn = DateTime.UtcNow;
-        await _usersRepository.CommitAsync();
 
         var newRefreshToken = _authService.GetRefreshToken();
 
@@ -65,7 +64,8 @@ public class GetRefreshTokenCommandHandler : IRequestHandler<GetRefreshTokenComm
             UserId = user.Id,
         };
 
-        await _usersRepository.AddRefreshToken(refreshTokenEntity);
+        await _unitOfWork.RefreshTokens.InsertAsync(refreshTokenEntity);
+        await _unitOfWork.CommitAsync();
 
         GetTokenResponseDto response = new GetTokenResponseDto
         {

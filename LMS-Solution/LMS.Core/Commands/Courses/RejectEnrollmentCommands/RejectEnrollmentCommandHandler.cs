@@ -10,13 +10,13 @@ namespace LMS.Core.Commands.Courses.RejectEnrollmentCommands;
 
 public class RejectEnrollmentCommandHandler : IRequestHandler<RejectEnrollmentCommand, string>
 {
-    private readonly ICourseRepository _courseRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<RejectEnrollmentCommandHandler> _logger;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public RejectEnrollmentCommandHandler(ICourseRepository courseRepository, ILogger<RejectEnrollmentCommandHandler> logger, UserManager<ApplicationUser> userManager)
+    public RejectEnrollmentCommandHandler(IUnitOfWork unitOfWork, ILogger<RejectEnrollmentCommandHandler> logger, UserManager<ApplicationUser> userManager)
     {
-        _courseRepository = courseRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
         _userManager = userManager;
     }
@@ -25,7 +25,7 @@ public class RejectEnrollmentCommandHandler : IRequestHandler<RejectEnrollmentCo
     {
         try
         {
-            var enrollment = await _courseRepository.GetEnrollmentByIdAsync(request.CourseId, request.StudentId)
+            var enrollment = await _unitOfWork.Enrollments.GetEnrollmentByIdAsync(request.CourseId, request.StudentId)
                 ?? throw new ResourceNotFoundException(nameof(Enrollment), $"{{{request.CourseId},{request.StudentId}}}");
 
             if (enrollment.Status == EnrollmentStatus.Rejected)
@@ -38,7 +38,7 @@ public class RejectEnrollmentCommandHandler : IRequestHandler<RejectEnrollmentCo
                           request.CourseId, request.StudentId);
 
             enrollment.Status = EnrollmentStatus.Rejected;
-            await _courseRepository.CommitAsync();
+            await _unitOfWork.CommitAsync();
 
             _logger.LogInformation("enrollment with course ID {CourseId} , and student ID {StudentId} Rejected successfully",
                            request.CourseId, request.StudentId);

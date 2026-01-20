@@ -1,0 +1,46 @@
+using LMS.Domin.DTOs.Courses;
+using LMS.Domin.Entities;
+using LMS.Domin.Enums;
+using LMS.Domin.Repositories;
+using LMS.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace LMS.Infrastructure.Repositories.Enrollments;
+
+internal class EnrollmentRepository : BaseRepository<Enrollment>, IEnrollmentRepository
+{
+    private readonly AppDbContext _context;
+
+    public EnrollmentRepository(AppDbContext context)
+        : base(context)
+    {
+        _context = context;
+    }
+
+    public async Task<Enrollment?> GetEnrollmentByIdAsync(int courseId, int studentId)
+    {
+        var enrollment = await _context.Enrollments.FindAsync(courseId, studentId);
+        return enrollment;
+    }
+
+    public async Task<List<Enrollment>> GetAllEnrollmentAsync()
+    {
+        return await _context.Enrollments
+            .Include(s => s.Student)
+            .ToListAsync();
+    }
+
+    public async Task<List<GetEnrollmentRequestsDto>> GetEnrollmentRequestsAsync(int courseId)
+    {
+        return await _context.Enrollments
+            .Where(e => e.Status == EnrollmentStatus.Pending)
+            .Select(e => new GetEnrollmentRequestsDto
+            {
+                Id = e.Student.Id,
+                Name = e.Student.FullName,
+                Email = e.Student.Email!,
+                StudentId = e.Student.StudentId,
+                RequestAt = e.Requested_at
+            }).ToListAsync();
+    }
+}

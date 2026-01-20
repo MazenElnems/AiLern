@@ -10,13 +10,13 @@ namespace LMS.Core.Commands.Courses.ApproveEntrollmentsCommands;
 
 public class ApproveEnrollmentCommandHandler : IRequestHandler<ApproveEnrollmentCommand>
 {
-    private readonly ICourseRepository _courseRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ApproveEnrollmentCommandHandler> _logger;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public ApproveEnrollmentCommandHandler(ICourseRepository course, ILogger<ApproveEnrollmentCommandHandler> logger, UserManager<ApplicationUser> userManager)
+    public ApproveEnrollmentCommandHandler(IUnitOfWork unitOfWork, ILogger<ApproveEnrollmentCommandHandler> logger, UserManager<ApplicationUser> userManager)
     {
-        _courseRepository = course;
+        _unitOfWork = unitOfWork;
         _logger = logger;
         _userManager = userManager;
     }
@@ -25,7 +25,7 @@ public class ApproveEnrollmentCommandHandler : IRequestHandler<ApproveEnrollment
     {
         try
         {
-            var enrollment = await _courseRepository.GetEnrollmentByIdAsync(request.CourseId, request.StudentId)
+            var enrollment = await _unitOfWork.Enrollments.GetEnrollmentByIdAsync(request.CourseId, request.StudentId)
                 ?? throw new ResourceNotFoundException(nameof(Enrollment), $"{{{request.CourseId}, {request.StudentId}}}");
 
             if (enrollment.Status == EnrollmentStatus.Approved)
@@ -39,7 +39,7 @@ public class ApproveEnrollmentCommandHandler : IRequestHandler<ApproveEnrollment
                                         request.CourseId,request.StudentId);
 
             enrollment.Status = EnrollmentStatus.Approved;
-            await _courseRepository.CommitAsync();
+            await _unitOfWork.CommitAsync();
 
             _logger.LogInformation("Enrollment with course ID {CourseId} and student ID {StudentId} Approved successfully",
                                         request.CourseId, request.StudentId);

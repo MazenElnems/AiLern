@@ -8,12 +8,12 @@ namespace LMS.Core.Commands.Courses.DeleteEnrollmentCommands;
 
 public class DeleteEnrollmentCommandHandler : IRequestHandler<DeleteEnrollmentCommand>
 {
-    private readonly ICourseRepository _courseRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DeleteEnrollmentCommandHandler> _logger;
 
-    public DeleteEnrollmentCommandHandler(ICourseRepository course, ILogger<DeleteEnrollmentCommandHandler> logger)
+    public DeleteEnrollmentCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteEnrollmentCommandHandler> logger)
     {
-        _courseRepository = course;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
@@ -21,13 +21,14 @@ public class DeleteEnrollmentCommandHandler : IRequestHandler<DeleteEnrollmentCo
     {
         try
         {
-            var enrollment = await _courseRepository.GetEnrollmentByIdAsync(request.CourseId, request.StudentId)
+            var enrollment = await _unitOfWork.Enrollments.GetEnrollmentByIdAsync(request.CourseId, request.StudentId)
                 ?? throw new ResourceNotFoundException(nameof(Enrollment), $"{{{request.CourseId}, {request.StudentId}}}");
 
             _logger.LogInformation("Deleting enrollment with course ID {CourseId} and student ID {StudentId}",
                                         request.CourseId, request.StudentId);
 
-            var effectedRows = await _courseRepository.RemoveEnrollmentAsync(enrollment);
+            _unitOfWork.Enrollments.Delete(enrollment);
+            var effectedRows = await _unitOfWork.CommitAsync();
 
             if (effectedRows < 1)
                 throw new Exception();

@@ -2,6 +2,7 @@
 using LMS.Domin.Repositories;
 using LMS.Domin.Entities;
 using LMS.Infrastructure.Data;
+using LMS.Infrastructure.Repositories;
 using LMS.Infrastructure.Repositories.Courses;
 using LMS.Infrastructure.Repositories.Users;
 using LMS.Infrastructure.Services.Email;
@@ -19,6 +20,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IDataSeeder,DataSeeder>();
         services.AddTransient<IMailSender,MailSender>();
 
