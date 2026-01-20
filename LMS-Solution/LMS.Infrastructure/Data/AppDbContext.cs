@@ -1,5 +1,5 @@
-﻿using LMS.Domin.Entities;
-using LMS.Domin.Entities.EntitiesConfiguration;
+﻿using LMS.Domain.Entities;
+using LMS.Domain.Entities.EntitiesConfiguration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

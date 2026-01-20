@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using LMS.Core.CurrentUser;
-using LMS.Domin.Contracts;
-using LMS.Domin.Entities;
-using LMS.Domin.Exceptions;
+using LMS.Domain.Repositories;
+using LMS.Domain.Entities;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -14,14 +14,14 @@ public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand,
     private readonly IMapper _mapper;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<CreateStudentCommandHandler> _logger;
-    private readonly IUsersRepository _usersRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateStudentCommandHandler(IMapper mapper, UserManager<ApplicationUser> user, ILogger<CreateStudentCommandHandler> logger, IUsersRepository usersRepository)
+    public CreateStudentCommandHandler(IMapper mapper, UserManager<ApplicationUser> user, ILogger<CreateStudentCommandHandler> logger, IUnitOfWork unitOfWork)
     {
         _mapper = mapper;
         _userManager = user;
         _logger = logger;
-        _usersRepository = usersRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<int> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
@@ -30,7 +30,7 @@ public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand,
         {
             var student = _mapper.Map<Student>(request);
 
-            if(await _usersRepository.GetStudentByStudentId(request.StudentId) != null)
+            if(await _unitOfWork.Users.GetStudentByStudentId(request.StudentId) != null)
                 throw new UserCreationException("the student id is already exists");
 
             var result = await _userManager.CreateAsync(student,request.Password);

@@ -1,9 +1,9 @@
 ﻿using LMS.Core.ConfigurationOptions;
 using LMS.Core.DTOs.Auth.Request;
 using LMS.Core.Services.Auth.Interfaces;
-using LMS.Domin.Contracts;
-using LMS.Domin.Entities;
-using LMS.Domin.Exceptions;
+using LMS.Domain.Repositories;
+using LMS.Domain.Entities;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -19,7 +19,7 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
     private readonly ILogger<UserLoginByEmailAndPasswordCommandHandler> _logger;
     private readonly IAuthService _authService;
     private readonly RefreshTokenOptions _refreshToken;
-    private readonly IUsersRepository _usersRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMailSender _emailSender;
     private readonly ApplicationDomain _applicationDomain;
 
@@ -27,7 +27,7 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
         ILogger<UserLoginByEmailAndPasswordCommandHandler> logger,
         UserManager<ApplicationUser> userManager,
         IOptions<RefreshTokenOptions> refreshToken,
-        IUsersRepository usersRepository, 
+        IUnitOfWork unitOfWork, 
         IMailSender emailSender,
         IOptions<ApplicationDomain> applicationDomainOptions)
     {
@@ -35,7 +35,7 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
         _logger = logger;
         _userManager = userManager;
         _refreshToken = refreshToken.Value;
-        _usersRepository = usersRepository;
+        _unitOfWork = unitOfWork;
         _emailSender = emailSender;
         _applicationDomain = applicationDomainOptions.Value;
     }
@@ -87,7 +87,8 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
                 UserId = user.Id,
             };
 
-            await _usersRepository.AddRefreshToken(refreshTokenEntity);
+            await _unitOfWork.RefreshTokens.InsertAsync(refreshTokenEntity);
+            await _unitOfWork.CommitAsync();
 
             GetTokenResponseDto response = new GetTokenResponseDto
             {

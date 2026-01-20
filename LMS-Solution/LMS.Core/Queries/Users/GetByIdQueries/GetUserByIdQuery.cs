@@ -1,4 +1,4 @@
-﻿using LMS.Domin.DTOs.Users;
+﻿using LMS.Domain.DTOs.Users;
 using MediatR;
 
 namespace LMS.Core.Queries.Users.GetByIdQueries;

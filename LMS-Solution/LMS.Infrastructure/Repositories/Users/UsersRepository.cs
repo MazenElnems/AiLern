@@ -1,34 +1,24 @@
-﻿using LMS.Domin.Constants;
-using LMS.Domin.Contracts;
-using LMS.Domin.Entities;
+﻿using LMS.Domain.Constants;
+using LMS.Domain.Repositories;
+using LMS.Domain.Entities;
 using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Infrastructure.Repositories.Users;
 
-public class UsersRepository : IUsersRepository
+internal class UsersRepository : BaseRepository<ApplicationUser>, IUsersRepository
 {
-    private readonly AppDbContext _db;
+    private readonly AppDbContext _context;
 
-    public UsersRepository(AppDbContext db)
+    public UsersRepository(AppDbContext context)
+        : base(context)
     {
-        _db = db;
-    }
-
-    public async Task AddRefreshToken(RefreshToken refreshToken)
-    {
-        await _db.RefreshTokens.AddAsync(refreshToken);
-        await CommitAsync();
-    }
-
-    public async Task<int> CommitAsync()
-    {
-        return await _db.SaveChangesAsync();
+        _context = context;
     }
 
     public async Task<RefreshToken?> GetRefreshTokenAsync(string refreshToken, bool includeUser = false)
     {
-        IQueryable<RefreshToken> query = _db.RefreshTokens;
+        IQueryable<RefreshToken> query = _context.RefreshTokens;
 
         if (includeUser)
             query = query
@@ -38,46 +28,16 @@ public class UsersRepository : IUsersRepository
         return result;
     }
 
-    public async Task<(List<ApplicationUser>,int)> GetUsersByRoleIdAsync(int roleId, string sortBy, string order, int pageNo = 1, int pageSize = 10)
-    {
-        IQueryable<ApplicationUser> query = _db.Users;
-
-        var role = await _db.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
-
-        query = query.Where(u => u.Role == role.Name);
-
-        var count = await query.CountAsync();
-
-        if (sortBy != null && order != null)
-        {
-            query = (sortBy.ToLower(), order.ToLower()) switch
-            {
-                (UserManagementSortByOptions.FullName, SortOrderOptions.ASC) => query.OrderBy(u => u.FullName),
-                (UserManagementSortByOptions.FullName, SortOrderOptions.DESC) => query.OrderByDescending(u => u.FullName),
-                (UserManagementSortByOptions.UserName, SortOrderOptions.ASC) => query.OrderBy(u => u.UserName),
-                (UserManagementSortByOptions.UserName, SortOrderOptions.DESC) => query.OrderByDescending(u => u.UserName),
-                _ => query
-            };
-        }
-
-        query = query
-            .Skip((pageNo - 1) * pageSize)
-            .Take(pageSize);
-
-        return (await query.ToListAsync(),count);
-    }
-
     public async Task<Student?> GetStudentByStudentId(int studentId)
     {
-        var std =await _db.Students.FirstOrDefaultAsync(std => std.StudentId == studentId);
+        var std =await _context.Students.FirstOrDefaultAsync(std => std.StudentId == studentId);
         return  std;
     }
 
     public async Task RevokeRefreshTokensByUserIdAsync(int userId)
     {
-        await _db.RefreshTokens
+        await _context.RefreshTokens
             .Where(rt => rt.UserId == userId && rt.RevokesOn == null && rt.ExpiresOn > DateTime.UtcNow)
             .ExecuteUpdateAsync(setter => setter.SetProperty(r => r.RevokesOn, DateTime.UtcNow));
     }
-
 }

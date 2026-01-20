@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using LMS.Domin.Contracts;
-using LMS.Domin.DTOs.Students;
-using LMS.Domin.Entities;
-using LMS.Domin.Exceptions;
+using LMS.Domain.Repositories;
+using LMS.Domain.DTOs.Students;
+using LMS.Domain.Entities;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -10,13 +10,13 @@ namespace LMS.Core.Queries.Courses.GetStudentsByCourseId;
 
 public class GetStudentsByCourseIdQueryHandler : IRequestHandler<GetStudentsByCourseIdQuery, List<GetStudentsByCourseIdDto>>
 {
-    private readonly ICourseRepository _courseRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<GetStudentsByCourseIdQueryHandler> _logger;
 
-    public GetStudentsByCourseIdQueryHandler(ICourseRepository courseRepository, IMapper mapper, ILogger<GetStudentsByCourseIdQueryHandler> logger)
+    public GetStudentsByCourseIdQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<GetStudentsByCourseIdQueryHandler> logger)
     {
-        _courseRepository = courseRepository;
+        _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
     }
@@ -26,10 +26,10 @@ public class GetStudentsByCourseIdQueryHandler : IRequestHandler<GetStudentsByCo
         try
         {
             // select course from db
-            var course = await _courseRepository.GetByIdAsync(request.Id)
+            var course = await _unitOfWork.Courses.GetByIdAsync(request.Id)
                 ?? throw new ResourceNotFoundException(nameof(Course), request.Id.ToString());
 
-            var students = await _courseRepository.GetStudentsByCourseIdAsync(request.Id);
+            var students = await _unitOfWork.Courses.GetStudentsByCourseIdAsync(request.Id);
 
             var dto = _mapper.Map<List<GetStudentsByCourseIdDto>>(students);
 

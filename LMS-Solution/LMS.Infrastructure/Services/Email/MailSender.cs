@@ -1,5 +1,5 @@
 ﻿using LMS.Core.ConfigurationOptions;
-using LMS.Domin.Contracts;
+using LMS.Domain.Repositories;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Logging;

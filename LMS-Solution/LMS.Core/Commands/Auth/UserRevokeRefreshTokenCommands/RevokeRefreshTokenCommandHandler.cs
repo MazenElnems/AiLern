@@ -1,6 +1,6 @@
-﻿using LMS.Domin.Contracts;
-using LMS.Domin.Entities;
-using LMS.Domin.Exceptions;
+﻿using LMS.Domain.Repositories;
+using LMS.Domain.Entities;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -8,12 +8,12 @@ namespace LMS.Core.Commands.Auth.UserRevokeRefreshTokenCommands;
 
 public class RevokeRefreshTokenCommandHandler : IRequestHandler<RevokeRefreshTokenCommand>
 {
-    private readonly IUsersRepository _usersRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<RevokeRefreshTokenCommandHandler> _logger;
 
-    public RevokeRefreshTokenCommandHandler(IUsersRepository usersRepository, ILogger<RevokeRefreshTokenCommandHandler> logger)
+    public RevokeRefreshTokenCommandHandler(IUnitOfWork unitOfWork, ILogger<RevokeRefreshTokenCommandHandler> logger)
     {
-        _usersRepository = usersRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
@@ -21,11 +21,11 @@ public class RevokeRefreshTokenCommandHandler : IRequestHandler<RevokeRefreshTok
     {
         try
         {
-            var refreshToken = await _usersRepository.GetRefreshTokenAsync(request.RefresToken)
+            var refreshToken = await _unitOfWork.Users.GetRefreshTokenAsync(request.RefresToken)
                 ?? throw new ResourceNotFoundException(nameof(RefreshToken), request.RefresToken);
 
             refreshToken.RevokesOn = DateTime.UtcNow;
-            await _usersRepository.CommitAsync();
+            await _unitOfWork.CommitAsync();
         }
         catch(ResourceNotFoundException ex)
         {

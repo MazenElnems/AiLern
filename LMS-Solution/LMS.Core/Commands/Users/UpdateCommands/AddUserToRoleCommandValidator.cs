@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using LMS.Domin.Constants;
+using LMS.Domain.Constants;
 
 namespace LMS.Core.Commands.Users.UpdateCommands;
 

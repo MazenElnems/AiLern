@@ -1,6 +1,6 @@
-﻿using LMS.Domin.Contracts;
-using LMS.Domin.Entities;
-using LMS.Domin.Exceptions;
+﻿using LMS.Domain.Repositories;
+using LMS.Domain.Entities;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -11,16 +11,16 @@ public class UserPasswordResetCommandHandler : IRequestHandler<UserPasswordReset
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<UserPasswordResetCommandHandler> _logger;
-    private readonly IUsersRepository _usersRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
     public UserPasswordResetCommandHandler(
         UserManager<ApplicationUser> userManager,
         ILogger<UserPasswordResetCommandHandler> logger,
-        IUsersRepository usersRepository)
+        IUnitOfWork unitOfWork)
     {
         _userManager = userManager;
         _logger = logger;
-        _usersRepository = usersRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task Handle(UserPasswordResetCommand request, CancellationToken cancellationToken)
@@ -45,7 +45,7 @@ public class UserPasswordResetCommandHandler : IRequestHandler<UserPasswordReset
                 throw new PasswordResetException();
             }
 
-            await _usersRepository.RevokeRefreshTokensByUserIdAsync(user.Id);
+            await _unitOfWork.Users.RevokeRefreshTokensByUserIdAsync(user.Id);
         }
         catch (PasswordResetException ex)
         {

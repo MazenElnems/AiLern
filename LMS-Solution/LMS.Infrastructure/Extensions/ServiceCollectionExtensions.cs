@@ -1,7 +1,8 @@
 ﻿using LMS.Core.ConfigurationOptions;
-using LMS.Domin.Contracts;
-using LMS.Domin.Entities;
+using LMS.Domain.Repositories;
+using LMS.Domain.Entities;
 using LMS.Infrastructure.Data;
+using LMS.Infrastructure.Repositories;
 using LMS.Infrastructure.Repositories.Courses;
 using LMS.Infrastructure.Repositories.Users;
 using LMS.Infrastructure.Services.Email;
@@ -18,6 +19,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddTransient<IMailSender,MailSender>();
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
@@ -25,7 +27,8 @@ public static class ServiceCollectionExtensions
         // DbConext
         services.AddDbContext<AppDbContext>(options =>
         {
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
+                   .EnableSensitiveDataLogging();
         });
 
         // Identity

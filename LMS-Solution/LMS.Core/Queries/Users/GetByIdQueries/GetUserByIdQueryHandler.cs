@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using LMS.Domin.DTOs.Users;
-using LMS.Domin.Entities;
-using LMS.Domin.Exceptions;
+using LMS.Domain.DTOs.Users;
+using LMS.Domain.Entities;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 

@@ -1,7 +1,7 @@
 ﻿using LMS.Core.Commands.Students.CreateCommands;
 using LMS.Core.Queries.Students.GetMyCoursesQuery;
-using LMS.Domin.Constants;
-using LMS.Domin.DTOs.Courses;
+using LMS.Domain.Constants;
+using LMS.Domain.DTOs.Courses;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

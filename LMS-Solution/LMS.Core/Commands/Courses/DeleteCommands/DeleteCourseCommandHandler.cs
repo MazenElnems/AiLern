@@ -1,6 +1,6 @@
-﻿using LMS.Domin.Contracts;
-using LMS.Domin.Entities;
-using LMS.Domin.Exceptions;
+﻿using LMS.Domain.Repositories;
+using LMS.Domain.Entities;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -8,12 +8,12 @@ namespace LMS.Core.Commands.Courses.DeleteCommands;
 
 public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand>
 {
-    private readonly ICourseRepository _courseRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DeleteCourseCommandHandler> _logger;
 
-    public DeleteCourseCommandHandler(ICourseRepository courseRepository, ILogger<DeleteCourseCommandHandler> logger)
+    public DeleteCourseCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteCourseCommandHandler> logger)
     {
-        _courseRepository = courseRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
@@ -23,11 +23,12 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand>
     {
         try
         {
-            var course = await _courseRepository.GetByIdAsync(request.Id)
+            var course = await _unitOfWork.Courses.GetByIdAsync(request.Id)
                 ?? throw new ResourceNotFoundException(nameof(Course), request.Id.ToString());
 
             Logger.LogInformation("Deleting course with ID {CourseId}", request.Id);
-            await _courseRepository.RemoveAsync(course);
+            _unitOfWork.Courses.Delete(course);
+            await _unitOfWork.CommitAsync();
             Logger.LogInformation("Course with ID {CourseId} deleted successfully", request.Id);
         }
         catch(ResourceNotFoundException ex)

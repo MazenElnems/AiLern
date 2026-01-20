@@ -1,6 +1,6 @@
-﻿using LMS.Domin.Common;
-using LMS.Domin.DTOs;
-using LMS.Domin.DTOs.Users;
+﻿using LMS.Domain.Common;
+using LMS.Domain.DTOs;
+using LMS.Domain.DTOs.Users;
 using MediatR;
 using System.Text.Json.Serialization;
 

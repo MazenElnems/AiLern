@@ -1,8 +1,8 @@
 ﻿using LMS.Core.CurrentUser;
-using LMS.Domin.Contracts;
-using LMS.Domin.Entities;
-using LMS.Domin.Enums;
-using LMS.Domin.Exceptions;
+using LMS.Domain.Repositories;
+using LMS.Domain.Entities;
+using LMS.Domain.Enums;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -12,13 +12,13 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand>
 {
     private readonly ILogger<EnrollCourseCommandHandler> _logger;
     private readonly IUserContext _userContext;
-    private readonly ICourseRepository _courseRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public EnrollCourseCommandHandler(ILogger<EnrollCourseCommandHandler> logger, IUserContext userContext, ICourseRepository courseRepository)
+    public EnrollCourseCommandHandler(ILogger<EnrollCourseCommandHandler> logger, IUserContext userContext, IUnitOfWork unitOfWork)
     {
         _logger = logger;
         _userContext = userContext;
-        _courseRepository = courseRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task Handle(EnrollCourseCommand request, CancellationToken cancellationToken)
@@ -27,13 +27,13 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand>
         {
             var currentStudentId = _userContext.GetCurrentUser().Id;
 
-            var course = await _courseRepository.GetByIdAsync(request.CourseId)
+            var course = await _unitOfWork.Courses.GetByIdAsync(request.CourseId)
                 ?? throw new ResourceNotFoundException(nameof(Course), request.CourseId.ToString());
 
             if(course.CourseStatus != CourseStatus.Approved)
                 throw new CourseEnrollmentException("Cannot enroll in a course that is not approved.");
             
-            if(await _courseRepository.GetEnrollmentByIdAsync(currentStudentId, request.CourseId) != null)
+            if(await _unitOfWork.Enrollments.GetEnrollmentByIdAsync(currentStudentId, request.CourseId) != null)
                 throw new CourseEnrollmentException("Student is already enrolled in this course.");
 
             var enrollment = new Enrollment
@@ -44,7 +44,7 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand>
 
             course.Enrollments.Add(enrollment);
 
-            await _courseRepository.CommitAsync();
+            await _unitOfWork.CommitAsync();
         }
         catch(ResourceNotFoundException ex)
         {

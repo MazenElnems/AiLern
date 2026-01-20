@@ -1,6 +1,6 @@
-﻿using LMS.Domin.Contracts;
-using LMS.Domin.Entities;
-using LMS.Domin.Exceptions;
+﻿using LMS.Domain.Repositories;
+using LMS.Domain.Entities;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -8,12 +8,12 @@ namespace LMS.Core.Commands.Courses.UpdateCommands;
 
 public class UpdateCourseDetailsCommandHandler : IRequestHandler<UpdateCourseDetailsCommand>
 {
-    private readonly ICourseRepository _courseRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateCourseDetailsCommandHandler> _logger;
 
-    public UpdateCourseDetailsCommandHandler(ICourseRepository courseRepository, ILogger<UpdateCourseDetailsCommandHandler> logger)
+    public UpdateCourseDetailsCommandHandler(IUnitOfWork unitOfWork, ILogger<UpdateCourseDetailsCommandHandler> logger)
     {
-        _courseRepository = courseRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
@@ -21,14 +21,14 @@ public class UpdateCourseDetailsCommandHandler : IRequestHandler<UpdateCourseDet
     {
         try
         {
-            var course = await _courseRepository.GetByIdAsync(request.Id)
+            var course = await _unitOfWork.Courses.GetByIdAsync(request.Id)
                 ?? throw new ResourceNotFoundException(nameof(Course), request.Id.ToString());
 
             course.Name = request.Name;
             course.Description = request.Description;
             course.Code = request.Code;
 
-            await _courseRepository.CommitAsync();
+            await _unitOfWork.CommitAsync();
         }
         catch(ResourceNotFoundException ex)
         {
