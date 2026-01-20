@@ -6,7 +6,6 @@ using LMS.Infrastructure.Repositories;
 using LMS.Infrastructure.Repositories.Courses;
 using LMS.Infrastructure.Repositories.Users;
 using LMS.Infrastructure.Services.Email;
-using LMS.Infrastructure.Services.Seeders;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
