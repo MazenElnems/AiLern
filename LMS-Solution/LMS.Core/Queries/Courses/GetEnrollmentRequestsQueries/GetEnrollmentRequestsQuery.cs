@@ -1,5 +1,5 @@
-﻿using LMS.Domin.Common;
-using LMS.Domin.DTOs.Courses;
+﻿using LMS.Domain.Common;
+using LMS.Domain.DTOs.Courses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 

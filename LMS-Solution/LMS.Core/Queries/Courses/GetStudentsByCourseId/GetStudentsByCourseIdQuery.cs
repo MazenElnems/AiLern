@@ -1,5 +1,5 @@
-﻿using LMS.Domin.Common;
-using LMS.Domin.DTOs.Students;
+﻿using LMS.Domain.Common;
+using LMS.Domain.DTOs.Students;
 using MediatR;
 using System.Text.Json.Serialization;
 

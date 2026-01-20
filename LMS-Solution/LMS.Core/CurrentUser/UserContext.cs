@@ -1,4 +1,4 @@
-﻿using LMS.Domin.Exceptions;
+﻿using LMS.Domain.Exceptions;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 

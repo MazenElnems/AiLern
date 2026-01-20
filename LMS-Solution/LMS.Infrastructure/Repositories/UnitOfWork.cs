@@ -1,4 +1,4 @@
-﻿using LMS.Domin.Repositories;
+﻿using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
 using LMS.Infrastructure.Repositories.Courses;
 using LMS.Infrastructure.Repositories.Enrollments;

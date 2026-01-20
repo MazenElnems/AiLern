@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using LMS.Domin.Constants;
-using LMS.Domin.Repositories;
-using LMS.Domin.Entities;
-using LMS.Domin.DTOs;
-using LMS.Domin.DTOs.Users;
-using LMS.Domin.Exceptions;
+using LMS.Domain.Constants;
+using LMS.Domain.Repositories;
+using LMS.Domain.Entities;
+using LMS.Domain.DTOs;
+using LMS.Domain.DTOs.Users;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System.Linq.Expressions;
@@ -26,6 +26,11 @@ public class GetAllByRoleIdQueryHandler : IRequestHandler<GetAllByRoleIdQuery, P
 
     public async Task<PaginationResult<GetUsersByRoleDto>> Handle(GetAllByRoleIdQuery request, CancellationToken cancellationToken)
     {
+        if (request.PageNumber < 1 || request.PageSize < 1)
+        {
+            throw new ArgumentException("PageNumber and PageSize must be greater than 0.");
+        }
+
         var role = await _roleManager.FindByIdAsync(request.RoleId.ToString())
             ?? throw new ResourceNotFoundException("Role", request.RoleId.ToString());
 
@@ -51,7 +56,6 @@ public class GetAllByRoleIdQueryHandler : IRequestHandler<GetAllByRoleIdQuery, P
             request.PageSize);
 
         var dto = _mapper.Map<List<GetUsersByRoleDto>>(users);
-
         return new PaginationResult<GetUsersByRoleDto>(request.PageNumber, request.PageSize, totalResult, dto);
     }
 }

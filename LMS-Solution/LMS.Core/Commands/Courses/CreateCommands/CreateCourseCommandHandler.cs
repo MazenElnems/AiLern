@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using LMS.Core.CurrentUser;
-using LMS.Domin.Repositories;
-using LMS.Domin.Entities;
+using LMS.Domain.Repositories;
+using LMS.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

@@ -1,4 +1,4 @@
-﻿using LMS.Domin.Exceptions;
+﻿using LMS.Domain.Exceptions;
 
 namespace LMS.API.Middleware;
 
@@ -19,13 +19,19 @@ public class CustomExceptionHandlerMiddleware
         {
             await _next(httpContext);
         }
-        catch(PasswordResetException ex)
+        catch (ArgumentException ex)
+        {
+            httpContext.Response.StatusCode = 400;
+            await httpContext.Response.WriteAsync(ex.Message);
+            _logger.LogWarning(ex, "Invalid request parameters.");
+        }
+        catch(PasswordResetException)
         {
             httpContext.Response.StatusCode = 400;
             await httpContext.Response.WriteAsync("can't reset the password, please try again!");
             _logger.LogWarning("Password reset failed.");
         }
-        catch(EmailConfirmationException ex)
+        catch(EmailConfirmationException)
         {
             httpContext.Response.StatusCode = 400;
             await httpContext.Response.WriteAsync("Email confirmation failed.");
@@ -61,7 +67,7 @@ public class CustomExceptionHandlerMiddleware
             await httpContext.Response.WriteAsync(ex.Message);
             _logger.LogWarning(ex, "this user is already exists");
         }
-        catch(CourseEnrollmentException ex)
+        catch(CourseEnrollmentException)
         {
             httpContext.Response.StatusCode = 400;
             await httpContext.Response.WriteAsync("Cannot enroll in the course.");

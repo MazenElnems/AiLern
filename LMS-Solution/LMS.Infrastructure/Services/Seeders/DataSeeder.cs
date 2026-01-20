@@ -1,5 +1,5 @@
-﻿using LMS.Domin.Entities;
-using LMS.Domin.Enums;
+﻿using LMS.Domain.Entities;
+using LMS.Domain.Enums;
 using LMS.Infrastructure.Data;
 
 namespace LMS.Infrastructure.Services.Seeders;

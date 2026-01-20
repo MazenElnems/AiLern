@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
-using LMS.Domin.Repositories;
-using LMS.Domin.Constants;
-using LMS.Domin.DTOs;
-using LMS.Domin.DTOs.Courses;
-using LMS.Domin.Entities;
+using LMS.Domain.Repositories;
+using LMS.Domain.Constants;
+using LMS.Domain.DTOs;
+using LMS.Domain.DTOs.Courses;
+using LMS.Domain.Entities;
 using MediatR;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Logging;
 
 namespace LMS.Core.Queries.Courses.GetAllQueries;
 
@@ -13,45 +14,65 @@ public class GetAllCoursesQueryHandler : IRequestHandler<GetAllCoursesQuery, Pag
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly ILogger<GetAllCoursesQueryHandler> _logger;
 
-    public GetAllCoursesQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetAllCoursesQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<GetAllCoursesQueryHandler> logger)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<PaginationResult<GetAllCoursesDto>> Handle(GetAllCoursesQuery request, CancellationToken cancellationToken)
     {
-        var searchString = request.SearchString;
-        Expression<Func<Course, bool>> predicate = c => true;
-
-        if (!string.IsNullOrWhiteSpace(searchString))
+        if (request.PageNumber < 1 || request.PageSize < 1)
         {
-            predicate = c => c.Name.Contains(searchString) || c.Code.Contains(searchString);
+            throw new ArgumentException("PageNumber and PageSize must be greater than zero.");
         }
 
-        var sortBy = request.SortBy?.ToLower();
-        var order = request.Order?.ToLower();
-        var isDescending = order != SortOrderOptions.ASC;
-
-        Expression<Func<Course, object>> orderBy = sortBy switch
+        try
         {
-            CourseSortByOptions.Name => c => c.Name,
-            CourseSortByOptions.CreatedAt => c => c.CreatedAt,
-            _ => c => c.CreatedAt
-        };
+            var searchString = request.SearchString;
+            Expression<Func<Course, bool>> predicate = c => true;
 
-        var totalResult = await _unitOfWork.Courses.CountAsync(predicate);
-        var courses = await _unitOfWork.Courses.FilterAsync(
-            predicate,
-            orderBy,
-            isDescending,
-            (request.PageNumber - 1) * request.PageSize,
-            request.PageSize,
-            new[] { "Instructor" });
-        
-        var dto = _mapper.Map<List<GetAllCoursesDto>>(courses);
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                predicate = c => c.Name.Contains(searchString) || c.Code.Contains(searchString);
+            }
 
-        return new PaginationResult<GetAllCoursesDto>(request.PageNumber, request.PageSize, totalResult, dto);
+            var sortBy = request.SortBy;
+            var order = request.Order?.ToLower();
+            var isDescending = order != SortOrderOptions.ASC;
+
+            Expression<Func<Course, object>> orderBy = sortBy?.ToLower() switch
+            {
+                var s when s == CourseSortByOptions.Name => c => c.Name,
+                var s when s == CourseSortByOptions.CreatedAt => c => c.CreatedAt,
+                _ => c => c.CreatedAt
+            };
+
+            var totalResult = await _unitOfWork.Courses.CountAsync(predicate);
+
+            if(totalResult == 0)
+            {
+                return new PaginationResult<GetAllCoursesDto>(request.PageNumber, request.PageSize, 0, new List<GetAllCoursesDto>());
+            }
+
+            var courses = await _unitOfWork.Courses.FilterAsync(
+                predicate,
+                orderBy,
+                isDescending,
+                (request.PageNumber - 1) * request.PageSize,
+                request.PageSize,
+                new[] { "Instructor" });
+
+            var dto = _mapper.Map<List<GetAllCoursesDto>>(courses);
+            return new PaginationResult<GetAllCoursesDto>(request.PageNumber, request.PageSize, totalResult, dto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while retrieving courses.");
+            throw;
+        }
     }
 }

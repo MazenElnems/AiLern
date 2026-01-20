@@ -2,8 +2,8 @@
 using LMS.Core.Commands.Users.UpdateCommands;
 using LMS.Core.Queries.Users.GetAllByRoleIdQueries;
 using LMS.Core.Queries.Users.GetByIdQueries;
-using LMS.Domin.DTOs;
-using LMS.Domin.DTOs.Users;
+using LMS.Domain.DTOs;
+using LMS.Domain.DTOs.Users;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
 using LMS.Core.CurrentUser;
-using LMS.Domin.Constants;
-using LMS.Domin.Repositories;
-using LMS.Domin.DTOs.Courses;
-using LMS.Domin.Entities;
-using LMS.Domin.Exceptions;
+using LMS.Domain.Constants;
+using LMS.Domain.Repositories;
+using LMS.Domain.DTOs.Courses;
+using LMS.Domain.Entities;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
-using LMS.Domin.Enums;
+using LMS.Domain.Enums;
 
 namespace LMS.Core.Queries.Students.GetMyCoursesQuery;
 

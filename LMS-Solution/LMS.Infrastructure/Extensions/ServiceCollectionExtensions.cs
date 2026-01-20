@@ -1,6 +1,6 @@
 ﻿using LMS.Core.ConfigurationOptions;
-using LMS.Domin.Repositories;
-using LMS.Domin.Entities;
+using LMS.Domain.Repositories;
+using LMS.Domain.Entities;
 using LMS.Infrastructure.Data;
 using LMS.Infrastructure.Repositories;
 using LMS.Infrastructure.Repositories.Courses;
@@ -29,7 +29,8 @@ public static class ServiceCollectionExtensions
         // DbConext
         services.AddDbContext<AppDbContext>(options =>
         {
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
+                   .EnableSensitiveDataLogging();
         });
 
         // Identity

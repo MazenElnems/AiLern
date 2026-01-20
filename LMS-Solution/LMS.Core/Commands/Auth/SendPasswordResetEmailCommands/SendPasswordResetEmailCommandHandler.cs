@@ -1,7 +1,7 @@
 ﻿using LMS.Core.ConfigurationOptions;
-using LMS.Domin.Repositories;
-using LMS.Domin.Entities;
-using LMS.Domin.Exceptions;
+using LMS.Domain.Repositories;
+using LMS.Domain.Entities;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;

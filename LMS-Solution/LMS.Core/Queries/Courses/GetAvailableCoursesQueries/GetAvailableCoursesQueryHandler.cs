@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using LMS.Domin.Repositories;
-using LMS.Domin.Constants;
-using LMS.Domin.DTOs;
-using LMS.Domin.DTOs.Courses;
-using LMS.Domin.Entities;
-using LMS.Domin.Enums;
+using LMS.Domain.Repositories;
+using LMS.Domain.Constants;
+using LMS.Domain.DTOs;
+using LMS.Domain.DTOs.Courses;
+using LMS.Domain.Entities;
+using LMS.Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
@@ -28,6 +28,11 @@ public class GetAvailableCoursesQueryHandler : IRequestHandler<GetAvailableCours
     {
         try
         {
+            if (request.PageNumber < 1 || request.PageSize < 1)
+            {
+                throw new ArgumentException("PageNumber and PageSize must be greater than zero.");
+            }
+
             _logger.LogInformation("Handling GetAvailableCoursesQuery with SearchString: {SearchString}, SortBy: {SortBy}, Order: {Order}, PageNumber: {PageNumber}, PageSize: {PageSize}",
                 request.SearchString, request.SortBy, request.Order, request.PageNumber, request.PageSize);
 
@@ -52,6 +57,12 @@ public class GetAvailableCoursesQueryHandler : IRequestHandler<GetAvailableCours
             };
 
             var totalResult = await _unitOfWork.Courses.CountAsync(predicate);
+
+            if (totalResult == 0)
+            {
+                return new PaginationResult<GetAvailableCoursesDto>(request.PageNumber, request.PageSize, 0, new List<GetAvailableCoursesDto>());
+            }
+
             var courses = await _unitOfWork.Courses.FilterAsync(
                 predicate,
                 orderBy,

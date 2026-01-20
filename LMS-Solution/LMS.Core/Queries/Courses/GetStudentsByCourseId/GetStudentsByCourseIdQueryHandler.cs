@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using LMS.Domin.Repositories;
-using LMS.Domin.DTOs.Students;
-using LMS.Domin.Entities;
-using LMS.Domin.Exceptions;
+using LMS.Domain.Repositories;
+using LMS.Domain.DTOs.Students;
+using LMS.Domain.Entities;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

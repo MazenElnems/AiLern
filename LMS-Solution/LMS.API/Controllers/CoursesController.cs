@@ -4,7 +4,6 @@ using LMS.Core.Queries.Courses.GetAvailableCoursesQueries;
 using LMS.Core.Commands.Courses.DeleteEnrollmentCommands;
 using LMS.Core.Commands.Courses.RejectEnrollmentCommands;
 using LMS.Core.Queries.Courses.GetStudentsByCourseId;
-using LMS.Core.Queries.Courses.GetPendingQueries;
 using LMS.Core.Commands.Courses.CreateCommands;
 using LMS.Core.Commands.Courses.DeleteCommands;
 using LMS.Core.Commands.Courses.RejectCommands;
@@ -14,9 +13,9 @@ using LMS.Core.Queries.Courses.GetAllQueries;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using LMS.Core.Queries.Courses.GetEnrollmentRequestsQueries;
-using LMS.Domin.DTOs.Courses;
-using LMS.Domin.DTOs.Students;
-using LMS.Domin.DTOs;
+using LMS.Domain.DTOs.Courses;
+using LMS.Domain.DTOs.Students;
+using LMS.Domain.DTOs;
 
 
 namespace LMS.API.Controllers;
@@ -74,13 +73,6 @@ public class CoursesController : ControllerBase
         command.Id = id;
         var reason = await _mediator.Send(command);
         return reason;
-    }
-
-    [HttpGet("status")]
-    public async Task<ActionResult<IEnumerable<GetCourseDto>>> GetByStatus([FromQuery] GetCoursesByStatusQuery query )
-    {
-        var dto = await _mediator.Send(query);
-        return dto;
     }
 
     [HttpPut("{id}/enrollments/{studentId}/approve")]
