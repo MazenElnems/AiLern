@@ -17,4 +17,5 @@ public class Course
     // Navigation Properities
     public Instructor Instructor { get; set; }
     public List<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+    public List<Assignment> Assignments { get; set; } = new List<Assignment>();
 }

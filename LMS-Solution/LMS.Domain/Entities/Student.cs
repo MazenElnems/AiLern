@@ -6,4 +6,5 @@ public class Student : ApplicationUser
 
     // Navigation Properities
     public List<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+    public List<AssignmentSubmission> AssignmentSubmissions { get; set; } = new List<AssignmentSubmission>();
 }
