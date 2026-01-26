@@ -8,6 +8,8 @@ public interface IBaseRepository<T> where T : class
     void Update(T entity);
     void Delete(T entity);
     Task<T?> GetByIdAsync(object id);
+    Task<T?> GetAsync(Expression<Func<T, bool>> match);
+    Task<T?> GetAsync(Expression<Func<T, bool>> match, string[] includeProperties = null);
     Task<IEnumerable<T>> FilterAsync(
         Expression<Func<T, bool>> predicate,
         string[] includeProperties = null);

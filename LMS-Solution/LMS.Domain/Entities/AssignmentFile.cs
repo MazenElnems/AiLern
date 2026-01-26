@@ -1,10 +1,14 @@
+using LMS.Domain.Enums;
+
 namespace LMS.Domain.Entities;
 
 public class AssignmentFile
 {
-    public int FileId { get; set; }
+    public Guid Id { get; set; }
     public string FileName { get; set; }
+    public string FileType { get; set; }
     public string StoragePath { get; set; }
+    public UploadStatus UploadStatus { get; set; }
 
     // Foreign Keys
     public int AssignmentId { get; set; }

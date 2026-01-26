@@ -6,5 +6,6 @@ public interface IUnitOfWork
     public IUsersRepository Users { get; }
     public IEnrollmentRepository Enrollments { get; }
     public IRefreshTokenRepository RefreshTokens { get; }
+    public IAssignmentRepository Assignments { get; }
     Task<int> CommitAsync();
 }

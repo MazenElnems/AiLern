@@ -8,6 +8,7 @@ using LMS.Core.ConfigurationOptions;
 using LMS.Core.CurrentUser;
 using LMS.Core.Services.Auth;
 using LMS.Core.Services.Auth.Interfaces;
+using LMS.Domain.DTOs.Assignments;
 using LMS.Domain.DTOs.Courses;
 using LMS.Domain.DTOs.Students;
 using LMS.Domain.DTOs.Users;
@@ -88,7 +89,11 @@ public static class ServiceCollectionExtensions
             cfg.CreateMap<ApplicationUser, GetUsersByRoleDto>();
             cfg.CreateMap<Course, GetAllCoursesDto>();
             cfg.CreateMap<ApplicationUser, GetUserByIdDto>();
-        });
+
+            cfg.CreateMap<Assignment, AssignmentWithFilesDto>();
+
+            cfg.CreateMap<Assignment, AssignmentDto>();
+        }, [typeof(ServiceCollectionExtensions).Assembly]);
 
         return services;
     }

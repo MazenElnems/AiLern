@@ -27,7 +27,7 @@ public class GetEnrollmentRequestsQueryHandler : IRequestHandler<GetEnrollmentRe
                 ?? throw new ResourceNotFoundException(nameof(Course), request.CourseId.ToString());
 
             if (course.CourseStatus != CourseStatus.Approved)
-                throw new ForbiddenException("Can't view erollment requests");
+                throw new UnauthorizedAccessException("Can't view erollment requests");
 
             var dto = await _unitOfWork.Enrollments.GetEnrollmentRequestsAsync(request.CourseId);
 
@@ -37,7 +37,7 @@ public class GetEnrollmentRequestsQueryHandler : IRequestHandler<GetEnrollmentRe
         {
             throw;
         }
-        catch(ForbiddenException ex)
+        catch(UnauthorizedAccessException ex)
         {
             throw;
         }

@@ -1,11 +1,13 @@
-﻿using LMS.Core.ConfigurationOptions;
-using LMS.Domain.Repositories;
+﻿using Amazon.S3;
+using LMS.Core.ConfigurationOptions;
 using LMS.Domain.Entities;
+using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
 using LMS.Infrastructure.Repositories;
 using LMS.Infrastructure.Repositories.Courses;
 using LMS.Infrastructure.Repositories.Users;
 using LMS.Infrastructure.Services.Email;
+using LMS.Infrastructure.Services.Storage;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IWasabiService, WasabiService>();
         services.AddTransient<IMailSender,MailSender>();
 
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
@@ -44,6 +47,25 @@ public static class ServiceCollectionExtensions
             .AddRoles<IdentityRole<int>>()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
+
+        // wasabi storage
+        services.Configure<WasabiSettings>(configuration.GetSection("Wasabi"));
+        var wasabi = configuration.GetSection("Wasabi").Get<WasabiSettings>();
+
+        services.AddSingleton<IAmazonS3>(sp =>
+        {
+            var config = new AmazonS3Config
+            {
+                ServiceURL = wasabi.ServiceURL,
+                ForcePathStyle = true
+            };
+
+            return new AmazonS3Client(
+                wasabi.AccessKey,
+                wasabi.SecretKey,
+                config
+            );
+        });
 
         return services;
     }
