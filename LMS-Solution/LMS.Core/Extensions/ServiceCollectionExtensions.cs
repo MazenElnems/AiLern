@@ -11,6 +11,7 @@ using LMS.Core.Services.Auth.Interfaces;
 using LMS.Domain.DTOs.Assignments;
 using LMS.Domain.DTOs.Courses;
 using LMS.Domain.DTOs.Students;
+using LMS.Domain.DTOs.Submission;
 using LMS.Domain.DTOs.Users;
 using LMS.Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -93,6 +94,7 @@ public static class ServiceCollectionExtensions
             cfg.CreateMap<Assignment, AssignmentWithFilesDto>();
 
             cfg.CreateMap<Assignment, AssignmentDto>();
+            cfg.CreateMap<AssignmentSubmission, SubmissionDto>();
         }, [typeof(ServiceCollectionExtensions).Assembly]);
 
         return services;
