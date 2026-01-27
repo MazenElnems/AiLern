@@ -7,13 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LMS.Infrastructure.Repositories.Submissions
-{
-    internal class SubmissionRepository : BaseRepository<AssignmentSubmission>, ISubmissionRepository
-    {
-        public SubmissionRepository(AppDbContext context) : base(context)
-        {
+namespace LMS.Infrastructure.Repositories.Submissions;
 
-        }
+internal class SubmissionRepository : BaseRepository<AssignmentSubmission> , ISubmissionRepository
+{
+    private readonly AppDbContext _context;
+    public SubmissionRepository(AppDbContext context) : base(context)
+    {
+        _context = context;
     }
 }
