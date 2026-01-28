@@ -5,7 +5,7 @@ using LMS.Domain.Enums;
 using LMS.Domain.Exceptions;
 using LMS.Domain.Repositories;
 using MediatR;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.Logging;
 
 namespace LMS.Core.Commands.Assignments.RequestPreSignedUrlCommands;
 
@@ -14,84 +14,66 @@ public class RequestPreSignedUrlCommandHandler : IRequestHandler<RequestPreSigne
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IWasabiService _wasabiService;
-    private readonly static int MaxFileSizeInBytes = 10 * 1024 * 1024; // 10 MB
-    private readonly List<string> allowedContentTypes = new List<string>
-    {
-        "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "image/jpeg",
-        "image/png",
-        "text/plain",
-        "application/zip"
-    };
+    private readonly ILogger<RequestPreSignedUrlCommandHandler> _logger;
 
-    public RequestPreSignedUrlCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IWasabiService wasabiService)
+    public RequestPreSignedUrlCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IWasabiService wasabiService, ILogger<RequestPreSignedUrlCommandHandler> logger)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _wasabiService = wasabiService;
+        _logger = logger;
     }
 
     public async Task<PreSignedUrlResponse> Handle(RequestPreSignedUrlCommand request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.GetCurrentUser().Id;
-
-        var assignment = await _unitOfWork.Assignments
-            .GetAsync(a => a.Id == request.AssignmentId, [nameof(Course)]);
-
-        if (assignment == null)
-            throw new ResourceNotFoundException(nameof(Assignment), request.AssignmentId.ToString());
-
-        var course = assignment.Course;
-
-        if (course.InstructorId != userId)
-            throw new UnauthorizedAccessException("You do not have permission to request pre-signed URLs for this assignment.");
-
-        if (request.Files.Count > 10)
-            throw new ValidationException("You can upload a maximum of 10 files.");
-
-        var response = new PreSignedUrlResponse
+        try
         {
-            PresignedUrls = new List<string>()
-        };
+            var userId = _userContext.GetCurrentUser().Id;
 
-        var assignmentFiles = new List<AssignmentFile>();
+            var assignment = await _unitOfWork.Assignments
+                .GetAsync(a => a.Id == request.AssignmentId, [nameof(Course)]);
 
-        foreach (var file in request.Files)
-        {
-            if (file.FileSize <= 0 || string.IsNullOrEmpty(file.FileName) || string.IsNullOrEmpty(file.ContentType))
-                throw new ValidationException("Invalid file metadata provided.");
+            if (assignment == null)
+                throw new ResourceNotFoundException(nameof(Assignment), request.AssignmentId.ToString());
 
-            if(!allowedContentTypes.Contains(file.ContentType))
-                throw new ValidationException($"File type {file.ContentType} is not allowed.");
+            var course = assignment.Course;
 
-            if (file.FileSize > MaxFileSizeInBytes)
-                throw new ValidationException("File size exceeds the maximum allowed limit of 10 MB.");
+            if (course.InstructorId != userId)
+                throw new UnauthorizedAccessException("You do not have permission to request pre-signed URLs for this assignment.");
 
-            var extension = Path.GetExtension(file.FileName);
-
-            if (string.IsNullOrEmpty(extension))
-                throw new ValidationException("Invalid file name.");
-
-            var key = $"courses/{course.Name}/assignments/{request.AssignmentId}/{Guid.NewGuid()}_{file.FileName}";
-            var preSignedUrl = await _wasabiService.GeneratePresignedUploadUrlAsync(key, file.ContentType, 15);
-
-            assignmentFiles.Add(new AssignmentFile
+            var response = new PreSignedUrlResponse
             {
-                FileName = file.FileName,
-                FileType = file.ContentType,
-                StoragePath = key,
-                UploadStatus = UploadStatus.Pending,
-                AssignmentId = request.AssignmentId
-            });
+                PresignedUrls = new List<string>()
+            };
 
-            response.PresignedUrls.Add(preSignedUrl);
+            var assignmentFiles = new List<AssignmentFile>();
+
+            foreach (var file in request.Files)
+            {
+                var key = $"courses/{course.Name}/assignments/{request.AssignmentId}/{Guid.NewGuid()}_{file.FileName}";
+                var preSignedUrl = await _wasabiService.GeneratePresignedUploadUrlAsync(key, file.ContentType, 2);
+
+                assignmentFiles.Add(new AssignmentFile
+                {
+                    FileName = file.FileName,
+                    FileType = file.ContentType,
+                    StoragePath = key,
+                    UploadStatus = UploadStatus.Pending,
+                    AssignmentId = request.AssignmentId
+                });
+
+                response.PresignedUrls.Add(preSignedUrl);
+            }
+
+            assignment.Files.AddRange(assignmentFiles); 
+            await _unitOfWork.CommitAsync();
+
+            return response;
         }
-
-        assignment.Files.AddRange(assignmentFiles); 
-        await _unitOfWork.CommitAsync();
-
-        return response;
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "an unexpected error occurred while processing RequestPreSignedUrlCommandHandler for assignment ID {AssignmentId}", request.AssignmentId);
+            throw;
+        }
     }
 }

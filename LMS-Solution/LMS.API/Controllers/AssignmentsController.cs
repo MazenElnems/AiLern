@@ -32,7 +32,7 @@ public class AssignmentsController : ControllerBase
         return CreatedAtAction(nameof(Create), new { id = entity.Id }, entity);
     }
 
-    [HttpPost("request-upload")]
+    [HttpPost("presigned-url")]
     [Authorize(Roles = UserRoles.Instructor)]
     public async Task<IActionResult> RequestAssignmentUpload(RequestPreSignedUrlCommand command)
     {

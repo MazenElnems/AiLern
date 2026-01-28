@@ -1,5 +1,4 @@
-﻿using Amazon.Runtime.Internal.Util;
-using Amazon.S3;
+﻿using Amazon.S3;
 using Amazon.S3.Model;
 using LMS.Core.ConfigurationOptions;
 using LMS.Domain.Repositories;
