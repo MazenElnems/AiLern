@@ -97,7 +97,7 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
                 AccessToken = accessToken,
                 ExpiresOn = accessTokenExpiration,
                 RefreshToken = refreshToken,
-                Role = roles.First()
+                Role = roles.FirstOrDefault()
             };
 
             return response;

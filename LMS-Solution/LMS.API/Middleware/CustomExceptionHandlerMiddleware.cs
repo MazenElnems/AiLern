@@ -1,4 +1,5 @@
 ﻿using LMS.Domain.Exceptions;
+using System.ComponentModel.DataAnnotations;
 
 namespace LMS.API.Middleware;
 
@@ -19,11 +20,23 @@ public class CustomExceptionHandlerMiddleware
         {
             await _next(httpContext);
         }
+        catch(ValidationException ex)
+        {
+            httpContext.Response.StatusCode = 400;
+            await httpContext.Response.WriteAsync(ex.Message);
+            _logger.LogWarning(ex, "Validation failed.");
+        }
         catch (ArgumentException ex)
         {
             httpContext.Response.StatusCode = 400;
             await httpContext.Response.WriteAsync(ex.Message);
             _logger.LogWarning(ex, "Invalid request parameters.");
+        }
+        catch(UnauthorizedAccessException ex)
+        {
+            httpContext.Response.StatusCode = 403;
+            await httpContext.Response.WriteAsync(ex.Message);
+            _logger.LogWarning("Access forbidden.");
         }
         catch(PasswordResetException)
         {

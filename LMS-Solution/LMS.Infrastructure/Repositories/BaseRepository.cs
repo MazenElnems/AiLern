@@ -107,7 +107,26 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
             .ToListAsync();
     }
 
+    public async Task<T?> GetAsync(Expression<Func<T, bool>> match)
+        => await _context.Set<T>().FirstOrDefaultAsync(match);
+
+    public async Task<T?> GetAsync(Expression<Func<T, bool>> match, string[] includeProperties = null)
+    {
+        var query = _context.Set<T>().AsQueryable();
+
+        if (includeProperties != null)
+        {
+            foreach (var property in includeProperties)
+            {
+                query = query.Include(property);
+            }
+        }
+
+        return await query.FirstOrDefaultAsync(match);
+    }
+
     public virtual async Task<T?> GetByIdAsync(object id) => await _context.Set<T>().FindAsync(id);
+
     public virtual async Task InsertAsync(T entity) => await _context.Set<T>().AddAsync(entity);
     public virtual void Update(T entity) => _context.Set<T>().Update(entity);
 }

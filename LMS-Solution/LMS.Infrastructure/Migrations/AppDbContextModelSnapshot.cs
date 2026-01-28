@@ -22,7 +22,7 @@ namespace LMS.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("LMS.Domin.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -103,7 +103,145 @@ namespace LMS.Infrastructure.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("LMS.Domin.Entities.Course", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.Assignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AllowLateSubmission")
+                        .HasColumnType("BIT");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("DATETIME2");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("DATETIME2");
+
+                    b.Property<string>("Instructions")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(MAX)");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("BIT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("Assignments", (string)null);
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.AssignmentFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(255)");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(100)");
+
+                    b.Property<string>("StoragePath")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(MAX)");
+
+                    b.Property<string>("UploadStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Pending");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignmentId");
+
+                    b.ToTable("AssignmentFiles", (string)null);
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.AssignmentSubmission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Feedback")
+                        .HasColumnType("NVARCHAR(MAX)");
+
+                    b.Property<bool>("IsLate")
+                        .HasColumnType("BIT");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SubmissionDate")
+                        .HasColumnType("DATETIME2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignmentId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("AssignmentSubmissions", (string)null);
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.AssignmentSubmissionFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AssignmentSubmissionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(255)");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(100)");
+
+                    b.Property<string>("StoragePath")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(MAX)");
+
+                    b.Property<string>("UploadStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Pending");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignmentSubmissionId");
+
+                    b.ToTable("AssignmentSubmissionFiles", (string)null);
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.Course", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -147,7 +285,7 @@ namespace LMS.Infrastructure.Migrations
                     b.ToTable("Courses", (string)null);
                 });
 
-            modelBuilder.Entity("LMS.Domin.Entities.Enrollment", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.Enrollment", b =>
                 {
                     b.Property<int>("Course_id")
                         .HasColumnType("int");
@@ -173,7 +311,7 @@ namespace LMS.Infrastructure.Migrations
                     b.ToTable("Enrollments");
                 });
 
-            modelBuilder.Entity("LMS.Domin.Entities.RefreshToken", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -338,23 +476,23 @@ namespace LMS.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("LMS.Domin.Entities.Admin", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.Admin", b =>
                 {
-                    b.HasBaseType("LMS.Domin.Entities.ApplicationUser");
+                    b.HasBaseType("LMS.Domain.Entities.ApplicationUser");
 
                     b.HasDiscriminator().HasValue("Admin");
                 });
 
-            modelBuilder.Entity("LMS.Domin.Entities.Instructor", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.Instructor", b =>
                 {
-                    b.HasBaseType("LMS.Domin.Entities.ApplicationUser");
+                    b.HasBaseType("LMS.Domain.Entities.ApplicationUser");
 
                     b.HasDiscriminator().HasValue("Instructor");
                 });
 
-            modelBuilder.Entity("LMS.Domin.Entities.Student", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.Student", b =>
                 {
-                    b.HasBaseType("LMS.Domin.Entities.ApplicationUser");
+                    b.HasBaseType("LMS.Domain.Entities.ApplicationUser");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("INT");
@@ -366,9 +504,61 @@ namespace LMS.Infrastructure.Migrations
                     b.HasDiscriminator().HasValue("Student");
                 });
 
-            modelBuilder.Entity("LMS.Domin.Entities.Course", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.Assignment", b =>
                 {
-                    b.HasOne("LMS.Domin.Entities.Instructor", "Instructor")
+                    b.HasOne("LMS.Domain.Entities.Course", "Course")
+                        .WithMany("Assignments")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.AssignmentFile", b =>
+                {
+                    b.HasOne("LMS.Domain.Entities.Assignment", "Assignment")
+                        .WithMany("Files")
+                        .HasForeignKey("AssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Assignment");
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.AssignmentSubmission", b =>
+                {
+                    b.HasOne("LMS.Domain.Entities.Assignment", "Assignment")
+                        .WithMany("Submissions")
+                        .HasForeignKey("AssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LMS.Domain.Entities.Student", "Student")
+                        .WithMany("AssignmentSubmissions")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Assignment");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.AssignmentSubmissionFile", b =>
+                {
+                    b.HasOne("LMS.Domain.Entities.AssignmentSubmission", "AssignmentSubmission")
+                        .WithMany("Files")
+                        .HasForeignKey("AssignmentSubmissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignmentSubmission");
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.Course", b =>
+                {
+                    b.HasOne("LMS.Domain.Entities.Instructor", "Instructor")
                         .WithMany("Courses")
                         .HasForeignKey("InstructorId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -377,15 +567,15 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Instructor");
                 });
 
-            modelBuilder.Entity("LMS.Domin.Entities.Enrollment", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.Enrollment", b =>
                 {
-                    b.HasOne("LMS.Domin.Entities.Course", "Course")
+                    b.HasOne("LMS.Domain.Entities.Course", "Course")
                         .WithMany("Enrollments")
                         .HasForeignKey("Course_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LMS.Domin.Entities.Student", "Student")
+                    b.HasOne("LMS.Domain.Entities.Student", "Student")
                         .WithMany("Enrollments")
                         .HasForeignKey("Student_id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -396,9 +586,9 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("LMS.Domin.Entities.RefreshToken", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.RefreshToken", b =>
                 {
-                    b.HasOne("LMS.Domin.Entities.ApplicationUser", "User")
+                    b.HasOne("LMS.Domain.Entities.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -418,7 +608,7 @@ namespace LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("LMS.Domin.Entities.ApplicationUser", null)
+                    b.HasOne("LMS.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -427,7 +617,7 @@ namespace LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("LMS.Domin.Entities.ApplicationUser", null)
+                    b.HasOne("LMS.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -442,7 +632,7 @@ namespace LMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LMS.Domin.Entities.ApplicationUser", null)
+                    b.HasOne("LMS.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -451,25 +641,41 @@ namespace LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("LMS.Domin.Entities.ApplicationUser", null)
+                    b.HasOne("LMS.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("LMS.Domin.Entities.Course", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.Assignment", b =>
                 {
+                    b.Navigation("Files");
+
+                    b.Navigation("Submissions");
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.AssignmentSubmission", b =>
+                {
+                    b.Navigation("Files");
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.Course", b =>
+                {
+                    b.Navigation("Assignments");
+
                     b.Navigation("Enrollments");
                 });
 
-            modelBuilder.Entity("LMS.Domin.Entities.Instructor", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.Instructor", b =>
                 {
                     b.Navigation("Courses");
                 });
 
-            modelBuilder.Entity("LMS.Domin.Entities.Student", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.Student", b =>
                 {
+                    b.Navigation("AssignmentSubmissions");
+
                     b.Navigation("Enrollments");
                 });
 #pragma warning restore 612, 618

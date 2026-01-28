@@ -43,4 +43,10 @@ internal class EnrollmentRepository : BaseRepository<Enrollment>, IEnrollmentRep
                 RequestAt = e.Requested_at
             }).ToListAsync();
     }
+
+    public async Task<bool> IsEnrolledAsync(int courseId, int studentId)
+    {
+        var Isenrollment = await _context.Enrollments.AnyAsync(e =>e.Course_id == courseId && e.Student_id == studentId);
+        return Isenrollment;
+    }
 }
