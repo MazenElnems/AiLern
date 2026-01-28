@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="LMS.API/LMS.API.csproj" />
-  <Project Path="LMS.Core/LMS.Core.csproj" />
-  <Project Path="LMS.Domain/LMS.Domain.csproj" />
-  <Project Path="LMS.Infrastructure/LMS.Infrastructure.csproj" />
-</Solution>
