@@ -9,7 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
-using LMS.Domain.Enums;
+using LMS.Domain.Common.Enums;
 
 namespace LMS.Core.Queries.Students.GetMyCoursesQuery;
 

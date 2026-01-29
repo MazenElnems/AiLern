@@ -1,4 +1,5 @@
 ﻿using LMS.Core.CurrentUser;
+using LMS.Domain.Common.Enums;
 using LMS.Domain.Entities;
 using LMS.Domain.Exceptions;
 using LMS.Domain.Repositories;
@@ -45,7 +46,7 @@ namespace LMS.Core.Commands.Submissions.ConfirmSubmissionUploadCommands
                 if (!exists)
                     throw new ValidationException("File does not exist in storage.");
 
-                file.UploadStatus = Domain.Enums.UploadStatus.Completed;
+                file.UploadStatus = UploadStatus.Completed;
             }
 
             await _unitOfWork.CommitAsync();

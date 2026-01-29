@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using LMS.Core.CurrentUser;
+using LMS.Domain.Common.Enums;
 using LMS.Domain.Constants;
 using LMS.Domain.DTOs.Assignments;
 using LMS.Domain.Entities;
-using LMS.Domain.Enums;
 using LMS.Domain.Exceptions;
 using LMS.Domain.Repositories;
 using MediatR;

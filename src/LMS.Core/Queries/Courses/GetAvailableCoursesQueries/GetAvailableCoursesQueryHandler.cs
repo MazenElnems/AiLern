@@ -4,10 +4,10 @@ using LMS.Domain.Constants;
 using LMS.Domain.DTOs;
 using LMS.Domain.DTOs.Courses;
 using LMS.Domain.Entities;
-using LMS.Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
+using LMS.Domain.Common.Enums;
 
 namespace LMS.Core.Queries.Courses.GetAvailableCoursesQueries;
 

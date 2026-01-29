@@ -1,10 +1,10 @@
 ﻿using LMS.Core.CurrentUser;
 using LMS.Domain.Repositories;
 using LMS.Domain.Entities;
-using LMS.Domain.Enums;
 using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using LMS.Domain.Common.Enums;
 
 namespace LMS.Core.Commands.Courses.CourseEnrollmentsCommands;
 

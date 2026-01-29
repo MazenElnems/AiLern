@@ -1,4 +1,4 @@
-﻿using LMS.Domain.Enums;
+﻿using LMS.Domain.Common.Enums;
 
 namespace LMS.Domain.Entities;
 
