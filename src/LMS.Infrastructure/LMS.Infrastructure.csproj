@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LMS.Core\LMS.Core.csproj" />
+    <ProjectReference Include="..\LMS.Application\LMS.Application.csproj" />
   </ItemGroup>
 
 </Project>

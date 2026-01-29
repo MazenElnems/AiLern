@@ -1,4 +1,4 @@
-﻿using LMS.Core.Commands.Admins.CreateAdminCommands;
+﻿using LMS.Application.Commands.Admins.CreateAdminCommands;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

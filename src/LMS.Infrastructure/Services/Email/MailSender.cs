@@ -1,4 +1,4 @@
-﻿using LMS.Core.ConfigurationOptions;
+﻿using LMS.Application.ConfigurationOptions;
 using LMS.Domain.Repositories;
 using MailKit.Net.Smtp;
 using MailKit.Security;

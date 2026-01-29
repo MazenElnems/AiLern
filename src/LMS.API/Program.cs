@@ -1,5 +1,5 @@
 ﻿using LMS.API.Middleware;
-using LMS.Core.Extensions;
+using LMS.Application.Extensions;
 using LMS.Infrastructure.Extensions;
 using Microsoft.OpenApi.Models;
 

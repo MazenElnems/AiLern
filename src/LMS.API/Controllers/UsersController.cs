@@ -1,7 +1,7 @@
-﻿using LMS.Core.Commands.Users.DeleteUserRoleCommands;
-using LMS.Core.Commands.Users.UpdateCommands;
-using LMS.Core.Queries.Users.GetAllByRoleIdQueries;
-using LMS.Core.Queries.Users.GetByIdQueries;
+﻿using LMS.Application.Commands.Users.DeleteUserRoleCommands;
+using LMS.Application.Commands.Users.UpdateCommands;
+using LMS.Application.Queries.Users.GetAllByRoleIdQueries;
+using LMS.Application.Queries.Users.GetByIdQueries;
 using LMS.Domain.DTOs;
 using LMS.Domain.DTOs.Users;
 using MediatR;

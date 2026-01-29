@@ -1,6 +1,6 @@
+using LMS.Domain.Common.Enums;
 using LMS.Domain.DTOs.Courses;
 using LMS.Domain.Entities;
-using LMS.Domain.Enums;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;

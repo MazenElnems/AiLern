@@ -1,5 +1,5 @@
-﻿using LMS.Core.Commands.Students.CreateCommands;
-using LMS.Core.Queries.Students.GetMyCoursesQuery;
+﻿using LMS.Application.Commands.Students.CreateCommands;
+using LMS.Application.Queries.Students.GetMyCoursesQuery;
 using LMS.Domain.Constants;
 using LMS.Domain.DTOs.Courses;
 using MediatR;

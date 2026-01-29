@@ -1,15 +1,15 @@
-using LMS.Core.Commands.Assignments.AssignmentCreateCommands;
-using LMS.Core.Commands.Assignments.AssignmentDeleteCommands;
-using LMS.Core.Commands.Assignments.AssignmentDeleteFileCommands;
-using LMS.Core.Commands.Assignments.AssignmentPublishCommands;
-using LMS.Core.Commands.Assignments.ConfirmAssignmentUploadCommands;
-using LMS.Core.Commands.Assignments.RequestPreSignedUrlCommands;
-using LMS.Core.Commands.Assignments.AssignmentUpdateCommands;
+using LMS.Application.Commands.Assignments.AssignmentCreateCommands;
+using LMS.Application.Commands.Assignments.AssignmentDeleteCommands;
+using LMS.Application.Commands.Assignments.AssignmentDeleteFileCommands;
+using LMS.Application.Commands.Assignments.AssignmentPublishCommands;
+using LMS.Application.Commands.Assignments.ConfirmAssignmentUploadCommands;
+using LMS.Application.Commands.Assignments.RequestPreSignedUrlCommands;
+using LMS.Application.Commands.Assignments.AssignmentUpdateCommands;
 using LMS.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using LMS.Core.Commands.Assignments.GetAssignmentCommands;
+using LMS.Application.Commands.Assignments.GetAssignmentCommands;
 
 namespace LMS.API.Controllers;
 

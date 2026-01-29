@@ -1,4 +1,4 @@
-﻿namespace LMS.Core.DTOs.Auth.Request;
+﻿namespace LMS.Application.DTOs.Auth.Request;
 
 public class GetTokenResponseDto
 {
