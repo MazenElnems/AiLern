@@ -1,4 +1,4 @@
-﻿using LMS.Core.Commands.Instructors.CreateInstructorsCommands;
+﻿using LMS.Application.Commands.Instructors.CreateInstructorsCommands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

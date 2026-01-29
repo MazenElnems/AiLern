@@ -1,5 +1,5 @@
 ﻿using Amazon.S3;
-using LMS.Core.ConfigurationOptions;
+using LMS.Application.ConfigurationOptions;
 using LMS.Domain.Entities;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;

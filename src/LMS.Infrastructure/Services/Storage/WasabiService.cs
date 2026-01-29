@@ -1,6 +1,6 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
-using LMS.Core.ConfigurationOptions;
+using LMS.Application.ConfigurationOptions;
 using LMS.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

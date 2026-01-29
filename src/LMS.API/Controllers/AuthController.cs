@@ -1,11 +1,11 @@
-﻿using LMS.Core.Commands.Auth.EmailConfirmationCommands;
-using LMS.Core.Commands.Auth.PasswordReSetCommands;
-using LMS.Core.Commands.Auth.ResendEmailConfirmationCommands;
-using LMS.Core.Commands.Auth.SendPasswordResetEmailCommands;
-using LMS.Core.Commands.Auth.UserLoginCommands;
-using LMS.Core.Commands.Auth.UserRefreshTokenCommands;
-using LMS.Core.Commands.Auth.UserRevokeRefreshTokenCommands;
-using LMS.Core.DTOs.Auth.Request;
+﻿using LMS.Application.Commands.Auth.EmailConfirmationCommands;
+using LMS.Application.Commands.Auth.PasswordReSetCommands;
+using LMS.Application.Commands.Auth.ResendEmailConfirmationCommands;
+using LMS.Application.Commands.Auth.SendPasswordResetEmailCommands;
+using LMS.Application.Commands.Auth.UserLoginCommands;
+using LMS.Application.Commands.Auth.UserRefreshTokenCommands;
+using LMS.Application.Commands.Auth.UserRevokeRefreshTokenCommands;
+using LMS.Application.DTOs.Auth.Request;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

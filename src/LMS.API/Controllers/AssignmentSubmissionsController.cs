@@ -1,7 +1,7 @@
-﻿using LMS.Core.Commands.Submissions.ConfirmSubmissionUploadCommands;
-using LMS.Core.Commands.Submissions.RequestSubmissionPresignedUrlCommands;
-using LMS.Core.Commands.Submissions.SubmissionCreateCommands;
-using LMS.Core.Commands.Submissions.SubmissionDeleteCommands;
+﻿using LMS.Application.Commands.Submissions.ConfirmSubmissionUploadCommands;
+using LMS.Application.Commands.Submissions.RequestSubmissionPresignedUrlCommands;
+using LMS.Application.Commands.Submissions.SubmissionCreateCommands;
+using LMS.Application.Commands.Submissions.SubmissionDeleteCommands;
 using LMS.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
