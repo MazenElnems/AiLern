@@ -40,6 +40,8 @@ public static class ServiceCollectionExtensions
 
         services.Configure<ApplicationDomain>(configuration.GetSection("Domain"));
 
+        services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
+
         // Validator
         services
             .AddValidatorsFromAssemblyContaining<CreateStudentCommandValidator>();
