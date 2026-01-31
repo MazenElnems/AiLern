@@ -9,6 +9,9 @@ using LMS.Application.Features.Auth.Commands.RefreshTokens;
 using LMS.Application.Features.Auth.Commands.RevokeToken;
 using LMS.Application.Features.Auth.Commands.ResetPassword;
 using LMS.Application.Features.Auth.Commands.PasswordResetEmail;
+using LMS.Application.Features.Admins.Commands.CreateAdmin;
+using LMS.Application.Features.Instructors.Commands.CreateInstructor;
+using LMS.Application.Features.Students.Commands.CreateStudent;
 
 namespace LMS.API.Controllers;
 
@@ -32,6 +35,27 @@ public class AuthController : ApiBaseController
 
     [HttpPost("login")]
     public async Task<ActionResult<ApiResponse>> Login(UserLoginByEmailAndPasswordCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpPost("admin/register")]
+    public async Task<ActionResult<ApiResponse>> RegisterAdminUser(CreateAdminCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpPost("instructor/register")]
+    public async Task<ActionResult<ApiResponse>> RegisterInstructorUser(CreateInstructorCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpPost("students/register")]
+    public async Task<ActionResult<ApiResponse>> RegisterStudentUser(CreateStudentCommand command)
     {
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
