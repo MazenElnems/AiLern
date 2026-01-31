@@ -1,16 +1,15 @@
-﻿using LMS.Application.Commands.Students.CreateCommands;
-using LMS.Application.Queries.Students.GetMyCoursesQuery;
-using LMS.Domain.Constants;
-using LMS.Domain.DTOs.Courses;
+using LMS.API.Controllers.Common;
+using LMS.API.Common.Responses;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using LMS.Application.Features.Students.Queries.GetMyCourses;
+using LMS.Application.Features.Students.Commands.CreateStudent;
 
 namespace LMS.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class StudentsController : ControllerBase
+public class StudentsController : ApiBaseController
 {
     private readonly IMediator _mediator;
 
@@ -21,15 +20,15 @@ public class StudentsController : ControllerBase
 
     [HttpPost("register")]
     //[Authorize(Roles = UserRoles.Admin)]
-    public async Task<IActionResult> Create(CreateStudentCommand command)
+    public async Task<ActionResult<ApiResponse>> Create(CreateStudentCommand command)
     {
-        await _mediator.Send(command);
-        return Created();
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
     [HttpGet("my-courses")]
-    public async Task<ActionResult<List<GetStudentCoursesDto>>> GetCourses([FromQuery]GetStudentCoursesQuery query)
+    public async Task<ActionResult<ApiResponse>> GetCourses([FromQuery]GetStudentCoursesQuery query)
     {
-        var dto = await _mediator.Send(query);
-        return dto;
+        var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
     }
 }

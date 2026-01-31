@@ -1,17 +1,17 @@
-﻿using LMS.Application.Commands.Users.DeleteUserRoleCommands;
-using LMS.Application.Commands.Users.UpdateCommands;
-using LMS.Application.Queries.Users.GetAllByRoleIdQueries;
-using LMS.Application.Queries.Users.GetByIdQueries;
-using LMS.Domain.DTOs;
-using LMS.Domain.DTOs.Users;
+using LMS.API.Controllers.Common;
+using LMS.API.Common.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using LMS.Application.Features.Users.Commands.AddUserToRole;
+using LMS.Application.Features.Users.Commands.DeleteUserRole;
+using LMS.Application.Features.Users.Queries.GetAllByRoleId;
+using LMS.Application.Features.Users.Queries.GetUserById;
 
 namespace LMS.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class UsersController : ControllerBase
+public class UsersController : ApiBaseController
 {
     private readonly IMediator _mediator;
 
@@ -22,33 +22,33 @@ public class UsersController : ControllerBase
 
     [HttpGet]
     [Route("{id}")]
-    public async Task<ActionResult<GetUserByIdDto>> GetById(int id)
+    public async Task<ActionResult<ApiResponse>> GetById(int id)
     {
-        var dto = await _mediator.Send(new GetUserByIdQuery(id));
-        return dto;
+        var result = await _mediator.Send(new GetUserByIdQuery(id));
+        return HandleResponse(this, result);
     }
     [HttpPut]
     [Route("{id}/roles")]
-    public async Task<IActionResult> AddRole(int id, AddUserToRoleCommand command)
+    public async Task<ActionResult<ApiResponse>> AddRole(int id, AddUserToRoleCommand command)
     {
         command.Id = id;
-        await _mediator.Send(command);
-        return NoContent();
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpGet("roles/{roleid}")]
-    public async Task<ActionResult<PaginationResult<GetUsersByRoleDto>>> GetUsersByRoleId(int roleid, [FromQuery] GetAllByRoleIdQuery query)
+    public async Task<ActionResult<ApiResponse>> GetUsersByRoleId(int roleid, [FromQuery] GetAllByRoleIdQuery query)
     {
         query.RoleId = roleid;
-        var dto = await _mediator.Send(query);
-        return dto;
+        var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
     }
 
     [HttpDelete("{id}/roles")]
-    public async Task<IActionResult> DeleteUserRole(int id, DeleteUserRoleCommand command)
+    public async Task<ActionResult<ApiResponse>> DeleteUserRole(int id, DeleteUserRoleCommand command)
     {
         command.Id = id;
-        await _mediator.Send(command);
-        return NoContent();
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 }

@@ -54,7 +54,7 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.UseCustomExceptionHandler();
+app.UseGlobalExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {

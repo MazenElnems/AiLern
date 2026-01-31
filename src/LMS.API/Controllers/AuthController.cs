@@ -1,19 +1,20 @@
-﻿using LMS.Application.Commands.Auth.EmailConfirmationCommands;
-using LMS.Application.Commands.Auth.PasswordReSetCommands;
-using LMS.Application.Commands.Auth.ResendEmailConfirmationCommands;
-using LMS.Application.Commands.Auth.SendPasswordResetEmailCommands;
-using LMS.Application.Commands.Auth.UserLoginCommands;
-using LMS.Application.Commands.Auth.UserRefreshTokenCommands;
-using LMS.Application.Commands.Auth.UserRevokeRefreshTokenCommands;
-using LMS.Application.DTOs.Auth.Request;
+using LMS.Application.Commands.Auth.EmailConfirmationCommands;
+using LMS.API.Common.Responses;
+using LMS.API.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using LMS.Application.Features.Auth.Commands.Login;
+using LMS.Application.Features.Auth.Commands.ResendConfirmEmail;
+using LMS.Application.Features.Auth.Commands.RefreshTokens;
+using LMS.Application.Features.Auth.Commands.RevokeToken;
+using LMS.Application.Features.Auth.Commands.ResetPassword;
+using LMS.Application.Features.Auth.Commands.PasswordResetEmail;
 
 namespace LMS.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController : ControllerBase
+public class AuthController : ApiBaseController
 {
     private readonly IMediator _mediator;
 
@@ -23,51 +24,51 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh-token")]
-    public async Task<ActionResult<GetTokenResponseDto>> RefreshToken(GetRefreshTokenCommand command)
+    public async Task<ActionResult<ApiResponse>> RefreshToken(GetRefreshTokenCommand command)
     {
-        var dto = await _mediator.Send(command);
-        return dto;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<GetTokenResponseDto>> Login(UserLoginByEmailAndPasswordCommand command)
+    public async Task<ActionResult<ApiResponse>> Login(UserLoginByEmailAndPasswordCommand command)
     {
-        var dto = await _mediator.Send(command);
-        return dto;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpPut("revoke-token")]
-    public async Task<IActionResult> RevokeRefreshToken(RevokeRefreshTokenCommand command)
+    public async Task<ActionResult<ApiResponse>> RevokeRefreshToken(RevokeRefreshTokenCommand command)
     {
-        await _mediator.Send(command);
-        return NoContent();
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpGet("confirm-email")]
-    public async Task<IActionResult> ConfirmEmail([FromQuery] UserEmailConfirmationCommand command)
+    public async Task<ActionResult<ApiResponse>> ConfirmEmail([FromQuery] UserEmailConfirmationCommand command)
     {
-        await _mediator.Send(command);
-        return Ok();
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpPost("resend-confirmation-email")]
-    public async Task<IActionResult> ResendConfirmationEmail(ResendEmailConfirmationCommand command)
+    public async Task<ActionResult<ApiResponse>> ResendConfirmationEmail(ResendEmailConfirmationCommand command)
     {
-        await _mediator.Send(command);
-        return Ok();
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpPost("send-password-reset-email")]
-    public async Task<IActionResult> SendPasswordResetEmail(SendPasswordResetEmailCommand command)
+    public async Task<ActionResult<ApiResponse>> SendPasswordResetEmail(SendPasswordResetEmailCommand command)
     {
-        await _mediator.Send(command);
-        return Ok();
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpPost("change-password")]
-    public async Task<IActionResult> ChangePassword(UserPasswordResetCommand command)
+    public async Task<ActionResult<ApiResponse>> ChangePassword(UserPasswordResetCommand command)
     {
-        await _mediator.Send(command);
-        return NoContent();
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 }

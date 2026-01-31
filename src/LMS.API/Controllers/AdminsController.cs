@@ -1,28 +1,27 @@
-﻿using LMS.Application.Commands.Admins.CreateAdminCommands;
-using LMS.Domain.Repositories;
+using LMS.API.Common.Responses;
+using LMS.API.Controllers.Common;
+using LMS.Application.Features.Admins.Commands.CreateAdmin;
+using LMS.Application.Features.Admins.Commands.CreateAdmin;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using MimeKit;
 
 namespace LMS.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AdminsController : ControllerBase
+public class AdminsController : ApiBaseController
 {
     private readonly IMediator _mediator;
-    private readonly IMailSender emailSender;
 
-    public AdminsController(IMediator mediator, IMailSender emailSender)
+    public AdminsController(IMediator mediator)
     {
         _mediator = mediator;
-        this.emailSender = emailSender;
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Create(CreateAdminCommand command)
+    public async Task<ActionResult<ApiResponse>> Create(CreateAdminCommand command)
     {
-        await _mediator.Send(command);
-        return Created();
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 }

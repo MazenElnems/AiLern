@@ -1,28 +1,27 @@
-﻿using LMS.Application.Commands.Courses.ApproveEntrollmentsCommands;
-using LMS.Application.Commands.Courses.CourseEnrollmentsCommands;
-using LMS.Application.Queries.Courses.GetAvailableCoursesQueries;
-using LMS.Application.Commands.Courses.DeleteEnrollmentCommands;
-using LMS.Application.Commands.Courses.RejectEnrollmentCommands;
-using LMS.Application.Queries.Courses.GetStudentsByCourseId;
-using LMS.Application.Commands.Courses.CreateCommands;
-using LMS.Application.Commands.Courses.DeleteCommands;
-using LMS.Application.Commands.Courses.RejectCommands;
-using LMS.Application.Commands.Courses.UpdateCommands;
-using LMS.Application.Queries.Courses.GetByIdQueries;
-using LMS.Application.Queries.Courses.GetAllQueries;
+using LMS.API.Common.Responses;
+using LMS.API.Controllers.Common;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using LMS.Application.Queries.Courses.GetEnrollmentRequestsQueries;
-using LMS.Domain.DTOs.Courses;
-using LMS.Domain.DTOs.Students;
-using LMS.Domain.DTOs;
+using LMS.Application.Features.Courses.Commands.CreateCourse;
+using LMS.Application.Features.Courses.Commands.UpdateCourse;
+using LMS.Application.Features.Courses.Commands.RejectCourse;
+using LMS.Application.Features.Courses.Commands.RejectEnrollment;
+using LMS.Application.Features.Courses.Queries.GetAllCourses;
+using LMS.Application.Features.Courses.Queries.GetAvailableCourses;
+using LMS.Application.Features.Courses.Queries.GetEnrollmentRequests;
+using LMS.Application.Features.Courses.Queries.GetById;
+using LMS.Application.Features.Courses.Commands.DeleteCourse;
+using LMS.Application.Features.Courses.Commands.ApproveEnrollment;
+using LMS.Application.Features.Courses.Commands.DeleteEnrollment;
+using LMS.Application.Features.Courses.Queries.GetEnrolledStudents;
+using LMS.Application.Features.Courses.Commands.CreateEnrollment;
 
 
 namespace LMS.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CoursesController : ControllerBase
+public class CoursesController : ApiBaseController
 {
     private readonly IMediator _mediator;
 
@@ -32,99 +31,99 @@ public class CoursesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateCourseCommand command)
+    public async Task<ActionResult<ApiResponse>> Create(CreateCourseCommand command)
     {
-        int id = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetById), new { id }, id);
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpGet]
-    public async Task<ActionResult<PaginationResult<GetAllCoursesDto>>> GetAll([FromQuery] GetAllCoursesQuery query)
+    public async Task<ActionResult<ApiResponse>> GetAll([FromQuery] GetAllCoursesQuery query)
     {
-        var dto = await _mediator.Send(query);
-        return dto;
+        var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<GetCourseDto>> GetById(int id)
+    public async Task<ActionResult<ApiResponse>> GetById(int id)
     {
-        var dto = await _mediator.Send(new GetCourseByIdQuery(id));
-        return dto;
+        var result = await _mediator.Send(new GetCourseByIdQuery(id));
+        return HandleResponse(this, result);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<ActionResult<ApiResponse>> Delete(int id)
     {
-        await _mediator.Send(new DeleteCourseCommand(id));
-        return NoContent();
+        var result = await _mediator.Send(new DeleteCourseCommand(id));
+        return HandleResponse(this, result);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, UpdateCourseDetailsCommand command)
+    public async Task<ActionResult<ApiResponse>> Update(int id, UpdateCourseDetailsCommand command)
     {
         command.Id = id;
-        await _mediator.Send(command);
-        return NoContent();
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpPut("{id}/reject")]
-    public async Task<ActionResult<string>> Reject(int id,RejectCourseCommand command)
+    public async Task<ActionResult<ApiResponse>> Reject(int id,RejectCourseCommand command)
     {
         command.Id = id;
-        var reason = await _mediator.Send(command);
-        return reason;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpPut("{id}/enrollments/{studentId}/approve")]
-    public async Task<IActionResult> ApproveEnrollment(int id,int studentId)
+    public async Task<ActionResult<ApiResponse>> ApproveEnrollment(int id,int studentId)
     {
-        await _mediator.Send(new ApproveEnrollmentCommand(id, studentId));
-        return NoContent();
+        var result = await _mediator.Send(new ApproveEnrollmentCommand(id, studentId));
+        return HandleResponse(this, result);
     }
 
     [HttpDelete("{id}/enrollments/{studentId}")]
-    public async Task<IActionResult> DeleteEnrollment(int id,int studentId)
+    public async Task<ActionResult<ApiResponse>> DeleteEnrollment(int id,int studentId)
     {
-        await _mediator.Send(new DeleteEnrollmentCommand(id, studentId));
-        return NoContent();
+        var result = await _mediator.Send(new DeleteEnrollmentCommand(id, studentId));
+        return HandleResponse(this, result);
     }
 
     [HttpPut("{id}/enrollments/{studentId}/reject")]
-    public async Task<ActionResult<string>> RejectEnrollment(int id ,int studentId,RejectEnrollmentCommand command)
+    public async Task<ActionResult<ApiResponse>> RejectEnrollment(int id ,int studentId,RejectEnrollmentCommand command)
     {
         command.CourseId = id ;
         command.StudentId = studentId;
-        var reason = await _mediator.Send(command);
-        return reason;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpGet("{id}/students")]
-    public async Task<ActionResult<List<GetStudentsByCourseIdDto>>> GetStudentsByCourseId(int id)
+    public async Task<ActionResult<ApiResponse>> GetStudentsByCourseId(int id)
     {
         var query = new GetStudentsByCourseIdQuery { Id = id };
-        var dto = await _mediator.Send(query);
-        return dto;
+        var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
     }
 
     [HttpPost("{id}/enroll")]
-    public async Task<IActionResult> EnrollCourse(int id)
+    public async Task<ActionResult<ApiResponse>> EnrollCourse(int id)
     {
-        await _mediator.Send(new EnrollCourseCommand(id));
-        return Created();
+        var result = await _mediator.Send(new EnrollCourseCommand(id));
+        return HandleResponse(this, result);
     }
 
     [HttpGet("available-courses")]
-    public async Task<ActionResult<PaginationResult<GetAvailableCoursesDto>>> GetAvailableCourses([FromQuery] GetAvailableCoursesQuery query)
+    public async Task<ActionResult<ApiResponse>> GetAvailableCourses([FromQuery] GetAvailableCoursesQuery query)
     {
-        var dto = await _mediator.Send(query);
-        return dto;
+        var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
     }
 
     [HttpGet("{id}/enrollment-requests")]
-    public async Task<ActionResult<List<GetEnrollmentRequestsDto>>> GetEnrollmentRequests(int id,[FromQuery] GetEnrollmentRequestsQuery query)
+    public async Task<ActionResult<ApiResponse>> GetEnrollmentRequests(int id,[FromQuery] GetEnrollmentRequestsQuery query)
     {
         query.CourseId = id;
-        var dto = await _mediator.Send(query);
-        return dto;
+        var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
     }
 }

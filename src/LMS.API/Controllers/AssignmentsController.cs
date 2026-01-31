@@ -1,21 +1,23 @@
-using LMS.Application.Commands.Assignments.AssignmentCreateCommands;
-using LMS.Application.Commands.Assignments.AssignmentDeleteCommands;
-using LMS.Application.Commands.Assignments.AssignmentDeleteFileCommands;
-using LMS.Application.Commands.Assignments.AssignmentPublishCommands;
-using LMS.Application.Commands.Assignments.ConfirmAssignmentUploadCommands;
-using LMS.Application.Commands.Assignments.RequestPreSignedUrlCommands;
-using LMS.Application.Commands.Assignments.AssignmentUpdateCommands;
+using LMS.API.Common.Responses;
+using LMS.API.Controllers.Common;
+using LMS.Application.Features.Assignments.Commands.ConfirmFileUpload;
+using LMS.Application.Features.Assignments.Commands.CreateAssignment;
+using LMS.Application.Features.Assignments.Commands.DaleteAssignmentFile;
+using LMS.Application.Features.Assignments.Commands.DeleteAssignment;
+using LMS.Application.Features.Assignments.Commands.PresignedUrlFileUpload;
+using LMS.Application.Features.Assignments.Commands.PublishAssignment;
+using LMS.Application.Features.Assignments.Commands.UpdateAssignment;
+using LMS.Application.Features.Assignments.Queries.GetAssignment;
 using LMS.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using LMS.Application.Commands.Assignments.GetAssignmentCommands;
 
 namespace LMS.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AssignmentsController : ControllerBase
+public class AssignmentsController : ApiBaseController
 {
     private readonly IMediator _mediator;
 
@@ -26,66 +28,66 @@ public class AssignmentsController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<IActionResult> Create(AssignmentCreateCommand command)
+    public async Task<ActionResult<ApiResponse>> Create(AssignmentCreateCommand command)
     {
-        var entity = await _mediator.Send(command);
-        return CreatedAtAction(nameof(Create), new { id = entity.Id }, entity);
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpPost("presigned-url")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<IActionResult> RequestAssignmentUpload(RequestPreSignedUrlCommand command)
+    public async Task<ActionResult<ApiResponse>> RequestAssignmentUpload(RequestPreSignedUrlCommand command)
     {
-        var response = await _mediator.Send(command);
-        return Ok(response);
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpPost("confirm-upload")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<IActionResult> ConfirmAssignmentUpload(ConfirmAssignmentUploadCommand command)
+    public async Task<ActionResult<ApiResponse>> ConfirmAssignmentUpload(ConfirmAssignmentUploadCommand command)
     {
-        await _mediator.Send(command);
-        return NoContent();
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpPost("{id}/publish")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<IActionResult> Publish(int id)
+    public async Task<ActionResult<ApiResponse>> Publish(int id)
     {
-        await _mediator.Send(new AssignmentPublishCommand(id));
-        return NoContent();
+        var result = await _mediator.Send(new AssignmentPublishCommand(id));
+        return HandleResponse(this, result);
     }
 
     [HttpPut("{id}")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<IActionResult> Update(int id, AssignmentUpdateCommand command)
+    public async Task<ActionResult<ApiResponse>> Update(int id, AssignmentUpdateCommand command)
     {
         command.Id = id;
-        await _mediator.Send(command);
-        return NoContent();
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [HttpDelete("{id}")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<ActionResult<ApiResponse>> Delete(int id)
     {
-        await _mediator.Send(new AssignmentDeleteCommand(id));
-        return NoContent();
+        var result = await _mediator.Send(new AssignmentDeleteCommand(id));
+        return HandleResponse(this, result);
     }
 
     [HttpDelete("{id}/files/{fileId}")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<IActionResult> DeleteFile(int id, Guid fileId)
+    public async Task<ActionResult<ApiResponse>> DeleteFile(int id, Guid fileId)
     {
-        await _mediator.Send(new AssignmentDeleteFileCommand(id, fileId));
-        return NoContent();
+        var result = await _mediator.Send(new AssignmentDeleteFileCommand(id, fileId));
+        return HandleResponse(this, result);
     }
 
     [HttpGet("/courses/{courseId}/assignments/{id}")]
     [Authorize(Roles = UserRoles.Instructor + "," + UserRoles.Student)]
-    public async Task<IActionResult> GetAssignment(int id, int courseId)
+    public async Task<ActionResult<ApiResponse>> GetAssignment(int id, int courseId)
     {
-        var dto = await _mediator.Send(new GetAssignmentCommand(id, courseId));
-        return Ok(dto);
+        var result = await _mediator.Send(new GetAssignmentQuery(id, courseId));
+        return HandleResponse(this, result);
     }
 }

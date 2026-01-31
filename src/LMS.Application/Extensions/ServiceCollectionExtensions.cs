@@ -1,11 +1,12 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
-using LMS.Application.Commands.Admins.CreateAdminCommands;
-using LMS.Application.Commands.Courses.CreateCommands;
-using LMS.Application.Commands.Instructors.CreateInstructorsCommands;
-using LMS.Application.Commands.Students.CreateCommands;
+using LMS.Application.Common.Behaviors;
 using LMS.Application.ConfigurationOptions;
 using LMS.Application.CurrentUser;
+using LMS.Application.Features.Admins.Commands.CreateAdmin;
+using LMS.Application.Features.Courses.Commands.CreateCourse;
+using LMS.Application.Features.Instructors.Commands.CreateInstructor;
+using LMS.Application.Features.Students.Commands.CreateStudent;
 using LMS.Application.Services.Auth;
 using LMS.Application.Services.Auth.Interfaces;
 using LMS.Domain.DTOs.Assignments;
@@ -29,16 +30,18 @@ public static class ServiceCollectionExtensions
     {
         // Custom Services
         services.AddScoped<IUserContext, UserContext>();
-        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITokensService, TokensService>();
 
         //MediatR
-        services.AddMediatR(x => x.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
+        services.AddMediatR(cfg => {
+            cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
 
         services.Configure<ApplicationDomain>(configuration.GetSection("Domain"));
 
         // Validator
         services
-            .AddFluentValidationAutoValidation()
             .AddValidatorsFromAssemblyContaining<CreateStudentCommandValidator>();
 
         // JWT 
