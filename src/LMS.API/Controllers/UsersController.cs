@@ -1,11 +1,12 @@
-using LMS.API.Controllers.Common;
 using LMS.API.Common.Responses;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
+using LMS.API.Controllers.Common;
+using LMS.Application.Features.Students.Queries.GetMyCourses;
 using LMS.Application.Features.Users.Commands.AddUserToRole;
 using LMS.Application.Features.Users.Commands.DeleteUserRole;
 using LMS.Application.Features.Users.Queries.GetAllByRoleId;
 using LMS.Application.Features.Users.Queries.GetUserById;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LMS.API.Controllers;
 
@@ -49,6 +50,13 @@ public class UsersController : ApiBaseController
     {
         command.Id = id;
         var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("students/my-courses") ]
+    public async Task<ActionResult<ApiResponse>> GetCourses([FromQuery] GetStudentCoursesQuery query)
+    {
+        var result = await _mediator.Send(query);
         return HandleResponse(this, result);
     }
 }
