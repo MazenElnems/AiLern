@@ -1,9 +1,12 @@
-﻿using LMS.Domain.Repositories;
+﻿using LMS.Domain.Interfaces;
+using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
 using LMS.Infrastructure.Repositories.Assignments;
 using LMS.Infrastructure.Repositories.Courses;
 using LMS.Infrastructure.Repositories.Enrollments;
+using LMS.Infrastructure.Repositories.MaterialFiles;
 using LMS.Infrastructure.Repositories.RefreshTokens;
+using LMS.Infrastructure.Repositories.Sections;
 using LMS.Infrastructure.Repositories.Submissions;
 using LMS.Infrastructure.Repositories.Users;
 
@@ -25,6 +28,10 @@ internal class UnitOfWork : IUnitOfWork
 
     public ISubmissionRepository Submissions { get; }
 
+    public ISectionRepository Sections { get; }
+    
+    public IMaterialFileRepository MaterialFiles { get; }
+
     public UnitOfWork(AppDbContext context)
     {
         _context = context;
@@ -34,6 +41,8 @@ internal class UnitOfWork : IUnitOfWork
         RefreshTokens = new RefreshTokenRepository(_context);
         Assignments = new AssignmentRepository(_context);
         Submissions = new SubmissionRepository(_context);
+        Sections = new SectionRepository(_context);
+        MaterialFiles = new MaterialFileRepository(_context);
     }
 
     public async Task<int> CommitAsync() => await _context.SaveChangesAsync();

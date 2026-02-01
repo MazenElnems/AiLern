@@ -18,6 +18,8 @@ namespace LMS.Infrastructure.Data
         public DbSet<AssignmentFile> AssignmentFiles { get; set; }
         public DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; }
         public DbSet<AssignmentSubmissionFile> AssignmentSubmissionFiles { get; set; }
+        public DbSet<Section> Sections { get; set; }
+        public DbSet<MaterialFile> MaterialFiles { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options):
             base(options)

@@ -25,10 +25,10 @@ public class SectionConfiguration : IEntityTypeConfiguration<Section>
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(s => s.MaterialFiles)
-            .WithOne(mf => mf.Section)
-            .HasForeignKey(mf => mf.SectionId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
+        //builder.HasMany(s => s.MaterialFiles)
+        //    .WithOne(mf => mf.Section)
+        //    .HasForeignKey(mf => mf.SectionId)
+        //    .IsRequired()
+        //    .OnDelete(DeleteBehavior.Cascade);
     }
 }
