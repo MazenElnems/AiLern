@@ -7,6 +7,8 @@ public interface IBaseRepository<T> where T : class
     Task InsertAsync(T entity);
     void Update(T entity);
     void Delete(T entity);
+    Task<List<T>> GetAllAsync();
+    Task<List<T>> GetAllAsync(string[] includeProperties = null);
     Task<T?> GetByIdAsync(object id);
     Task<T?> GetAsync(Expression<Func<T, bool>> match);
     Task<T?> GetAsync(Expression<Func<T, bool>> match, string[] includeProperties = null);

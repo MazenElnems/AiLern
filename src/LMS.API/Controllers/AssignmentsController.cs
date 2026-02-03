@@ -4,10 +4,9 @@ using LMS.Application.Features.Assignments.Commands.ConfirmFileUpload;
 using LMS.Application.Features.Assignments.Commands.CreateAssignment;
 using LMS.Application.Features.Assignments.Commands.DaleteAssignmentFile;
 using LMS.Application.Features.Assignments.Commands.DeleteAssignment;
-using LMS.Application.Features.Assignments.Commands.PresignedUrlFileUpload;
-using LMS.Application.Features.Assignments.Commands.PublishAssignment;
 using LMS.Application.Features.Assignments.Commands.UpdateAssignment;
 using LMS.Application.Features.Assignments.Queries.GetAssignment;
+using LMS.Application.Features.Assignments.Queries.GetCourseAssignments;
 using LMS.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -34,27 +33,11 @@ public class AssignmentsController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpPost("presigned-url")]
-    [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> RequestAssignmentUpload(RequestPreSignedUrlCommand command)
-    {
-        var result = await _mediator.Send(command);
-        return HandleResponse(this, result);
-    }
-
     [HttpPost("confirm-upload")]
     [Authorize(Roles = UserRoles.Instructor)]
     public async Task<ActionResult<ApiResponse>> ConfirmAssignmentUpload(ConfirmAssignmentUploadCommand command)
     {
         var result = await _mediator.Send(command);
-        return HandleResponse(this, result);
-    }
-
-    [HttpPost("{id}/publish")]
-    [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> Publish(int id)
-    {
-        var result = await _mediator.Send(new AssignmentPublishCommand(id));
         return HandleResponse(this, result);
     }
 
@@ -83,11 +66,18 @@ public class AssignmentsController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpGet("/courses/{courseId}/assignments/{id}")]
+    [HttpGet("{id}")]
     [Authorize(Roles = UserRoles.Instructor + "," + UserRoles.Student)]
-    public async Task<ActionResult<ApiResponse>> GetAssignment(int id, int courseId)
+    public async Task<ActionResult<ApiResponse>> GetAssignment(int id)
     {
-        var result = await _mediator.Send(new GetAssignmentQuery(id, courseId));
+        var result = await _mediator.Send(new GetAssignmentQuery(id));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("/api/Courses/{courseId}/[controller]")]
+    public async Task<ActionResult<ApiResponse>> GetCourseAssignments(int courseId)
+    {
+        var result = await _mediator.Send(new GetCourseAssignmentsQuery(courseId));
         return HandleResponse(this, result);
     }
 }

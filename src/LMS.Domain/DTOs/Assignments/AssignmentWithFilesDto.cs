@@ -9,5 +9,5 @@ public class AssignmentWithFilesDto
     public bool AllowLateSubmission { get; set; }
     public DateTime CreatedAt { get; set; }
     public bool IsPublished { get; set; }
-    public List<string> FilePaths { get; set; } = new List<string>(); 
+    public List<string> FileUrls { get; set; } = new(); 
 }

@@ -34,7 +34,7 @@ namespace LMS.Application.Features.AssignmentSubmissions.Commands.ConfirmUpload
             var submission = await _unitOfWork.Submissions.GetAsync(s => s.Id == request.SubmissionId, [nameof(AssignmentSubmission.Files)]);
 
             if (submission == null)
-                return Result.Failure(DomainErrors.Submission.NotFound(request.SubmissionId.ToString()));
+                return Result.Failure(DomainErrors.AssignmentSubmission.NotFound(request.SubmissionId.ToString()));
 
             if(submission.StudentId != user.Id)
                 return Result.Failure(DomainErrors.Common.Forbidden("You do not have permission to confirm files in this submission."));

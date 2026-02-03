@@ -36,6 +36,9 @@ public static class DomainErrors
 
         public static Error ApproveRejected =>
             Common.BusinessRule("Course.ApproveRejected", "Can't approve already rejected course.");
+
+        public static Error NotEnrolled =>
+            Common.Forbidden("You are not enrolled in this course.");
     }
 
     public static class Enrollment
@@ -62,13 +65,10 @@ public static class DomainErrors
             Common.NotFound("AssignmentFile", id.ToString());
     }
 
-    public static class Submission
+    public static class AssignmentSubmission
     {
         public static Error NotFound(string id) =>
             Common.NotFound("Submission", id);
-
-        public static Error NotEnrolled =>
-            Common.Forbidden("You are not enrolled in this course.");
 
         public static Error LateNotAllowed =>
             Common.BusinessRule("Submission.LateNotAllowed", "Late submission is not allowed for this assignment.");

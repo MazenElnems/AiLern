@@ -1,0 +1,83 @@
+using AutoMapper;
+using LMS.Application.CurrentUser;
+using LMS.Application.Common.Results.Generic;
+using LMS.Domain.Common.Errors;
+using LMS.Domain.DTOs.Submission;
+using LMS.Domain.Entities;
+using LMS.Domain.Repositories;
+using MediatR;
+using LMS.Domain.Common.Enums;
+
+namespace LMS.Application.Features.AssignmentSubmissions.Commands.Submit;
+
+public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<AssignmentSubmissionCreateCommand, Result<AssignmetSubmissionDto>>
+{
+    private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserContext _userContext;
+    private readonly IWasabiService _wasabiService;
+
+    public AssignmentSubmissionCreateCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IMapper mapper, IWasabiService wasabiService)
+    {
+        _userContext = userContext;
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _wasabiService = wasabiService;
+    }
+
+    public async Task<Result<AssignmetSubmissionDto>> Handle(AssignmentSubmissionCreateCommand request, CancellationToken cancellationToken)
+    {
+        var user = _userContext.GetCurrentUser();
+
+        var assignment = await _unitOfWork.Assignments.GetAsync(a => a.Id == request.AssignmentId,
+            includeProperties: [nameof(Course)]);
+
+        if (assignment == null) 
+            return DomainErrors.Assignment.NotFound(request.AssignmentId);
+
+        var course = assignment.Course;
+
+        if(!await _unitOfWork.Enrollments.IsEnrolledAsync(course.Id, user.Id))
+            return DomainErrors.Course.NotEnrolled;
+
+        var submission = new AssignmentSubmission
+        {
+            SubmissionDate = DateTime.UtcNow,
+        };
+
+        var isLate = submission.SubmissionDate > assignment.DueDate;
+
+        if(isLate)
+            submission.IsLate = true;
+
+        if(submission.IsLate && !assignment.AllowLateSubmission)
+            return DomainErrors.AssignmentSubmission.LateNotAllowed;
+
+        submission.StudentId = user.Id;
+        assignment.Submissions.Add(submission);
+
+
+        List<string> fileUrls = new();
+        foreach (var file in request.FileMetaData)
+        {
+            var key = $"courses/{course.Name}/assignments/{assignment.Id}/submissions/{submission.Id}/{file.FileName}";
+            var url = await _wasabiService.GeneratePresignedUploadUrlAsync(key, file.ContentType, 2);
+            fileUrls.Add(url);
+
+            submission.Files.Add(new AssignmentSubmissionFile
+            {
+                FileName = file.FileName,
+                StoragePath = key,
+                FileType = file.ContentType,
+                UploadStatus = UploadStatus.Pending
+            });
+        }
+
+        await _unitOfWork.CommitAsync();
+        
+        var dto = _mapper.Map<AssignmetSubmissionDto>(submission);
+        dto.UploadFilesUrls = fileUrls;
+
+        return dto;
+    }
+}

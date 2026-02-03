@@ -40,8 +40,6 @@ public static class ServiceCollectionExtensions
 
         services.Configure<ApplicationDomain>(configuration.GetSection("Domain"));
 
-        services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
-
         // Validator
         services
             .AddValidatorsFromAssemblyContaining<CreateStudentCommandValidator>();
@@ -98,8 +96,7 @@ public static class ServiceCollectionExtensions
 
             cfg.CreateMap<Assignment, AssignmentWithFilesDto>();
 
-            cfg.CreateMap<Assignment, AssignmentDto>();
-            cfg.CreateMap<AssignmentSubmission, SubmissionDto>();
+            cfg.CreateMap<AssignmentSubmission, AssignmetSubmissionDto>();
         }, [typeof(ServiceCollectionExtensions).Assembly]);
 
         return services;

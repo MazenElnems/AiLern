@@ -107,6 +107,24 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
             .ToListAsync();
     }
 
+    public async Task<List<T>> GetAllAsync()
+    {
+        return await GetAllAsync();
+    }
+
+    public async Task<List<T>> GetAllAsync(string[] includeProperties = null)
+    {
+        var query = _context.Set<T>().AsQueryable();
+        if (includeProperties != null)
+        {
+            foreach (var property in includeProperties)
+            {
+                query = query.Include(property);
+            }
+        }
+        return await query.AsNoTracking().ToListAsync();
+    }
+
     public async Task<T?> GetAsync(Expression<Func<T, bool>> match)
         => await _context.Set<T>().FirstOrDefaultAsync(match);
 

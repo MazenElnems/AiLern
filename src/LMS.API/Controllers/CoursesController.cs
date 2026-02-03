@@ -126,4 +126,5 @@ public class CoursesController : ApiBaseController
         var result = await _mediator.Send(query);
         return HandleResponse(this, result);
     }
+    
 }

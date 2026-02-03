@@ -91,7 +91,7 @@ public class GlobalExceptionHandlerMiddleware
         {
             httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
             _logger.LogError(ex, "An unhandled exception occurred.");
-            await httpContext.Response.WriteAsJsonAsync(ApiResponse.InternalError(ex.Message));
+            await httpContext.Response.WriteAsJsonAsync(ApiResponse.InternalError("something went wrong."));
         }
     }
 }

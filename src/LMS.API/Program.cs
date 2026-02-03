@@ -16,6 +16,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "AiLern API", Version = "v1" });
     // Add the "Authorization" header input in Swagger UI
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {

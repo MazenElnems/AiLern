@@ -1,11 +1,13 @@
 ﻿using Amazon.S3;
 using LMS.Application.ConfigurationOptions;
 using LMS.Domain.Entities;
+using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
 using LMS.Infrastructure.Repositories;
 using LMS.Infrastructure.Repositories.Courses;
 using LMS.Infrastructure.Repositories.Users;
+using LMS.Infrastructure.Services.BunnyCDN;
 using LMS.Infrastructure.Services.Email;
 using LMS.Infrastructure.Services.Storage;
 using Microsoft.AspNetCore.Identity;
@@ -24,7 +26,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IWasabiService, WasabiService>();
         services.AddTransient<IMailSender,MailSender>();
+        services.AddTransient<IBunnyUrlSigner, BunnyUrlSigner>();
 
+        services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
 
         // DbConext

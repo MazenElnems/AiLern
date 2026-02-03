@@ -1,14 +1,12 @@
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.DTOs.Assignments;
+using LMS.Domain.DTOs;
 using LMS.Domain.DTOs.Submission;
 using MediatR;
-using System.ComponentModel.DataAnnotations;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Commands.Submit;
 
-public class SubmissionCreateCommand : IRequest<Result<SubmissionDto>>
+public class AssignmentSubmissionCreateCommand : IRequest<Result<AssignmetSubmissionDto>>
 {
-
-    [Required]
     public int AssignmentId { get; set; }
+    public List<FileMetaData> FileMetaData { get; set; }
 }
