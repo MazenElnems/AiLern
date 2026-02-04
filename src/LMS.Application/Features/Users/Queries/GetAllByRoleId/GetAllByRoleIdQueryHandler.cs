@@ -9,6 +9,7 @@ using LMS.Domain.DTOs.Users;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System.Linq.Expressions;
+using LMS.Application.Common.Models.Responses;
 
 namespace LMS.Application.Features.Users.Queries.GetAllByRoleId;
 

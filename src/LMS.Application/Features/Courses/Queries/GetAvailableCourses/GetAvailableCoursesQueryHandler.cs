@@ -10,6 +10,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using LMS.Domain.Common.Enums;
+using LMS.Application.Common.Models.Responses;
 
 namespace LMS.Application.Features.Courses.Queries.GetAvailableCourses;
 
@@ -35,17 +36,7 @@ public class GetAvailableCoursesQueryHandler : IRequestHandler<GetAvailableCours
                 return Result<PaginationResult<GetAvailableCoursesDto>>.Failure(DomainErrors.Pagination.InvalidParameters);
             }
 
-            _logger.LogInformation("Handling GetAvailableCoursesQuery with SearchString: {SearchString}, SortBy: {SortBy}, Order: {Order}, PageNumber: {PageNumber}, PageSize: {PageSize}",
-                request.SearchString, request.SortBy, request.Order, request.PageNumber, request.PageSize);
-
-            var searchString = request.SearchString;
             Expression<Func<Course, bool>> predicate = c => c.CourseStatus == CourseStatus.Approved;
-
-            if (!string.IsNullOrWhiteSpace(searchString))
-            {
-                predicate = c => c.CourseStatus == CourseStatus.Approved
-                    && (c.Name.Contains(searchString) || c.Code.Contains(searchString));
-            }
 
             var sortBy = request.SortBy?.ToLower();
             var order = request.Order?.ToLower();

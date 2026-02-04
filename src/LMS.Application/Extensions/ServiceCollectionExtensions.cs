@@ -10,9 +10,9 @@ using LMS.Application.Features.Students.Commands.CreateStudent;
 using LMS.Application.Services.Auth;
 using LMS.Application.Services.Auth.Interfaces;
 using LMS.Domain.DTOs.Assignments;
+using LMS.Domain.DTOs.AssignmentSubmissions;
 using LMS.Domain.DTOs.Courses;
 using LMS.Domain.DTOs.Students;
-using LMS.Domain.DTOs.Submission;
 using LMS.Domain.DTOs.Users;
 using LMS.Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -39,8 +39,6 @@ public static class ServiceCollectionExtensions
         });
 
         services.Configure<ApplicationDomain>(configuration.GetSection("Domain"));
-
-        services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
 
         // Validator
         services
@@ -98,8 +96,7 @@ public static class ServiceCollectionExtensions
 
             cfg.CreateMap<Assignment, AssignmentWithFilesDto>();
 
-            cfg.CreateMap<Assignment, AssignmentDto>();
-            cfg.CreateMap<AssignmentSubmission, SubmissionDto>();
+            cfg.CreateMap<AssignmentSubmission, AssignmetSubmissionDto>();
         }, [typeof(ServiceCollectionExtensions).Assembly]);
 
         return services;

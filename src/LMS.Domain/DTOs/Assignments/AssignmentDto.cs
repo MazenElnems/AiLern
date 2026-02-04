@@ -6,6 +6,8 @@ public class AssignmentDto
     public string Title { get; set; }
     public string Instructions { get; set; }
     public DateTime DueDate { get; set; }
+    public bool IsPublished { get; set; }   
     public bool AllowLateSubmission { get; set; }
     public int CourseId { get; set; }
+    public List<string> PresingedFileUrls { get; set; } = new();
 }

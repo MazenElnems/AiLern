@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\Assignments\Commands\Mappings\**" />
+    <EmbeddedResource Remove="Features\Assignments\Commands\Mappings\**" />
+    <None Remove="Features\Assignments\Commands\Mappings\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="15.0.1" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.0" />
@@ -24,10 +30,6 @@
   <ItemGroup>
     <Folder Include="Features\Admins\Mappings\" />
     <Folder Include="Features\Admins\Queries\" />
-    <Folder Include="Features\AssignmentSubmissions\Mappings\" />
-    <Folder Include="Features\AssignmentSubmissions\Queries\" />
-    <Folder Include="Features\Assignments\Commands\Mappings\" />
-    <Folder Include="Features\Assignments\Queries\GetCourseAssignments\" />
     <Folder Include="Features\Auth\Commands\ForgetPassword\" />
     <Folder Include="Features\Auth\Mappings\" />
     <Folder Include="Features\Auth\Queries\" />
