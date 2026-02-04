@@ -18,4 +18,5 @@ public class Course
     public Instructor Instructor { get; set; }
     public List<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
     public List<Assignment> Assignments { get; set; } = new List<Assignment>();
+    public List<Section> Sections { get; set; } = new List<Section>();
 }
