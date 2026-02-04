@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace LMS.Domain.DTOs.Submission;
+﻿namespace LMS.Domain.DTOs.Submission;
 
 public class SubmissionDto
 {

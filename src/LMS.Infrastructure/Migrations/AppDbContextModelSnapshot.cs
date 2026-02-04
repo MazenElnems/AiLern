@@ -308,7 +308,7 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasIndex("Student_id");
 
-                    b.ToTable("Enrollments");
+                    b.ToTable("Enrollments", (string)null);
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.MaterialFile", b =>

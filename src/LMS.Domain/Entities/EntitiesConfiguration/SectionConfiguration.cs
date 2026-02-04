@@ -20,7 +20,7 @@ public class SectionConfiguration : IEntityTypeConfiguration<Section>
             .IsRequired();
 
         builder.HasOne(s => s.Course)
-            .WithMany()
+            .WithMany(c =>c.Sections)
             .HasForeignKey(s => s.CourseId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
