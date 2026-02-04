@@ -1,6 +1,7 @@
-using LMS.Domain.Common.Enums;
+﻿using LMS.Domain.Common.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace LMS.Domain.Entities.EntitiesConfiguration;
 
@@ -40,6 +41,10 @@ public class MaterialFileConfiguration : IEntityTypeConfiguration<MaterialFile>
         builder.Property(mf => mf.FileSize)
             .HasColumnType("BIGINT")
             .IsRequired();
+
+        builder.HasIndex(f => f.SectionId); // FK
+
+        builder.HasIndex(f => new { f.SectionId, f.OrderIndex }).IsUnique(); // reorder
 
         builder.HasOne(mf => mf.Section)
             .WithMany(s => s.MaterialFiles)

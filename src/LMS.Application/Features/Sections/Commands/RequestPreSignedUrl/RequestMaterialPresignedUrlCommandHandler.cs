@@ -54,7 +54,7 @@ namespace LMS.Application.Features.Sections.Commands.RequestPreSignedUrl
                 };
 
                 var materialFiles = new List<Domain.Entities.MaterialFile>();
-                var orderIndex = _unitOfWork.MaterialFiles.GetMaxOrderIndex(request.SectionId);
+                var orderIndex = await _unitOfWork.MaterialFiles.GetMaxOrderIndexAsync(request.SectionId);
                 foreach(var file in request.Files)
                 {
                     var key = $"courses/{course.Name}/Materials/{Guid.NewGuid()}_{file.FileName}";

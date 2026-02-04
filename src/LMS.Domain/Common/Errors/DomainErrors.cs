@@ -55,17 +55,6 @@ public static class DomainErrors
         public static Error NotPublished =>
             Common.BusinessRule("Assignment.NotPublished", "Assignment is not published.");
     }
-    public static class Section
-    {
-        public static Error NotFound(Guid id) =>
-            Common.NotFound("Section", id.ToString());
-
-        public static Error NotOwned =>
-            Common.Forbidden("You do not have permission to modify this section.");
-
-        public static Error NotPublished =>
-            Common.BusinessRule("Section.NotPublished", "Assignment is not published.");
-    }
 
     public static class AssignmentFile
     {

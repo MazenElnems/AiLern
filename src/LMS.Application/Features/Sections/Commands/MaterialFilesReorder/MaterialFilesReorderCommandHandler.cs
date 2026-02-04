@@ -47,7 +47,7 @@ namespace LMS.Application.Features.Sections.Commands.MaterialFilesReorder
             if(!files.Any())
                 return Result.Failure(Domain.Common.Errors.DomainErrors.Section.Empty);
 
-            if (!files.All(file => request.OrderedFilesIds.Contains(file.Id)))
+            if (!request.OrderedFilesIds.All(id => files.Any(file=>file.Id == id)))
                 return Result.Failure(Domain.Common.Errors.DomainErrors.Common
                     .BusinessRule("Invalid Files Reorder Request", "One or more files in the reorder request do not belong to this section."));
 

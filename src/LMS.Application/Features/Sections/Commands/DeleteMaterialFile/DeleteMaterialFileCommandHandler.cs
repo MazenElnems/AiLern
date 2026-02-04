@@ -52,7 +52,11 @@ namespace LMS.Application.Features.Sections.Commands.DeleteMaterialFile
                 throw new Exception("Failed to delete file from storage.", ex);
             }
 
+
+
             _unitOfWork.MaterialFiles.DeleteFile(file);
+
+            
             await _unitOfWork.CommitAsync();
             return Result.Success();
         }

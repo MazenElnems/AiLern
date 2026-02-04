@@ -120,7 +120,7 @@ namespace LMS.API.Controllers
 
         }
 
-        [HttpGet("/{sectionId}")]
+        [HttpGet("{sectionId}")]
         [Authorize(Roles = $"{UserRoles.Instructor},{UserRoles.Student}")]
         public async Task<ActionResult<ApiResponse>> GetSection(Guid sectionId)
         {

@@ -1,6 +1,9 @@
 ﻿using LMS.Domain.Entities;
 using LMS.Domain.Interfaces;
+using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace LMS.Infrastructure.Repositories.MaterialFiles;
 
@@ -15,14 +18,22 @@ internal class MaterialFileRepository : BaseRepository<MaterialFile>, IMaterialF
     public void DeleteFile(MaterialFile file)
     {
         _context.Set<MaterialFile>().Remove(file);
+
+        var filesToShift = _context.MaterialFiles
+                .Where(f => f.SectionId == file.SectionId &&
+                            f.OrderIndex > file.OrderIndex).ToList();
+        foreach (var f in filesToShift)
+        {
+            f.OrderIndex -= 1;
+        }
+
     }
 
-    public int GetMaxOrderIndex(Guid sectionId)
+    public async Task<int> GetMaxOrderIndexAsync(Guid sectionId)
     {
-        var files = _context.MaterialFiles.Where(f => f.SectionId == sectionId);
-        if (files.Count() == 0)
-            return 0;
-        return files.Max(f => f.OrderIndex);
+        return await _context.MaterialFiles
+                .Where(f => f.SectionId == sectionId)
+                .MaxAsync(f => (int?)f.OrderIndex) ?? 0;
 
     }
 }

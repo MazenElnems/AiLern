@@ -15,7 +15,9 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
     }
 
     public virtual async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate) => await _context.Set<T>().AnyAsync(predicate);
-    
+
+    public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellation) => await _context.Set<T>().AnyAsync(predicate, cancellation);
+
     public virtual async Task<int> CountAsync() => await _context.Set<T>().CountAsync();
     
     public virtual async Task<int> CountAsync(Expression<Func<T, bool>> predicate) => await _context.Set<T>().CountAsync(predicate);
