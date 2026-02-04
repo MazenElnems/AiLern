@@ -7,6 +7,7 @@ using LMS.Domain.DTOs.Assignments;
 using LMS.Domain.Entities;
 using LMS.Domain.Repositories;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Application.Features.Assignments.Commands.UpdateAssignment;
 
@@ -27,16 +28,21 @@ public class AssignmentUpdateCommandHandler : IRequestHandler<AssignmentUpdateCo
 
     public async Task<Result<AssignmentDto>> Handle(AssignmentUpdateCommand request, CancellationToken cancellationToken)
     {
-        var assignment = await _unitOfWork.Assignments.GetAsync(
-            a => a.Id == request.Id,
-            [nameof(Assignment.Course)]);
+        var userId = _userContext.GetCurrentUser().Id;
+
+        var assignment = await _unitOfWork.Assignments.GetAsync(a => a.Id == request.Id,
+            includeProperties: [nameof(Assignment.Course), nameof(Assignment.Submissions)]);
 
         if (assignment == null)
             return DomainErrors.Assignment.NotFound(request.Id);
 
-        var userId = _userContext.GetCurrentUser().Id;
         if (assignment.Course.InstructorId != userId)
-            return DomainErrors.Common.Forbidden("You do not have permission to update this assignment.");
+            return DomainErrors.Course.NotOwned;
+
+        if (assignment.DueDate > request.DueDate)
+            return DomainErrors.Assignment.InValidDueDate;
+
+        var previousDueDate = assignment.DueDate;
 
         assignment.Title = request.Title;
         assignment.Instructions = request.Instructions;
@@ -44,22 +50,34 @@ public class AssignmentUpdateCommandHandler : IRequestHandler<AssignmentUpdateCo
         assignment.AllowLateSubmission = request.AllowLateSubmission;
         assignment.IsPublished = request.IsPublished;
 
+        if (assignment.IsPublished && request.DueDate > previousDueDate)
+        {
+            foreach (var submission in assignment.Submissions)
+            {
+                if (submission.IsLate && submission.SubmissionDate <= request.DueDate)
+                    submission.IsLate = false;
+            }
+        }
+
         var dto = _mapper.Map<AssignmentDto>(assignment);
 
-        foreach (var file in request.UploadedFileMetaData)
+        if(request.UploadedFileMetaData is not null)
         {
-            var key = $"courses/{assignment.Course.Name}/assignments/{assignment.Id}/{Guid.NewGuid()}_{file.FileName}";
-            var url = await _wasabiService.GeneratePresignedUploadUrlAsync(key, file.ContentType, 2);
-            dto.PresingedFileUrls.Add(url);
-
-            assignment.Files.Add(new AssignmentFile
+            foreach (var file in request.UploadedFileMetaData)
             {
-                AssignmentId = assignment.Id,
-                FileName = file.FileName,
-                FileType = file.ContentType,
-                StoragePath = key,
-                UploadStatus = UploadStatus.Pending,
-            });
+                var key = $"courses/{assignment.Course.Name}/assignments/{assignment.Id}/{Guid.NewGuid()}_{file.FileName}";
+                var url = await _wasabiService.GeneratePresignedUploadUrlAsync(key, file.ContentType, 2);
+                dto.PresingedFileUrls.Add(url);
+
+                assignment.Files.Add(new AssignmentFile
+                {
+                    AssignmentId = assignment.Id,
+                    FileName = file.FileName,
+                    FileType = file.ContentType,
+                    StoragePath = key,
+                    UploadStatus = UploadStatus.Pending,
+                });
+            }
         }
 
         await _unitOfWork.CommitAsync();

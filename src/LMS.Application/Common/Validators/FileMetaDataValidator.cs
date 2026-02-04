@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using LMS.Domain.DTOs;
+using LMS.Application.Common.Models.Request;
 
-namespace LMS.Application.Validators;
+namespace LMS.Application.Common.Validators;
 
 public class FileMetaDataValidator : AbstractValidator<FileMetaData>
 {

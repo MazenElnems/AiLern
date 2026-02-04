@@ -2,6 +2,6 @@
 
 public static class SortOrderOptions
 {
-    public const string ASC = "asc";   
-    public const string DESC = "desc";
+    public const string ASC = "ascending";   
+    public const string DESC = "descending";
 }

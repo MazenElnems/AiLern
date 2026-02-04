@@ -5,8 +5,6 @@ using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
 using LMS.Infrastructure.Repositories;
-using LMS.Infrastructure.Repositories.Courses;
-using LMS.Infrastructure.Repositories.Users;
 using LMS.Infrastructure.Services.BunnyCDN;
 using LMS.Infrastructure.Services.Email;
 using LMS.Infrastructure.Services.Storage;

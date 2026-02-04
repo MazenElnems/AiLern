@@ -1,6 +1,6 @@
 ﻿namespace LMS.Domain.DTOs.Assignments;
 
-public class GetAllAssignmentDto
+public class GetAllAssignmentForInstructorDto
 {
     public int Id { get; set; }
     public string Title { get; set; }

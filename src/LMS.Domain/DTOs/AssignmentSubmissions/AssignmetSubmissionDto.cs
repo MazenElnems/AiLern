@@ -1,4 +1,4 @@
-﻿namespace LMS.Domain.DTOs.Submission;
+﻿namespace LMS.Domain.DTOs.AssignmentSubmissions;
 
 public class AssignmetSubmissionDto
 {

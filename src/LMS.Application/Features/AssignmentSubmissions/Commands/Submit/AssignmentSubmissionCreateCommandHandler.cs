@@ -2,11 +2,11 @@ using AutoMapper;
 using LMS.Application.CurrentUser;
 using LMS.Application.Common.Results.Generic;
 using LMS.Domain.Common.Errors;
-using LMS.Domain.DTOs.Submission;
 using LMS.Domain.Entities;
 using LMS.Domain.Repositories;
 using MediatR;
 using LMS.Domain.Common.Enums;
+using LMS.Domain.DTOs.AssignmentSubmissions;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Commands.Submit;
 
@@ -34,6 +34,9 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
 
         if (assignment == null) 
             return DomainErrors.Assignment.NotFound(request.AssignmentId);
+
+        if(await _unitOfWork.Submissions.AnyAsync(s => s.StudentId == user.Id && s.AssignmentId == assignment.Id))
+            return DomainErrors.AssignmentSubmission.AlreadySubmitted;
 
         var course = assignment.Course;
 

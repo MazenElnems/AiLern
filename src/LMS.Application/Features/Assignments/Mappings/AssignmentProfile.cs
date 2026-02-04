@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using LMS.Application.Features.Assignments.Commands.CreateAssignment;
+using LMS.Application.Features.Assignments.Commands.UpdateAssignment;
 using LMS.Domain.DTOs.Assignments;
 using LMS.Domain.Entities;
 
@@ -10,7 +11,11 @@ public class AssignmentProfile : Profile
     public AssignmentProfile()
     {
         CreateMap<AssignmentCreateCommand, Assignment>();
+        CreateMap<AssignmentUpdateCommand, Assignment>();
         CreateMap<Assignment, AssignmentDto>();
-        CreateMap<Assignment, GetAllAssignmentDto>();
+        CreateMap<Assignment, GetAllAssignmentForInstructorDto>();
+        CreateMap<Assignment, GetAllAssignmentForStudentDto>()
+            .ForMember(dto => dto.IsSubmitted, opt => opt.MapFrom(src => src.Submissions.Any()))
+            .ForMember(dto => dto.SubmissionDate, opt => opt.MapFrom(src => src.Submissions.Any() ? src.Submissions.First().SubmissionDate : default));
     }
 }

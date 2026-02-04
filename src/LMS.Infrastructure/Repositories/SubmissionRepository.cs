@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LMS.Infrastructure.Repositories.Submissions;
+namespace LMS.Infrastructure.Repositories;
 
 internal class SubmissionRepository : BaseRepository<AssignmentSubmission> , ISubmissionRepository
 {

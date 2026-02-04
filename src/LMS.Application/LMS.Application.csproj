@@ -30,7 +30,6 @@
   <ItemGroup>
     <Folder Include="Features\Admins\Mappings\" />
     <Folder Include="Features\Admins\Queries\" />
-    <Folder Include="Features\AssignmentSubmissions\Queries\" />
     <Folder Include="Features\Auth\Commands\ForgetPassword\" />
     <Folder Include="Features\Auth\Mappings\" />
     <Folder Include="Features\Auth\Queries\" />

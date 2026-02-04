@@ -9,6 +9,7 @@ using LMS.Domain.Entities;
 using MediatR;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
+using LMS.Application.Common.Models.Responses;
 
 namespace LMS.Application.Features.Courses.Queries.GetAllCourses;
 
@@ -32,13 +33,7 @@ public class GetAllCoursesQueryHandler : IRequestHandler<GetAllCoursesQuery, Res
 
         try
         {
-            var searchString = request.SearchString;
             Expression<Func<Course, bool>> predicate = c => true;
-
-            if (!string.IsNullOrWhiteSpace(searchString))
-            {
-                predicate = c => c.Name.Contains(searchString) || c.Code.Contains(searchString);
-            }
 
             var sortBy = request.SortBy;
             var order = request.Order?.ToLower();

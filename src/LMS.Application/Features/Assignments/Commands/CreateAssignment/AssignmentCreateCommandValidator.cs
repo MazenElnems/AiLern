@@ -1,5 +1,5 @@
 using FluentValidation;
-using LMS.Application.Validators;
+using LMS.Application.Common.Validators;
 
 namespace LMS.Application.Features.Assignments.Commands.CreateAssignment;
 
@@ -25,10 +25,10 @@ public class AssignmentCreateCommandValidator : AbstractValidator<AssignmentCrea
             .WithMessage("DueDate must be in the future.");
 
         RuleFor(a => a.UploadedFileMetaData)
-            .Must(files => files.Count <= 10)
+            .Must(files => files is null || files.Count <= 10)
             .WithMessage("You can upload a maximum of 10 files.");
 
-        RuleFor(a => a.UploadedFileMetaData)
-            .ForEach(file => file.SetValidator(new FileMetaDataValidator()));
+        RuleForEach(a => a.UploadedFileMetaData)
+            .SetValidator(new FileMetaDataValidator());
     }
 }

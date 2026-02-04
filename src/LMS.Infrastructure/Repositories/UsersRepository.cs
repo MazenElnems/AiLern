@@ -4,7 +4,7 @@ using LMS.Domain.Entities;
 using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace LMS.Infrastructure.Repositories.Users;
+namespace LMS.Infrastructure.Repositories;
 
 internal class UsersRepository : BaseRepository<ApplicationUser>, IUsersRepository
 {

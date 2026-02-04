@@ -4,7 +4,7 @@ using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using LMS.Domain.Common.Enums;
 
-namespace LMS.Infrastructure.Repositories.Courses;
+namespace LMS.Infrastructure.Repositories;
 
 internal class CourseRepository : BaseRepository<Course>, ICourseRepository
 {

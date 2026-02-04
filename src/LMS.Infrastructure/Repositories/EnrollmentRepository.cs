@@ -5,7 +5,7 @@ using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace LMS.Infrastructure.Repositories.Enrollments;
+namespace LMS.Infrastructure.Repositories;
 
 internal class EnrollmentRepository : BaseRepository<Enrollment>, IEnrollmentRepository
 {

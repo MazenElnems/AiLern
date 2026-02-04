@@ -4,14 +4,23 @@ namespace LMS.Domain.Repositories;
 
 public interface IBaseRepository<T> where T : class
 {
+    public IQueryable<T> Query { get; }
+    public IQueryable<T> TrackedQuery { get; }
+
     Task InsertAsync(T entity);
+
     void Update(T entity);
+
     void Delete(T entity);
+
     Task<List<T>> GetAllAsync();
     Task<List<T>> GetAllAsync(string[] includeProperties = null);
+
     Task<T?> GetByIdAsync(object id);
+
     Task<T?> GetAsync(Expression<Func<T, bool>> match);
     Task<T?> GetAsync(Expression<Func<T, bool>> match, string[] includeProperties = null);
+
     Task<IEnumerable<T>> FilterAsync(
         Expression<Func<T, bool>> predicate,
         string[] includeProperties = null);
@@ -32,7 +41,10 @@ public interface IBaseRepository<T> where T : class
         int skip,
         int take,
         string[] includeProperties = null);
+
     Task<int> CountAsync();
     Task<int> CountAsync(Expression<Func<T, bool>> predicate);
+
+    Task<bool> AnyAsync();
     Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
 }

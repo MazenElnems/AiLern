@@ -1,4 +1,4 @@
-﻿using LMS.API.Middleware;
+using LMS.API.Middleware;
 using LMS.Application.Extensions;
 using LMS.Infrastructure.Extensions;
 using Microsoft.OpenApi.Models;
@@ -17,6 +17,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "AiLern API", Version = "v1" });
+    options.EnableAnnotations();
     // Add the "Authorization" header input in Swagger UI
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {

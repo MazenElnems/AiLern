@@ -1,4 +1,4 @@
-﻿namespace LMS.Domain.DTOs;
+﻿namespace LMS.Application.Common.Models.Request;
 
 public class FileMetaData
 {

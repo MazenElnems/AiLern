@@ -1,6 +1,5 @@
-using LMS.Application.Common.Results;
+using LMS.Application.Common.Models.Request;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.DTOs;
 using LMS.Domain.DTOs.Assignments;
 using MediatR;
 using System.Text.Json.Serialization;
@@ -16,5 +15,5 @@ public class AssignmentUpdateCommand : IRequest<Result<AssignmentDto>>
     public DateTime DueDate { get; set; }
     public bool AllowLateSubmission { get; set; }
     public bool IsPublished { get; set; }
-    public List<FileMetaData> UploadedFileMetaData { get; set; } 
+    public List<FileMetaData>? UploadedFileMetaData { get; set; } 
 }

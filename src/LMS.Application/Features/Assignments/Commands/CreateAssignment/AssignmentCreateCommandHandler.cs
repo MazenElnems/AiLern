@@ -45,20 +45,23 @@ public class AssignmentCreateCommandHandler : IRequestHandler<AssignmentCreateCo
 
         var dto = _mapper.Map<AssignmentDto>(assignment);
 
-        foreach(var file in request.UploadedFileMetaData)
+        if (request.UploadedFileMetaData is not null)
         {
-            var key = $"courses/{course.Name}/assignments/{assignment.Id}/{Guid.NewGuid()}_{file.FileName}";
-            var url = await _wasabiService.GeneratePresignedUploadUrlAsync(key, file.ContentType, 2);
-            dto.PresingedFileUrls.Add(url);
-            
-            assignment.Files.Add(new AssignmentFile
+            foreach (var file in request.UploadedFileMetaData)
             {
-                AssignmentId = assignment.Id,
-                FileName = file.FileName,
-                FileType = file.ContentType,
-                StoragePath = key,
-                UploadStatus = UploadStatus.Pending,
-            });
+                var key = $"courses/{course.Name}/assignments/{assignment.Id}/{Guid.NewGuid()}_{file.FileName}";
+                var url = await _wasabiService.GeneratePresignedUploadUrlAsync(key, file.ContentType, 2);
+                dto.PresingedFileUrls.Add(url);
+            
+                assignment.Files.Add(new AssignmentFile
+                {
+                    AssignmentId = assignment.Id,
+                    FileName = file.FileName,
+                    FileType = file.ContentType,
+                    StoragePath = key,
+                    UploadStatus = UploadStatus.Pending,
+                });
+            }
         }
 
         await _unitOfWork.CommitAsync();

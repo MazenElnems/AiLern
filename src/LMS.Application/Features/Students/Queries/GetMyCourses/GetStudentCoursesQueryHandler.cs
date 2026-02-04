@@ -38,21 +38,13 @@ public class GetStudentCoursesQueryHandler : IRequestHandler<GetStudentCoursesQu
         {
             id = _userContext.GetCurrentUser().Id;
 
-            var user = await _user.FindByIdAsync(id.ToString())
-                ;
+            var user = await _user.FindByIdAsync(id.ToString());
+
             if (user == null)
                 return Result<List<GetStudentCoursesDto>>.Failure(DomainErrors.User.NotFound(id.ToString()));
 
-            var searchString = request.SearchString;
             Expression<Func<Course, bool>> predicate = c =>
                 c.Enrollments.Any(s => s.Status == EnrollmentStatus.Approved && s.Student_id == id);
-
-            if (!string.IsNullOrWhiteSpace(searchString))
-            {
-                predicate = c =>
-                    c.Enrollments.Any(s => s.Status == EnrollmentStatus.Approved && s.Student_id == id)
-                    && (c.Name.Contains(searchString) || c.Code.Contains(searchString));
-            }
 
             var sortBy = request.SortBy?.ToLower();
             var order = request.Order?.ToLower();

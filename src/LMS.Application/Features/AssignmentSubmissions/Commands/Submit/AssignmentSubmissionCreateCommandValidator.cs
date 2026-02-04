@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using LMS.Application.Validators;
+using LMS.Application.Common.Validators;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Commands.Submit
 {

@@ -8,23 +8,38 @@ namespace LMS.Infrastructure.Repositories;
 internal class BaseRepository<T> : IBaseRepository<T> where T : class
 {
     private readonly AppDbContext _context;
+    private readonly DbSet<T> _dbSet;
 
     public BaseRepository(AppDbContext context)
     {
         _context = context;
+        _dbSet = _context.Set<T>();
     }
 
-    public virtual async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate) => await _context.Set<T>().AnyAsync(predicate);
+    public IQueryable<T> Query 
+        => _dbSet.AsNoTracking().AsQueryable();
+
+    public IQueryable<T> TrackedQuery 
+        => _dbSet.AsQueryable();
+
+    public virtual async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+        => await _dbSet.AnyAsync(predicate);
+
+    public virtual async Task<bool> AnyAsync()
+        =>  await _dbSet.AnyAsync();
+
+    public virtual async Task<int> CountAsync() 
+        => await _dbSet.CountAsync();
     
-    public virtual async Task<int> CountAsync() => await _context.Set<T>().CountAsync();
+    public virtual async Task<int> CountAsync(Expression<Func<T, bool>> predicate) 
+        => await _dbSet.CountAsync(predicate);
     
-    public virtual async Task<int> CountAsync(Expression<Func<T, bool>> predicate) => await _context.Set<T>().CountAsync(predicate);
-    
-    public virtual void Delete(T entity) => _context.Set<T>().Remove(entity);
+    public virtual void Delete(T entity) 
+        => _dbSet.Remove(entity);
 
     public virtual async Task<IEnumerable<T>> FilterAsync(Expression<Func<T, bool>> predicate, string[] includeProperties = null)
     {
-        var query = _context.Set<T>().Where(predicate);
+        var query = _dbSet.Where(predicate);
         if (includeProperties != null)
         {
             foreach (var property in includeProperties)
@@ -40,7 +55,7 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
 
     public virtual async Task<IEnumerable<T>> FilterAsync(Expression<Func<T, bool>> predicate, int skip, int take, string[] includeProperties = null)
     {
-        var query = _context.Set<T>().Where(predicate);
+        var query = _dbSet.Where(predicate);
 
         if (includeProperties != null)
         {
@@ -61,7 +76,7 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
 
     public virtual async Task<IEnumerable<T>> FilterAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderBy, bool isDescending = false, string[] includeProperties = null)
     {
-        var query = _context.Set<T>().Where(predicate);
+        var query = _dbSet.Where(predicate);
 
         if (includeProperties != null)
         {
@@ -83,7 +98,7 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
 
     public virtual async Task<IEnumerable<T>> FilterAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> orderBy, bool isDescending, int skip, int take, string[] includeProperties = null)
     {
-        var query = _context.Set<T>().Where(predicate);
+        var query = _dbSet.Where(predicate);
 
         if(includeProperties != null)
         {
@@ -108,13 +123,11 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
     }
 
     public async Task<List<T>> GetAllAsync()
-    {
-        return await GetAllAsync();
-    }
+        => await GetAllAsync();
 
     public async Task<List<T>> GetAllAsync(string[] includeProperties = null)
     {
-        var query = _context.Set<T>().AsQueryable();
+        var query = _dbSet.AsQueryable();
         if (includeProperties != null)
         {
             foreach (var property in includeProperties)
@@ -126,12 +139,11 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
     }
 
     public async Task<T?> GetAsync(Expression<Func<T, bool>> match)
-        => await _context.Set<T>().FirstOrDefaultAsync(match);
+        => await _dbSet.FirstOrDefaultAsync(match);
 
     public async Task<T?> GetAsync(Expression<Func<T, bool>> match, string[] includeProperties = null)
     {
-        var query = _context.Set<T>().AsQueryable();
-
+        var query = _dbSet.AsQueryable();
         if (includeProperties != null)
         {
             foreach (var property in includeProperties)
@@ -143,8 +155,12 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
         return await query.FirstOrDefaultAsync(match);
     }
 
-    public virtual async Task<T?> GetByIdAsync(object id) => await _context.Set<T>().FindAsync(id);
+    public virtual async Task<T?> GetByIdAsync(object id) 
+        => await _dbSet.FindAsync(id);
 
-    public virtual async Task InsertAsync(T entity) => await _context.Set<T>().AddAsync(entity);
-    public virtual void Update(T entity) => _context.Set<T>().Update(entity);
+    public virtual async Task InsertAsync(T entity)
+        => await _dbSet.AddAsync(entity);
+
+    public virtual void Update(T entity) 
+        => _dbSet.Update(entity);
 }

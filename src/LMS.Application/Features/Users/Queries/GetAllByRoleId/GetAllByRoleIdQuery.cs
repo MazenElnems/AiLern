@@ -1,5 +1,6 @@
+using LMS.Application.Common.Models.Request;
+using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Common;
 using LMS.Domain.DTOs;
 using LMS.Domain.DTOs.Users;
 using MediatR;
@@ -7,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace LMS.Application.Features.Users.Queries.GetAllByRoleId;
 
-public class GetAllByRoleIdQuery : BasePagedQuery, IRequest<Result<PaginationResult<GetUsersByRoleDto>>>
+public class GetAllByRoleIdQuery : BasePaginatedQuery, IRequest<Result<PaginationResult<GetUsersByRoleDto>>>
 {
     [JsonIgnore]
     public int RoleId { get; set; }

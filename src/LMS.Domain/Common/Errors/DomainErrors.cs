@@ -28,6 +28,9 @@ public static class DomainErrors
         public static Error NotApproved =>
             Common.BusinessRule("Course.NotApproved", "Cannot enroll in a course that is not approved.");
 
+        public static Error NotOwned =>
+            Common.Forbidden("You do not have permission to access this course.");
+
         public static Error AlreadyEnrolled =>
             Common.BusinessRule("Course.AlreadyEnrolled", "Student is already enrolled in this course.");
 
@@ -53,10 +56,13 @@ public static class DomainErrors
             Common.NotFound("Assignment", id.ToString());
 
         public static Error NotOwned =>
-            Common.Forbidden("You do not have permission to modify this assignment.");
+            Common.Forbidden("You do not have permission to access this assignment.");
 
         public static Error NotPublished =>
             Common.BusinessRule("Assignment.NotPublished", "Assignment is not published.");
+
+        public static Error InValidDueDate =>
+            Common.BusinessRule("Assignment.InValidDueDate", "Due date cannot be earlier than the current date.");
     }
 
     public static class AssignmentFile
@@ -78,6 +84,9 @@ public static class DomainErrors
 
         public static Error DeleteAfterDeadline =>
             Common.Forbidden("Submission deletion is not allowed after the assignment deadline.");
+
+        public static Error AlreadySubmitted =>
+            Common.BusinessRule("Submission.AlreadySubmitted", "You have already submitted this assignment.");
     }
 
     public static class User

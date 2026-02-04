@@ -2,8 +2,9 @@ using LMS.Domain.Common.Enums;
 using LMS.Domain.Entities;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
-namespace LMS.Infrastructure.Repositories.Assignments;
+namespace LMS.Infrastructure.Repositories;
 
 internal class AssignmentRepository : BaseRepository<Assignment>, IAssignmentRepository
 {
@@ -26,5 +27,4 @@ internal class AssignmentRepository : BaseRepository<Assignment>, IAssignmentRep
             .Where(af => af.AssignmentId == assignmentId && af.UploadStatus == UploadStatus.Completed)
             .ToList();
     }
-
 }
