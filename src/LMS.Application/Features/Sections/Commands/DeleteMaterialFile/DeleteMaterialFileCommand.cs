@@ -1,0 +1,12 @@
+﻿using LMS.Application.Common.Results;
+using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace LMS.Application.Features.Sections.Commands.DeleteMaterialFile
+{
+    public sealed record  DeleteMaterialFileCommand(Guid SectionId,Guid FileId) : IRequest<Result>;
+}

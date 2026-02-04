@@ -11,4 +11,18 @@ internal class MaterialFileRepository : BaseRepository<MaterialFile>, IMaterialF
     {
         _context = context;
     }
+
+    public void DeleteFile(MaterialFile file)
+    {
+        _context.Set<MaterialFile>().Remove(file);
+    }
+
+    public int GetMaxOrderIndex(Guid sectionId)
+    {
+        var files = _context.MaterialFiles.Where(f => f.SectionId == sectionId);
+        if (files.Count() == 0)
+            return 0;
+        return files.Max(f => f.OrderIndex);
+
+    }
 }

@@ -34,6 +34,7 @@
     <Folder Include="Features\Courses\Mappings\" />
     <Folder Include="Features\Instructors\Mappings\" />
     <Folder Include="Features\Instructors\Queries\" />
+    <Folder Include="Features\Sections\Mappings\" />
     <Folder Include="Features\Students\Mappings\" />
     <Folder Include="Features\Users\Mappings\" />
   </ItemGroup>

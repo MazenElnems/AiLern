@@ -1,4 +1,6 @@
-﻿namespace LMS.Domain.Repositories;
+﻿using LMS.Domain.Interfaces;
+
+namespace LMS.Domain.Repositories;
 
 public interface IUnitOfWork
 {
@@ -8,5 +10,7 @@ public interface IUnitOfWork
     public IRefreshTokenRepository RefreshTokens { get; }
     public IAssignmentRepository Assignments { get; }
     public ISubmissionRepository Submissions { get; }
+    public IMaterialFileRepository MaterialFiles { get; }
+    public ISectionRepository Sections { get; }
     Task<int> CommitAsync();
 }
