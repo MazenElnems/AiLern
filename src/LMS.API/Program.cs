@@ -1,3 +1,4 @@
+using LMS.API.Extensions;
 using LMS.API.Middleware;
 using LMS.Application.Extensions;
 using LMS.Infrastructure.Extensions;
@@ -53,6 +54,9 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddRequiredServices(builder.Configuration);
 
 var app = builder.Build();
+
+// Initialize the database (apply migrations and seed data)
+await app.InitializeDatabaseAsync();
 
 // Configure the HTTP request pipeline.
 

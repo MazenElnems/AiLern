@@ -5,6 +5,7 @@ using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
 using LMS.Infrastructure.Repositories;
+using LMS.Infrastructure.Services;
 using LMS.Infrastructure.Services.BunnyCDN;
 using LMS.Infrastructure.Services.Email;
 using LMS.Infrastructure.Services.Storage;
@@ -23,8 +24,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IWasabiService, WasabiService>();
-        services.AddTransient<IMailSender,MailSender>();
-        services.AddTransient<IBunnyUrlSigner, BunnyUrlSigner>();
+        services.AddScoped<IMailSender,MailSender>();
+        services.AddScoped<IBunnyUrlSigner, BunnyUrlSigner>();
+        services.AddScoped<IDbInitializer, DbInitializer>();
 
         services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
