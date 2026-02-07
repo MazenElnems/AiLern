@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
-namespace LMS.Domain.DTOs
+namespace LMS.Domain.DTOs;
+
+// add these two values when add new matrials 
+// and delete this type becasue ew dosn't use it.
+
+public class MaterialFileMetadata : FileMetaData
 {
-    public class MaterialFileMetadata : FileMetaData
-    {
-        [JsonIgnore]
-        public DateTime UploadDate { get; set; }
-        [JsonIgnore]
-        public int OrderIndex { get; set; }
-    }
+    [JsonIgnore]
+    public DateTime UploadDate { get; set; }
+    [JsonIgnore]
+    public int OrderIndex { get; set; }
 }

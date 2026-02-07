@@ -19,7 +19,7 @@ internal class MaterialFileRepository : BaseRepository<MaterialFile>, IMaterialF
 
     public void DeleteFile(MaterialFile file)
     {
-        _context.Set<MaterialFile>().Remove(file);
+        _context.MaterialFiles.Remove(file);
 
         var filesToShift = _context.MaterialFiles
                 .Where(f => f.SectionId == file.SectionId &&
@@ -28,7 +28,6 @@ internal class MaterialFileRepository : BaseRepository<MaterialFile>, IMaterialF
         {
             f.OrderIndex -= 1;
         }
-
     }
 
     public async Task<int> GetMaxOrderIndexAsync(Guid sectionId)

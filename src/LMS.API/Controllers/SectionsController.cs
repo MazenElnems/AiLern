@@ -64,7 +64,7 @@ namespace LMS.API.Controllers
 
         [HttpDelete("{id}/files/{fileId}")]
         [Authorize(Roles = UserRoles.Instructor)]
-        public async Task<ActionResult<ApiResponse>> MaterialFile(Guid id,Guid fileId)
+        public async Task<ActionResult<ApiResponse>> DeleteMaterialFile(Guid id,Guid fileId)
         {
             var result = await _mediator.Send(new DeleteMaterialFileCommand(id, fileId));
             return HandleResponse(this, result);
@@ -73,7 +73,7 @@ namespace LMS.API.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Roles = UserRoles.Instructor)]
-        public async Task<ActionResult<ApiResponse>> Delete(Guid id)
+        public async Task<ActionResult<ApiResponse>> DeleteSection(Guid id)
         {
             var result = await _mediator.Send(new SectionDeleteCommand(id));
             return HandleResponse(this, result);
@@ -91,7 +91,7 @@ namespace LMS.API.Controllers
 
         [HttpPut("{id}/files/reorder")]
         [Authorize(Roles = UserRoles.Instructor)]
-        public async Task<ActionResult<ApiResponse>> MaterialFilesReorder(Guid id,MaterialFilesReorderCommand command)
+        public async Task<ActionResult<ApiResponse>> ReorderMaterialFiles(Guid id,MaterialFilesReorderCommand command)
         {
             command.sectionId = id;
             var result = await _mediator.Send(command);
