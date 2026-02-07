@@ -1,12 +1,17 @@
 ﻿using AutoMapper;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.ConfigurationOptions;
 using LMS.Application.CurrentUser;
 using LMS.Domain.Common.Errors;
 using LMS.Domain.Constants;
+using LMS.Domain.DTOs.MaterialFiles;
 using LMS.Domain.DTOs.Sections;
 using LMS.Domain.Entities;
+using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace LMS.Application.Features.Sections.Queries.GetSection;
 
@@ -15,18 +20,27 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IUserContext _userContext;
+    private readonly BunnyOptions _bunnyOptions;
+    private readonly IBunnyUrlSigner _bunnyUrl;
 
-    public GetCourseSectionsQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IUserContext userContext)
+    public GetCourseSectionsQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IUserContext userContext, IOptions<BunnyOptions> bunnyOptions, IBunnyUrlSigner bunnyUrl)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _userContext = userContext;
+        _bunnyOptions = bunnyOptions.Value;
+        _bunnyUrl = bunnyUrl;
     }
 
     public async Task<Result<List<CourseSectionsDto>>> Handle(GetCourseSectionsQuery request, CancellationToken cancellationToken)
     {
         var user = _userContext.GetCurrentUser();
-        var course = await _unitOfWork.Courses.GetAsync(a => a.Id == request.CourseId, [nameof(Course.Sections)]);
+
+        var sections = await _unitOfWork.Sections.FilterAsync(a => a.CourseId == request.CourseId,
+            includeProperties: [nameof(Section.MaterialFiles),nameof(Section.Course)]);
+
+        var course = sections.FirstOrDefault()==null?null:sections.FirstOrDefault().Course;
+
         if (course == null)
         {
             return Result<List<CourseSectionsDto>>.Failure(DomainErrors.Course.NotFound(request.CourseId));
@@ -49,13 +63,27 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
             }
         }
 
-
-
         var result = new List<CourseSectionsDto>();
 
-        foreach (var section in course.Sections)
+        foreach (var section in sections)
         {
-        result.Add(_mapper.Map<CourseSectionsDto>(section));
+            result.Add(_mapper.Map<CourseSectionsDto>(section));
+
+            var materialFiles = section.MaterialFiles
+                                .OrderBy(f => f.OrderIndex)
+                                .Select(file => new MaterialFileMetadataDto
+                                {
+                                    FileName = file.FileName,
+                                    FileSize = file.FileSize,
+                                    ContentType = file.FileType,
+                                    OrderIndex = file.OrderIndex,
+                                    UploadDate = file.UploadDate,
+                                    FileSource = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl,
+                                                            _bunnyOptions.Token,file.StoragePath, TimeSpan.FromMinutes(5))
+            
+                                }).ToList();
+
+            result.Last().MaterialFiles = materialFiles;
 
         }
 

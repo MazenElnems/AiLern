@@ -1,13 +1,17 @@
 ﻿using AutoMapper;
 using LMS.Application.Common.Results;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.ConfigurationOptions;
 using LMS.Application.CurrentUser;
 using LMS.Domain.Common.Errors;
 using LMS.Domain.Constants;
+using LMS.Domain.DTOs.MaterialFiles;
 using LMS.Domain.DTOs.Sections;
 using LMS.Domain.Entities;
+using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
+using Microsoft.Extensions.Options;
 
 namespace LMS.Application.Features.Sections.Queries.GetSection;
 
@@ -16,18 +20,22 @@ public class GetSectionQueryHandler : IRequestHandler<GetSectionQuery, Result<Co
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IUserContext _userContext;
+    private readonly BunnyOptions _bunnyOptions;
+    private readonly IBunnyUrlSigner _bunnyUrl;
 
-    public GetSectionQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IUserContext userContext)
+    public GetSectionQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IUserContext userContext, IOptions<BunnyOptions> bunnyOptions, IBunnyUrlSigner bunnyUrl)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _userContext = userContext;
+        _bunnyOptions = bunnyOptions.Value;
+        _bunnyUrl = bunnyUrl;
     }
 
     public async Task<Result<CourseSectionsDto>> Handle(GetSectionQuery request, CancellationToken cancellationToken)
     {
         var user = _userContext.GetCurrentUser();
-        var section = await _unitOfWork.Sections.GetAsync(a => a.Id == request.sectionId, [nameof(Section.Course)]);
+        var section = await _unitOfWork.Sections.GetAsync(a => a.Id == request.sectionId, [nameof(Section.Course),nameof(Section.MaterialFiles)]);
         if (section == null)
         {
             return Result<CourseSectionsDto>.Failure(DomainErrors.Section.NotFound(request.sectionId));
@@ -47,7 +55,24 @@ public class GetSectionQueryHandler : IRequestHandler<GetSectionQuery, Result<Co
                 return Result<CourseSectionsDto>.Failure(DomainErrors.Common.Forbidden("You are not student in this course."));
             }
         }
+
         var sectiondto = _mapper.Map<CourseSectionsDto>(section);
+
+        var materialFiles = section.MaterialFiles
+            .OrderBy(f => f.OrderIndex)
+            .Select(file => new MaterialFileMetadataDto
+                {
+                    FileName = file.FileName,
+                    FileSize = file.FileSize,
+                    ContentType = file.FileType,
+                    OrderIndex = file.OrderIndex,
+                    UploadDate = file.UploadDate,
+                    FileSource = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl,
+                                                                    _bunnyOptions.Token, file.StoragePath, TimeSpan.FromMinutes(5))
+
+                }).ToList();
+
+        sectiondto.MaterialFiles = materialFiles;
         return Result<CourseSectionsDto>.Success(sectiondto);
 
     }
