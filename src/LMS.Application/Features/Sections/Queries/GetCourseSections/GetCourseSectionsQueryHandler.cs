@@ -43,7 +43,7 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
 
         if (course == null)
         {
-            return Result<List<CourseSectionsDto>>.Failure(DomainErrors.Course.NotFound(request.CourseId));
+            return DomainErrors.Course.NotFound(request.CourseId);
         }
 
 
@@ -51,7 +51,7 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
         {
             if (course.InstructorId != user.Id)
             {
-                return Result<List<CourseSectionsDto>>.Failure(DomainErrors.Common.Forbidden("You are not the instructor of this course."));
+                return DomainErrors.Common.Forbidden("You are not the instructor of this course.");
             }
         }
         if (user.IsInRole(UserRoles.Student))
@@ -59,7 +59,7 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
             var isnrolled = await _unitOfWork.Enrollments.IsEnrolledAsync(request.CourseId, user.Id);
             if (!isnrolled)
             {
-                return Result<List<CourseSectionsDto>>.Failure(DomainErrors.Common.Forbidden("You are not student in this course."));
+                return DomainErrors.Common.Forbidden("You are not student in this course.");
             }
         }
 

@@ -34,8 +34,6 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
             var section = await _unitOfWork.Sections.GetAsync(s => s.Id == request.SectionId,
                 includeProperties: [nameof(Section.Course)]);
 
-            // No Need to include MaterialFiles
-
             if (section == null)
                 return DomainErrors.Section.NotFound(request.SectionId);
 

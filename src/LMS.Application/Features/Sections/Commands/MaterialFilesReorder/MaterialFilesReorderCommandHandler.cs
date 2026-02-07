@@ -40,7 +40,7 @@ public class MaterialFilesReorderCommandHandler : IRequestHandler<MaterialFilesR
             return DomainErrors.Section.Empty;
 
         if (!request.OrderedFilesIds.All(id => files.Any(file => file.Id == id)))
-            return DomainErrors.Common.BusinessRule("Invalid Files Reorder Request", "One or more files in the reorder request do not belong to this section."));
+            return DomainErrors.Common.BusinessRule("Invalid Files Reorder Request", "One or more files in the reorder request do not belong to this section.");
 
         for(int i =0; i < request.OrderedFilesIds.Count; i++)
         {

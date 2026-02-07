@@ -55,7 +55,7 @@ namespace LMS.API.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = UserRoles.Instructor)]
-        public async Task<ActionResult<ApiResponse>> Update(Guid id, SectionUpdateCommand command)
+        public async Task<ActionResult<ApiResponse>> UpdateSection(Guid id, SectionUpdateCommand command)
         {
             command.Id = id;
             var result = await _mediator.Send(command);

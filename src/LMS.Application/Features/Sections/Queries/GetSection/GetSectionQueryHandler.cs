@@ -38,13 +38,13 @@ public class GetSectionQueryHandler : IRequestHandler<GetSectionQuery, Result<Co
         var section = await _unitOfWork.Sections.GetAsync(a => a.Id == request.sectionId, [nameof(Section.Course),nameof(Section.MaterialFiles)]);
         if (section == null)
         {
-            return Result<CourseSectionsDto>.Failure(DomainErrors.Section.NotFound(request.sectionId));
+            return DomainErrors.Section.NotFound(request.sectionId);
         }
         if (user.IsInRole(UserRoles.Instructor))
         {
             if (section.Course.InstructorId != user.Id)
             {
-                return Result<CourseSectionsDto>.Failure(DomainErrors.Common.Forbidden("You are not the instructor of this course."));
+                return DomainErrors.Common.Forbidden("You are not the instructor of this course.");
             }
         }
         if (user.IsInRole(UserRoles.Student))
@@ -52,7 +52,7 @@ public class GetSectionQueryHandler : IRequestHandler<GetSectionQuery, Result<Co
             var isnrolled = await _unitOfWork.Enrollments.IsEnrolledAsync(section.CourseId, user.Id);
             if (!isnrolled)
             {
-                return Result<CourseSectionsDto>.Failure(DomainErrors.Common.Forbidden("You are not student in this course."));
+                return DomainErrors.Common.Forbidden("You are not student in this course.");
             }
         }
 
