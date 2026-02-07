@@ -109,7 +109,7 @@ namespace LMS.API.Controllers
 
         [HttpPut("{id}/files/reorder")]
         [Authorize(Roles = UserRoles.Instructor)]
-        public async Task<ActionResult<ApiResponse>> MaterialFilesReorder(Guid id,MaterialFilesReorderCommand command)
+        public async Task<ActionResult<ApiResponse>> ReorderMaterialFiles(Guid id,MaterialFilesReorderCommand command)
         {
             command.sectionId = id;
             var result = await _mediator.Send(command);
