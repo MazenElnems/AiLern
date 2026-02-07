@@ -1,7 +1,5 @@
-﻿using AutoMapper;
-using LMS.Application.Common.Results;
+﻿using LMS.Application.Common.Results;
 using LMS.Application.CurrentUser;
-using LMS.Application.Features.Assignments.Commands.DeleteAssignment;
 using LMS.Domain.Common.Errors;
 using LMS.Domain.Entities;
 using LMS.Domain.Repositories;
@@ -14,14 +12,12 @@ public class SectionDeleteCommandHandler : IRequestHandler<SectionDeleteCommand,
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
-    private readonly IMapper _mapper;
     private readonly IWasabiService _wasabiService;
     private readonly ILogger<SectionDeleteCommandHandler> _logger;
 
 
-    public SectionDeleteCommandHandler(IMapper mapper, IUserContext userContext, IUnitOfWork unitOfWork, IWasabiService wasabiService, ILogger<SectionDeleteCommandHandler> logger)
+    public SectionDeleteCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IWasabiService wasabiService, ILogger<SectionDeleteCommandHandler> logger)
     {
-        _mapper = mapper;
         _userContext = userContext;
         _unitOfWork = unitOfWork;
         _wasabiService = wasabiService;
@@ -34,11 +30,11 @@ public class SectionDeleteCommandHandler : IRequestHandler<SectionDeleteCommand,
             [nameof(Section.Course), nameof(Section.MaterialFiles)]);
         if (section == null)
         {
-            return Result.Failure(DomainErrors.Section.NotFound(request.Id));
+            return DomainErrors.Section.NotFound(request.Id);
         }
         var userId = _userContext.GetCurrentUser().Id;
         if (section.Course.InstructorId != userId)
-            return Result.Failure(DomainErrors.Common.Forbidden("You do not have permission to delete this section."));
+            return DomainErrors.Common.Forbidden("You do not have permission to delete this section.");
 
         var filePaths = section.MaterialFiles.Select(f => f.StoragePath);
 

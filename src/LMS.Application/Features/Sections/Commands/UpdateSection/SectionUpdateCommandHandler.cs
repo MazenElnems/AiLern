@@ -12,26 +12,24 @@ public class SectionUpdateCommandHandler : IRequestHandler<SectionUpdateCommand,
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
-    private readonly IMapper _mapper;
 
-    public SectionUpdateCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper)
+    public SectionUpdateCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
-        _mapper = mapper;
     }
 
     public async Task<Result> Handle(SectionUpdateCommand request, CancellationToken cancellationToken)
     {
         var section = await _unitOfWork.Sections.GetAsync(a => a.Id == request.Id,
-            [nameof(Section.Course), nameof(Section.MaterialFiles)]);
+            includeProperties: [nameof(Section.Course)]);
         if (section == null)
         {
-            return Result.Failure(DomainErrors.Section.NotFound(request.Id)); 
+            return DomainErrors.Section.NotFound(request.Id); 
         }
         var userId = _userContext.GetCurrentUser().Id;
         if (section.Course.InstructorId != userId)
-            return Result.Failure(DomainErrors.Common.Forbidden("You do not have permission to update this section."));
+            return DomainErrors.Common.Forbidden("You do not have permission to update this section.");
         section.Title = request.Title;
         section.SectionNumber = request.SectionNumber;
 

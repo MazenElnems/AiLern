@@ -14,7 +14,6 @@ using LMS.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace LMS.API.Controllers
 {
@@ -67,7 +66,7 @@ namespace LMS.API.Controllers
 
         [HttpDelete("{id}/files/{fileId}")]
         [Authorize(Roles = UserRoles.Instructor)]
-        public async Task<ActionResult<ApiResponse>> MaterialFile(Guid id,Guid fileId)
+        public async Task<ActionResult<ApiResponse>> DeleteMaterialFile(Guid id,Guid fileId)
         {
             var result = await _mediator.Send(new DeleteMaterialFileCommand(id, fileId));
             return HandleResponse(this, result);
@@ -76,7 +75,7 @@ namespace LMS.API.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Roles = UserRoles.Instructor)]
-        public async Task<ActionResult<ApiResponse>> Delete(Guid id)
+        public async Task<ActionResult<ApiResponse>> DeleteSection(Guid id)
         {
             var result = await _mediator.Send(new SectionDeleteCommand(id));
             return HandleResponse(this, result);
@@ -84,12 +83,10 @@ namespace LMS.API.Controllers
 
         [HttpGet("{Id}/files")]
         [Authorize(Roles = $"{UserRoles.Instructor},{UserRoles.Student}")]
-        public async Task<ActionResult<ApiResponse>> SectionFiles(Guid Id)
+        public async Task<ActionResult<ApiResponse>> GetSectionFiles(Guid Id)
         {
             var result = await _mediator.Send(new GetSectionFilesQuery(Id));
             return HandleResponse(this, result);
-
-
         }
 
         [HttpGet("courses/{courseId}/sections")]

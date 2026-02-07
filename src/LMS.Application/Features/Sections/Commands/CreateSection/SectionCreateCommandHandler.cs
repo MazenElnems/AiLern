@@ -29,16 +29,16 @@ public class SectionCreateCommandHandler : IRequestHandler<SectionCreateCommand,
         var course = await _unitOfWork.Courses.GetByIdAsync(request.CourseId);
         if (course == null)
         {
-            return Result<SectionDto>.Failure(DomainErrors.Course.NotFound(request.CourseId));
+            return DomainErrors.Course.NotFound(request.CourseId);
         }
         if (course.InstructorId != userId)
         {
-            return Result<SectionDto>.Failure(DomainErrors.Common.Forbidden("You do not have permission to create an assignment for this course."));
+            return DomainErrors.Common.Forbidden("You do not have permission to create an assignment for this course.");
         }
         var section = _mapper.Map<Section>(request);
 
         await _unitOfWork.Sections.InsertAsync(section);
         await _unitOfWork.CommitAsync();
-        return Result<SectionDto>.Success(_mapper.Map<SectionDto>(section));
+        return Result<SectionDto>.Success(_mapper.Map<SectionDto>(section), "Section created successeded");
     }
 }
