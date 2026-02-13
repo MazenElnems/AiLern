@@ -35,7 +35,7 @@ public class GetStudentSubmissionsForAssignmentQueryHandler
         if(!await _unitOfWork.Assignments.AnyAsync(a => a.Id == request.AssignmentId && a.Course.InstructorId == userId))
             return DomainErrors.Common.Forbidden("You do not have permission to view submissions for this assignment.");
 
-        var submissionQuery = _unitOfWork.Submissions.Query
+        var submissionQuery = _unitOfWork.AssignmentSubmissions.Query
             .ApplayAssignmentSubmissionStatusFilter(request.Status)
             .ApplayAssignmentSubmissionSearchFilter(request.SearchString!)
             .Where(s => s.AssignmentId == request.AssignmentId);

@@ -11,8 +11,8 @@ public interface IUnitOfWork
     public IEnrollmentRepository Enrollments { get; }
     public IRefreshTokenRepository RefreshTokens { get; }
     public IAssignmentRepository Assignments { get; }
-    public ISubmissionRepository Submissions { get; }
     public IBaseRepository<AssignmentSubmissionFile> SubmissionFiles { get; }
+    public IBaseRepository<AssignmentSubmission> AssignmentSubmissions { get; }
     public IMaterialFileRepository MaterialFiles { get; }
     public ISectionRepository Sections { get; }
     Task<int> CommitAsync();

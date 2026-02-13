@@ -6,7 +6,6 @@ using LMS.Application.Features.Users.Commands.DeleteUserRole;
 using LMS.Application.Features.Users.Queries.GetAllByRoleId;
 using LMS.Application.Features.Users.Queries.GetUserById;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 

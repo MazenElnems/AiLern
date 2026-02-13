@@ -28,6 +28,9 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
     public virtual async Task<bool> AnyAsync()
         =>  await _dbSet.AnyAsync();
 
+    public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellation)
+        => await _dbSet.AnyAsync(predicate,cancellation);
+
     public virtual async Task<int> CountAsync() 
         => await _dbSet.CountAsync();
     

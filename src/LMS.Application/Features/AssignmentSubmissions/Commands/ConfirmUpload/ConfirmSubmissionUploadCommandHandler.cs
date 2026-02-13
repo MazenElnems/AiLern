@@ -31,7 +31,7 @@ namespace LMS.Application.Features.AssignmentSubmissions.Commands.ConfirmUpload
         {
             var user = _userContext.GetCurrentUser();
 
-            var submission = await _unitOfWork.Submissions.GetAsync(s => s.Id == request.SubmissionId, [nameof(AssignmentSubmission.Files)]);
+            var submission = await _unitOfWork.AssignmentSubmissions.GetAsync(s => s.Id == request.SubmissionId, [nameof(AssignmentSubmission.Files)]);
 
             if (submission == null)
                 return Result.Failure(DomainErrors.AssignmentSubmission.NotFound(request.SubmissionId.ToString()));

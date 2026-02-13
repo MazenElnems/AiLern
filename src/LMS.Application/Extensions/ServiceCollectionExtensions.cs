@@ -97,9 +97,9 @@ public static class ServiceCollectionExtensions
 
             cfg.CreateMap<Assignment, AssignmentWithFilesDto>();
 
-            cfg.CreateMap<AssignmentSubmission, AssignmetSubmissionDto>();
+            cfg.CreateMap<AssignmentSubmission, AssignmentSubmissionDto>();
             cfg.CreateMap<Assignment, AssignmentDto>();
-            cfg.CreateMap<AssignmentSubmission, SubmissionDto>();
+            cfg.CreateMap<AssignmentSubmission, AssignmentSubmissionDto>();
             cfg.CreateMap<Section, SectionDto>();
             cfg.CreateMap<Section,CourseSectionsDto>()
             .ForMember(dest =>dest.CourseName,opt =>opt.MapFrom(src =>src.Course.Name));

@@ -11,7 +11,6 @@ using LMS.Application.Features.Assignments.Queries.GetCourseAssignmentsForStuden
 using LMS.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 

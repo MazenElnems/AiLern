@@ -5,7 +5,7 @@ using MediatR;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Commands.Submit;
 
-public class AssignmentSubmissionCreateCommand : IRequest<Result<AssignmetSubmissionDto>>
+public class AssignmentSubmissionCreateCommand : IRequest<Result<AssignmentSubmissionDto>>
 {
     public int AssignmentId { get; set; }
     public List<FileMetaData> FileMetaData { get; set; }

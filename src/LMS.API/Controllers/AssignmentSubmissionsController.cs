@@ -5,11 +5,9 @@ using LMS.Application.Features.AssignmentSubmissions.Commands.DeleteSubmission;
 using LMS.Application.Features.AssignmentSubmissions.Commands.Submit;
 using LMS.Application.Features.AssignmentSubmissions.Queries.GetStudentSubmissionsForAssignment;
 using LMS.Application.Features.AssignmentSubmissions.Queries.GetSubmissionFiles;
-using LMS.Domain.Common.Enums;
 using LMS.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 

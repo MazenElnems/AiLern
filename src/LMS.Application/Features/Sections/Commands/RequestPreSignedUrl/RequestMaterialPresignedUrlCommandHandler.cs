@@ -2,7 +2,6 @@
 using LMS.Application.CurrentUser;
 using LMS.Domain.Common.Enums;
 using LMS.Domain.Common.Errors;
-using LMS.Domain.DTOs;
 using LMS.Domain.Entities;
 using LMS.Domain.Repositories;
 using MediatR;
@@ -10,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace LMS.Application.Features.Sections.Commands.RequestPreSignedUrl;
 
-public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<RequestMaterialPresignedUrlCommand, Result<PreSignedUrlResponse>>
+public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<RequestMaterialPresignedUrlCommand, Result<List<string>>>
 {
     private readonly ILogger<RequestMaterialPresignedUrlCommandHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
@@ -25,7 +24,7 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
         _wasabiService = wasabiService;
     }
 
-    public async Task<Result<PreSignedUrlResponse>> Handle(RequestMaterialPresignedUrlCommand request, CancellationToken cancellationToken)
+    public async Task<Result<List<string>>> Handle(RequestMaterialPresignedUrlCommand request, CancellationToken cancellationToken)
     {
         try
         {
@@ -44,10 +43,7 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
             if (user.Id != course.InstructorId)
                 return DomainErrors.Common.Forbidden("You do not have permission to request pre-signed URLs for this assignment.");
 
-            var response = new PreSignedUrlResponse
-            {
-                PresignedUrls = new List<string>()
-            };
+            List<string> response = new();
 
             var orderIndex = await _unitOfWork.MaterialFiles.GetMaxOrderIndexAsync(request.SectionId);
 
@@ -68,7 +64,7 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
                     OrderIndex = ++orderIndex
                 });
 
-                response.PresignedUrls.Add(preSignedUrl);
+                response.Add(preSignedUrl);
             }
 
             await _unitOfWork.CommitAsync();

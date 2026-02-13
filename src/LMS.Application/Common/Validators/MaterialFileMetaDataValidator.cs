@@ -1,9 +1,10 @@
 ﻿using FluentValidation;
+using LMS.Application.Common.Models.Request;
 using LMS.Domain.DTOs;
 
 namespace LMS.Application.Validators;
 
-public class MaterialFileMetaDataValidator : AbstractValidator<MaterialFileMetadata>
+public class MaterialFileMetaDataValidator : AbstractValidator<FileMetaData>
 {
     private const long MaxFileSizeInBytes = 10 * 1024 * 1024;      // 10 MB
     private const long MaxVideoSizeInBytes = 5L * 1024 * 1024 * 1024;   // 5 GB

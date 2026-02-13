@@ -27,7 +27,7 @@ public class SubmissionDeleteCommandHandler : IRequestHandler<SubmissionDeleteCo
 
     public async Task<Result> Handle(SubmissionDeleteCommand request, CancellationToken cancellationToken)
     {
-        var submission = await _unitOfWork.Submissions.GetByIdAsync(request.Id);
+        var submission = await _unitOfWork.AssignmentSubmissions.GetByIdAsync(request.Id);
         if (submission is null)
             return Result.Failure(DomainErrors.AssignmentSubmission.NotFound(request.Id.ToString()));
         var assignment = await _unitOfWork.Assignments.GetByIdAsync(submission.AssignmentId);
@@ -44,7 +44,7 @@ public class SubmissionDeleteCommandHandler : IRequestHandler<SubmissionDeleteCo
         }
         var filePaths = submission.Files.Select(f => f.StoragePath);
 
-        _unitOfWork.Submissions.Delete(submission);
+        _unitOfWork.AssignmentSubmissions.Delete(submission);
         await _unitOfWork.CommitAsync();
 
         try

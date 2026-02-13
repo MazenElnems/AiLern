@@ -15,8 +15,6 @@ using LMS.Application.Features.Courses.Commands.ApproveEnrollment;
 using LMS.Application.Features.Courses.Commands.DeleteEnrollment;
 using LMS.Application.Features.Courses.Queries.GetEnrolledStudents;
 using LMS.Application.Features.Courses.Commands.CreateEnrollment;
-
-using Microsoft.AspNetCore.Http;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LMS.API.Controllers;

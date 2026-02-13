@@ -10,7 +10,7 @@ using LMS.Domain.DTOs.AssignmentSubmissions;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Commands.Submit;
 
-public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<AssignmentSubmissionCreateCommand, Result<AssignmetSubmissionDto>>
+public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<AssignmentSubmissionCreateCommand, Result<AssignmentSubmissionDto>>
 {
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
@@ -25,7 +25,7 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
         _wasabiService = wasabiService;
     }
 
-    public async Task<Result<AssignmetSubmissionDto>> Handle(AssignmentSubmissionCreateCommand request, CancellationToken cancellationToken)
+    public async Task<Result<AssignmentSubmissionDto>> Handle(AssignmentSubmissionCreateCommand request, CancellationToken cancellationToken)
     {
         var user = _userContext.GetCurrentUser();
 
@@ -35,7 +35,7 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
         if (assignment == null) 
             return DomainErrors.Assignment.NotFound(request.AssignmentId);
 
-        if(await _unitOfWork.Submissions.AnyAsync(s => s.StudentId == user.Id && s.AssignmentId == assignment.Id))
+        if(await _unitOfWork.AssignmentSubmissions.AnyAsync(s => s.StudentId == user.Id && s.AssignmentId == assignment.Id))
             return DomainErrors.AssignmentSubmission.AlreadySubmitted;
 
         var course = assignment.Course;
@@ -78,7 +78,7 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
 
         await _unitOfWork.CommitAsync();
         
-        var dto = _mapper.Map<AssignmetSubmissionDto>(submission);
+        var dto = _mapper.Map<AssignmentSubmissionDto>(submission);
         dto.UploadFilesUrls = fileUrls;
 
         return dto;

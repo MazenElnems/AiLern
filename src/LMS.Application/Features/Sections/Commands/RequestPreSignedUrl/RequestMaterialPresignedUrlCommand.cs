@@ -1,11 +1,11 @@
-﻿using LMS.Application.Common.Results.Generic;
-using LMS.Domain.DTOs;
+﻿using LMS.Application.Common.Models.Request;
+using LMS.Application.Common.Results.Generic;
 using MediatR;
 using System.Text.Json.Serialization;
 
 namespace LMS.Application.Features.Sections.Commands.RequestPreSignedUrl;
 
-public class RequestMaterialPresignedUrlCommand : IRequest<Result<PreSignedUrlResponse>>
+public class RequestMaterialPresignedUrlCommand : IRequest<Result<List<string>>>
 {
     public List<FileMetaData> Files { get; set; }
     [JsonIgnore]

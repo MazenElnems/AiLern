@@ -1,9 +1,7 @@
 ﻿using LMS.Domain.Entities;
 using LMS.Domain.Interfaces;
-using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace LMS.Infrastructure.Repositories.MaterialFiles;
 
@@ -33,6 +31,5 @@ internal class MaterialFileRepository : BaseRepository<MaterialFile>, IMaterialF
         return await _context.MaterialFiles
                 .Where(f => f.SectionId == sectionId)
                 .MaxAsync(f => (int?)f.OrderIndex) ?? 0;
-
     }
 }
