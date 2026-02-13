@@ -102,7 +102,8 @@ public static class ServiceCollectionExtensions
             cfg.CreateMap<AssignmentSubmission, AssignmentSubmissionDto>();
             cfg.CreateMap<Section, SectionDto>();
             cfg.CreateMap<Section,CourseSectionsDto>()
-            .ForMember(dest =>dest.CourseName,opt =>opt.MapFrom(src =>src.Course.Name));
+            .ForMember(dest =>dest.CourseName,opt =>opt.MapFrom(src =>src.Course.Name))
+            .ForMember(dest => dest.MaterialFiles,opt=>opt.Ignore());
         }, [typeof(ServiceCollectionExtensions).Assembly]);
 
         return services;

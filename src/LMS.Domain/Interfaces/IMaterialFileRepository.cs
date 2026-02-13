@@ -1,4 +1,5 @@
-﻿using LMS.Domain.Entities;
+﻿using LMS.Domain.DTOs.MaterialFiles;
+using LMS.Domain.Entities;
 using LMS.Domain.Repositories;
 
 namespace LMS.Domain.Interfaces
@@ -8,5 +9,6 @@ namespace LMS.Domain.Interfaces
         public Task<int> GetMaxOrderIndexAsync(Guid sectionId);
 
         public void DeleteFile(MaterialFile file);
+
     }
 }
