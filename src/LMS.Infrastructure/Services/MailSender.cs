@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace LMS.Infrastructure.Services.Email;
+namespace LMS.Infrastructure.Services;
 
 internal class MailSender : IMailSender
 {

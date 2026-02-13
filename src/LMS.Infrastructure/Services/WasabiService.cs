@@ -5,7 +5,7 @@ using LMS.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace LMS.Infrastructure.Services.Storage;
+namespace LMS.Infrastructure.Services;
 
 public class WasabiService : IWasabiService
 {

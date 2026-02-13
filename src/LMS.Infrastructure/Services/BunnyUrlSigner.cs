@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace LMS.Infrastructure.Services.BunnyCDN;
+namespace LMS.Infrastructure.Services;
 
 public class BunnyUrlSigner : IBunnyUrlSigner
 {
