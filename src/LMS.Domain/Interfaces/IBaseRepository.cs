@@ -47,4 +47,6 @@ public interface IBaseRepository<T> where T : class
 
     Task<bool> AnyAsync();
     Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
+    Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellation);
+
 }

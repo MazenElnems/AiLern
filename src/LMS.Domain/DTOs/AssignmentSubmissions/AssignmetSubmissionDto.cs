@@ -1,6 +1,8 @@
 ﻿namespace LMS.Domain.DTOs.AssignmentSubmissions;
 
 public class AssignmetSubmissionDto
+
+public class SubmissionDto
 {
     public int Id { get; set; }
     public DateTime SubmissionDate { get; set; }

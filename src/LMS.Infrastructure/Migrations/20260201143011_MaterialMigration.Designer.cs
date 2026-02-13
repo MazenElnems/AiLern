@@ -4,6 +4,7 @@ using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260201143011_MaterialMigration")]
+    partial class MaterialMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -349,9 +352,6 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.HasIndex("SectionId", "OrderIndex")
-                        .IsUnique();
-
                     b.ToTable("MaterialFiles", (string)null);
                 });
 
@@ -678,7 +678,7 @@ namespace LMS.Infrastructure.Migrations
             modelBuilder.Entity("LMS.Domain.Entities.Section", b =>
                 {
                     b.HasOne("LMS.Domain.Entities.Course", "Course")
-                        .WithMany("Sections")
+                        .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -754,8 +754,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Assignments");
 
                     b.Navigation("Enrollments");
-
-                    b.Navigation("Sections");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Section", b =>

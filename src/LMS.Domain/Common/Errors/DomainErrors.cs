@@ -70,6 +70,11 @@ public static class DomainErrors
         public static Error NotFound(Guid id) =>
             Common.NotFound("AssignmentFile", id.ToString());
     }
+    public static class MaterialFile
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("MaterialFile", id.ToString());
+    }
 
     public static class AssignmentSubmission
     {
@@ -144,5 +149,20 @@ public static class DomainErrors
     {
         public static Error FileMissing =>
             Common.Validation("Storage.FileMissing", "File does not exist in storage.");
+    }
+
+    public static class Section
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Section", id.ToString());
+
+        public static Error NotOwned =>
+            Common.Forbidden("You do not have permission to modify this assignment.");
+
+        public static Error NotPublished =>
+            Common.BusinessRule("Assignment.NotPublished", "Assignment is not published.");
+
+        public static Error Empty =>
+            Common.BusinessRule("Section.Empty", "Section is Empty.");
     }
 }

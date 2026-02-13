@@ -1,6 +1,14 @@
-﻿using LMS.Domain.Entities;
+﻿using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
+using LMS.Infrastructure.Repositories.Assignments;
+using LMS.Infrastructure.Repositories.Courses;
+using LMS.Infrastructure.Repositories.Enrollments;
+using LMS.Infrastructure.Repositories.MaterialFiles;
+using LMS.Infrastructure.Repositories.RefreshTokens;
+using LMS.Infrastructure.Repositories.Sections;
+using LMS.Infrastructure.Repositories.Submissions;
+using LMS.Infrastructure.Repositories.Users;
 
 namespace LMS.Infrastructure.Repositories;
 
@@ -20,7 +28,9 @@ internal class UnitOfWork : IUnitOfWork
 
     public ISubmissionRepository Submissions { get; }
 
-    public IBaseRepository<AssignmentSubmissionFile> SubmissionFiles { get; }
+    public ISectionRepository Sections { get; }
+    
+    public IMaterialFileRepository MaterialFiles { get; }
 
     public UnitOfWork(AppDbContext context)
     {
@@ -31,6 +41,8 @@ internal class UnitOfWork : IUnitOfWork
         RefreshTokens = new RefreshTokenRepository(_context);
         Assignments = new AssignmentRepository(_context);
         Submissions = new SubmissionRepository(_context);
+        Sections = new SectionRepository(_context);
+        MaterialFiles = new MaterialFileRepository(_context);
         SubmissionFiles = new BaseRepository<AssignmentSubmissionFile>(_context);
     }
 

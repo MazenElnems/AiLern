@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using LMS.Application.Common.Models.Request;
+using LMS.Domain.DTOs;
 
-namespace LMS.Application.Common.Validators;
+namespace LMS.Application.Validators;
 
-public class FileMetaDataValidator : AbstractValidator<FileMetaData>
+public class MaterialFileMetaDataValidator : AbstractValidator<MaterialFileMetadata>
 {
     private const long MaxFileSizeInBytes = 10 * 1024 * 1024;      // 10 MB
     private const long MaxVideoSizeInBytes = 5L * 1024 * 1024 * 1024;   // 5 GB
@@ -32,7 +32,7 @@ public class FileMetaDataValidator : AbstractValidator<FileMetaData>
         "video/x-matroska"   // mkv
     };
 
-    public FileMetaDataValidator()
+    public MaterialFileMetaDataValidator()
     {
         RuleFor(file => file.FileName)
             .NotEmpty().WithMessage("File name must not be empty.")
@@ -55,7 +55,7 @@ public class FileMetaDataValidator : AbstractValidator<FileMetaData>
             })
             .WithMessage(file =>
                 file.ContentType.StartsWith("video/", StringComparison.OrdinalIgnoreCase)
-                    ? $"Video size must not exceed {MaxVideoSizeInBytes / (1024 * 1024 * 1024)} GB."
+                    ? $"Video size must not exceed {MaxVideoSizeInBytes / (1024*1024 * 1024)} GB."
                     : $"File size must not exceed {MaxFileSizeInBytes / (1024 * 1024)} MB."
             );
     }
