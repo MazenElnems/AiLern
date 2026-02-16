@@ -11,6 +11,11 @@ builder.Services.AddControllers();
 
 builder.Services.AddAuthentication();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy => policy.AllowAnyMethod().AllowAnyOrigin().AllowAnyMethod());
+});
+
 // swagger & open api
 builder.Services.AddOpenApi();
 // swagger
