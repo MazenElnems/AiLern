@@ -1,5 +1,7 @@
-﻿using LMS.Domain.Entities;
+﻿using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.EntitiesConfiguration;
+using LMS.Domain.Entities.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

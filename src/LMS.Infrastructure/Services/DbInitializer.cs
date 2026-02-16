@@ -1,5 +1,5 @@
 ﻿using LMS.Domain.Constants;
-using LMS.Domain.Entities;
+using LMS.Domain.Entities.Users;
 using LMS.Domain.Interfaces;
 using LMS.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;

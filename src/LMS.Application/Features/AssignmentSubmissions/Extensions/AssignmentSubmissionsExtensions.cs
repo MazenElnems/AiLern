@@ -1,5 +1,5 @@
 ﻿using LMS.Domain.Constants;
-using LMS.Domain.Entities;
+using LMS.Domain.Entities.Assignments;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Extensions;
 

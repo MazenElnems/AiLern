@@ -1,6 +1,6 @@
 using LMS.Application.Common.Models.Request;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.DTOs.Assignments;
+using LMS.Application.DTOs.Assignments;
 using MediatR;
 using System.Text.Json.Serialization;
 

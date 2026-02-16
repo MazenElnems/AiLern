@@ -3,13 +3,12 @@ using LMS.Application.Common.Results.Generic;
 using LMS.Domain.Common.Errors;
 using LMS.Domain.Constants;
 using LMS.Domain.Repositories;
-using LMS.Domain.Entities;
-using LMS.Domain.DTOs;
-using LMS.Domain.DTOs.Users;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using System.Linq.Expressions;
 using LMS.Application.Common.Models.Responses;
+using LMS.Domain.Entities.Users;
+using LMS.Application.DTOs.Users;
 
 namespace LMS.Application.Features.Users.Queries.GetAllByRoleId;
 

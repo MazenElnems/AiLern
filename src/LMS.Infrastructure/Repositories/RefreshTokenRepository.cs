@@ -1,4 +1,4 @@
-﻿using LMS.Domain.Entities;
+﻿using LMS.Domain.Entities.Users;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;

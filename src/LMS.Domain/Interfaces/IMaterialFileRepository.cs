@@ -1,5 +1,4 @@
-﻿using LMS.Domain.DTOs.MaterialFiles;
-using LMS.Domain.Entities;
+﻿using LMS.Domain.Entities.Courses;
 using LMS.Domain.Repositories;
 
 namespace LMS.Domain.Interfaces

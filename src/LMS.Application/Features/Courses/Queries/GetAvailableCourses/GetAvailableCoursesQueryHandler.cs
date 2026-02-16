@@ -3,14 +3,13 @@ using LMS.Application.Common.Results.Generic;
 using LMS.Domain.Common.Errors;
 using LMS.Domain.Repositories;
 using LMS.Domain.Constants;
-using LMS.Domain.DTOs;
-using LMS.Domain.DTOs.Courses;
-using LMS.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using LMS.Domain.Common.Enums;
 using LMS.Application.Common.Models.Responses;
+using LMS.Domain.Entities.Courses;
+using LMS.Application.DTOs.Courses;
 
 namespace LMS.Application.Features.Courses.Queries.GetAvailableCourses;
 

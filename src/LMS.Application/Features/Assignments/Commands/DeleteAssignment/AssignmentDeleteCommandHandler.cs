@@ -1,10 +1,10 @@
 using LMS.Application.CurrentUser;
 using LMS.Application.Common.Results;
 using LMS.Domain.Common.Errors;
-using LMS.Domain.Entities;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using LMS.Domain.Entities.Assignments;
 
 namespace LMS.Application.Features.Assignments.Commands.DeleteAssignment;
 

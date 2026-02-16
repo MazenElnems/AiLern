@@ -1,11 +1,10 @@
 using LMS.Application.Common.Results;
 using LMS.Domain.Common.Errors;
-using LMS.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using System.Linq;
 using Microsoft.Extensions.Logging;
 using LMS.Application.Features.Courses.Commands.UpdateCourse;
+using LMS.Domain.Entities.Users;
 
 namespace LMS.Application.Features.Users.Commands.AddUserToRole;
 

@@ -1,6 +1,4 @@
-﻿using LMS.Application.ConfigurationOptions;
-using LMS.Domain.DTOs.MaterialFiles;
-using LMS.Domain.Entities;
+﻿using LMS.Domain.Entities.Courses;
 using LMS.Domain.Interfaces;
 using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;

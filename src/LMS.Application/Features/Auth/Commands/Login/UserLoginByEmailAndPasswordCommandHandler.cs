@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using LMS.Domain.Entities.Users;
 
 namespace LMS.Application.Features.Auth.Commands.Login;
 

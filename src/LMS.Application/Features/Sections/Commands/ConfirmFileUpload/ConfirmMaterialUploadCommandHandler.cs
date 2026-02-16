@@ -2,7 +2,7 @@
 using LMS.Application.CurrentUser;
 using LMS.Domain.Common.Enums;
 using LMS.Domain.Common.Errors;
-using LMS.Domain.Entities;
+using LMS.Domain.Entities.Courses;
 using LMS.Domain.Repositories;
 using MediatR;
 

@@ -4,13 +4,14 @@ using LMS.Domain.Constants;
 using LMS.Application.Common.Results.Generic;
 using LMS.Domain.Common.Errors;
 using LMS.Domain.Repositories;
-using LMS.Domain.DTOs.Courses;
-using LMS.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using LMS.Domain.Common.Enums;
+using LMS.Domain.Entities.Users;
+using LMS.Domain.Entities.Courses;
+using LMS.Application.DTOs.Courses;
 
 namespace LMS.Application.Features.Students.Queries.GetMyCourses;
 

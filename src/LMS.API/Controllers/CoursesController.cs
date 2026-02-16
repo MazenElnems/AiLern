@@ -8,7 +8,6 @@ using LMS.Application.Features.Courses.Commands.RejectCourse;
 using LMS.Application.Features.Courses.Commands.RejectEnrollment;
 using LMS.Application.Features.Courses.Queries.GetAllCourses;
 using LMS.Application.Features.Courses.Queries.GetAvailableCourses;
-using LMS.Application.Features.Courses.Queries.GetEnrollmentRequests;
 using LMS.Application.Features.Courses.Queries.GetById;
 using LMS.Application.Features.Courses.Commands.DeleteCourse;
 using LMS.Application.Features.Courses.Commands.ApproveEnrollment;
@@ -192,18 +191,4 @@ public class CoursesController : ApiBaseController
         var result = await _mediator.Send(query);
         return HandleResponse(this, result);
     }
-
-    [HttpGet("{id}/enrollment-requests")]
-    [SwaggerOperation(Summary = "Get enrollment requests", Description = "Lists pending enrollment requests for a course.")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Enrollment requests retrieved successfully.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid query parameters.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetEnrollmentRequests(int id,[FromQuery] GetEnrollmentRequestsQuery query)
-    {
-        query.CourseId = id;
-        var result = await _mediator.Send(query);
-        return HandleResponse(this, result);
-    }
-    
 }

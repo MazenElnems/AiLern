@@ -1,5 +1,4 @@
-﻿using LMS.Domain.Entities;
-
+﻿using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Interfaces;
 
 namespace LMS.Domain.Repositories;

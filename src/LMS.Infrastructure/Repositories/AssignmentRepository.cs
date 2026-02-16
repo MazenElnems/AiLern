@@ -1,5 +1,5 @@
 using LMS.Domain.Common.Enums;
-using LMS.Domain.Entities;
+using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;

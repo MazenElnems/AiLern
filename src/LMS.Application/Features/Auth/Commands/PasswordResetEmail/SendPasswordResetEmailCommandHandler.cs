@@ -2,11 +2,11 @@ using LMS.Application.ConfigurationOptions;
 using LMS.Application.Common.Results;
 using LMS.Domain.Common.Errors;
 using LMS.Domain.Repositories;
-using LMS.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using LMS.Domain.Entities.Users;
 
 namespace LMS.Application.Features.Auth.Commands.PasswordResetEmail;
 

@@ -2,15 +2,13 @@
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.ConfigurationOptions;
 using LMS.Application.CurrentUser;
+using LMS.Application.DTOs.Sections;
 using LMS.Domain.Common.Errors;
 using LMS.Domain.Constants;
-using LMS.Domain.DTOs.MaterialFiles;
-using LMS.Domain.DTOs.Sections;
-using LMS.Domain.Entities;
+using LMS.Domain.Entities.Courses;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace LMS.Application.Features.Sections.Queries.GetSection;
@@ -71,25 +69,21 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
 
             var materialFiles = section.MaterialFiles
                                 .OrderBy(f => f.OrderIndex)
-                                .Select(file => new MaterialFileMetadataDto
+                                .Select(file => new SectionFileDto
                                 {
                                     FileName = file.FileName,
                                     FileSize = file.FileSize,
                                     ContentType = file.FileType,
                                     OrderIndex = file.OrderIndex,
                                     UploadDate = file.UploadDate,
-                                    FileSource = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl,
+                                    FileUrl = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl,
                                                             _bunnyOptions.Token,file.StoragePath, TimeSpan.FromMinutes(5))
-            
                                 }).ToList();
 
-            result.Last().MaterialFiles = materialFiles;
+            result.Last().SectionFiles = materialFiles;
 
         }
 
-        return Result<List<CourseSectionsDto>>.Success(result);
-
+        return result;
     }
-
 }
-

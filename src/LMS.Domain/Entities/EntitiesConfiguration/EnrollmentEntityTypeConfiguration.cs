@@ -1,4 +1,5 @@
 ﻿using LMS.Domain.Common.Enums;
+using LMS.Domain.Entities.Courses;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;

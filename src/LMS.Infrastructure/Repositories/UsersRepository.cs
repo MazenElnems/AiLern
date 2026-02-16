@@ -1,8 +1,7 @@
-﻿using LMS.Domain.Constants;
-using LMS.Domain.Repositories;
-using LMS.Domain.Entities;
+﻿using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using LMS.Domain.Entities.Users;
 
 namespace LMS.Infrastructure.Repositories;
 

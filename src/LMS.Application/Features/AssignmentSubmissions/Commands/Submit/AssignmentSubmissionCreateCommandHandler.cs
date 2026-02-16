@@ -2,11 +2,12 @@ using AutoMapper;
 using LMS.Application.CurrentUser;
 using LMS.Application.Common.Results.Generic;
 using LMS.Domain.Common.Errors;
-using LMS.Domain.Entities;
 using LMS.Domain.Repositories;
 using MediatR;
 using LMS.Domain.Common.Enums;
-using LMS.Domain.DTOs.AssignmentSubmissions;
+using LMS.Domain.Entities.Courses;
+using LMS.Application.DTOs.AssignmentSubmissions;
+using LMS.Domain.Entities.Assignments;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Commands.Submit;
 

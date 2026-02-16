@@ -1,8 +1,7 @@
 using LMS.Application.Common.Models.Request;
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.DTOs;
-using LMS.Domain.DTOs.Users;
+using LMS.Application.DTOs.Users;
 using MediatR;
 using System.Text.Json.Serialization;
 

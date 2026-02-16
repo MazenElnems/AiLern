@@ -1,4 +1,4 @@
-﻿using LMS.Domain.Entities;
+﻿using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;

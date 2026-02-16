@@ -2,24 +2,25 @@
 using LMS.Application.Common.Behaviors;
 using LMS.Application.ConfigurationOptions;
 using LMS.Application.CurrentUser;
+using LMS.Application.DTOs.Assignments;
+using LMS.Application.DTOs.AssignmentSubmissions;
+using LMS.Application.DTOs.Courses;
+using LMS.Application.DTOs.Sections;
+using LMS.Application.DTOs.Students;
+using LMS.Application.DTOs.Users;
 using LMS.Application.Features.Admins.Commands.CreateAdmin;
 using LMS.Application.Features.Courses.Commands.CreateCourse;
 using LMS.Application.Features.Instructors.Commands.CreateInstructor;
 using LMS.Application.Features.Students.Commands.CreateStudent;
 using LMS.Application.Services.Auth;
 using LMS.Application.Services.Auth.Interfaces;
-using LMS.Domain.DTOs.Assignments;
-using LMS.Domain.DTOs.AssignmentSubmissions;
-using LMS.Domain.DTOs.Courses;
-using LMS.Domain.DTOs.Sections;
-using LMS.Domain.DTOs.Students;
-using LMS.Domain.DTOs.Users;
-using LMS.Domain.Entities;
+using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Entities.Courses;
+using LMS.Domain.Entities.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System.Collections.Generic;
 using System.Text;
 
 
@@ -101,9 +102,8 @@ public static class ServiceCollectionExtensions
             cfg.CreateMap<Assignment, AssignmentDto>();
             cfg.CreateMap<AssignmentSubmission, AssignmentSubmissionDto>();
             cfg.CreateMap<Section, SectionDto>();
-            cfg.CreateMap<Section,CourseSectionsDto>()
-            .ForMember(dest =>dest.CourseName,opt =>opt.MapFrom(src =>src.Course.Name))
-            .ForMember(dest => dest.MaterialFiles,opt=>opt.Ignore());
+            cfg.CreateMap<Section, CourseSectionsDto>()
+            .ForMember(dest => dest.CourseName, opt => opt.MapFrom(src => src.Course.Name));
         }, [typeof(ServiceCollectionExtensions).Assembly]);
 
         return services;

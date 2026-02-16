@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
+using LMS.Application.DTOs.Sections;
 using LMS.Domain.Common.Errors;
-using LMS.Domain.DTOs.Sections;
-using LMS.Domain.Entities;
+using LMS.Domain.Entities.Courses;
 using LMS.Domain.Repositories;
 using MediatR;
 

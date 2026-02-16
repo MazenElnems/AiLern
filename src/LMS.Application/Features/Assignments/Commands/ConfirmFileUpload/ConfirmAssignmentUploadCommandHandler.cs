@@ -2,9 +2,9 @@ using LMS.Application.CurrentUser;
 using LMS.Domain.Common.Enums;
 using LMS.Application.Common.Results;
 using LMS.Domain.Common.Errors;
-using LMS.Domain.Entities;
 using LMS.Domain.Repositories;
 using MediatR;
+using LMS.Domain.Entities.Assignments;
 namespace LMS.Application.Features.Assignments.Commands.ConfirmFileUpload;
 
 public class ConfirmAssignmentUploadCommandHandler : IRequestHandler<ConfirmAssignmentUploadCommand, Result>

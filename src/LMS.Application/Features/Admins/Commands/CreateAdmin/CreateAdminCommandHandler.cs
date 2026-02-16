@@ -1,11 +1,10 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
 using LMS.Domain.Common.Errors;
-using LMS.Domain.Entities;
+using LMS.Domain.Entities.Users;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 
 namespace LMS.Application.Features.Admins.Commands.CreateAdmin;
 

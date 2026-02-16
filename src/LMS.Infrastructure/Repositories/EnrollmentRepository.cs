@@ -1,6 +1,4 @@
-using LMS.Domain.Common.Enums;
-using LMS.Domain.DTOs.Courses;
-using LMS.Domain.Entities;
+using LMS.Domain.Entities.Courses;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -28,20 +26,6 @@ internal class EnrollmentRepository : BaseRepository<Enrollment>, IEnrollmentRep
         return await _context.Enrollments
             .Include(s => s.Student)
             .ToListAsync();
-    }
-
-    public async Task<List<GetEnrollmentRequestsDto>> GetEnrollmentRequestsAsync(int courseId)
-    {
-        return await _context.Enrollments
-            .Where(e => e.Status == EnrollmentStatus.Pending)
-            .Select(e => new GetEnrollmentRequestsDto
-            {
-                Id = e.Student.Id,
-                Name = e.Student.FullName,
-                Email = e.Student.Email!,
-                StudentId = e.Student.StudentId,
-                RequestAt = e.Requested_at
-            }).ToListAsync();
     }
 
     public async Task<bool> IsEnrolledAsync(int courseId, int studentId)

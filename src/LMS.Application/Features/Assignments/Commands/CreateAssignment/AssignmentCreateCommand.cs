@@ -1,6 +1,6 @@
 using LMS.Application.Common.Models.Request;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.DTOs.Assignments;
+using LMS.Application.DTOs.Assignments;
 using MediatR;
 
 namespace LMS.Application.Features.Assignments.Commands.CreateAssignment;

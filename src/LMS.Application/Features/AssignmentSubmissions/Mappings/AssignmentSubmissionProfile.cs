@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
+using LMS.Application.DTOs.AssignmentSubmissions;
 using LMS.Application.Features.AssignmentSubmissions.Commands.Submit;
-using LMS.Domain.DTOs.AssignmentSubmissions;
-using LMS.Domain.Entities;
+using LMS.Domain.Entities.Assignments;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Mappings;
 
