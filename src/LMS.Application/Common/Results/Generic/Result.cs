@@ -1,4 +1,4 @@
-using LMS.Domain.Common.Errors;
+using LMS.Domain.Errors;
 
 namespace LMS.Application.Common.Results.Generic;
 

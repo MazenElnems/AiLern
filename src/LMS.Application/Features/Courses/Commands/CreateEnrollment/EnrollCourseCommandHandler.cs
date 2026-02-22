@@ -1,11 +1,11 @@
 using LMS.Application.CurrentUser;
 using LMS.Domain.Repositories;
 using LMS.Application.Common.Results;
-using LMS.Domain.Common.Errors;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using LMS.Domain.Common.Enums;
 using LMS.Domain.Entities.Courses;
+using LMS.Domain.Enums;
+using LMS.Domain.Errors;
 
 namespace LMS.Application.Features.Courses.Commands.CreateEnrollment;
 
@@ -39,7 +39,7 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand, R
         var enrollment = new Enrollment
         {
             Status = EnrollmentStatus.Pending,
-            Student_id = currentStudentId,
+            StudentId = currentStudentId,
         };
 
         course.Enrollments.Add(enrollment);

@@ -1,5 +1,5 @@
-﻿using LMS.API.Common.Responses;
-using LMS.API.Controllers.Common;
+﻿using LMS.API.Controllers.Common;
+using LMS.API.Models;
 using LMS.Application.Features.Sections.Commands.ConfirmFileUpload;
 using LMS.Application.Features.Sections.Commands.CreateSection;
 using LMS.Application.Features.Sections.Commands.DeleteMaterialFile;

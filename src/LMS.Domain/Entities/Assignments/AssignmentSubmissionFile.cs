@@ -1,5 +1,5 @@
 using System;
-using LMS.Domain.Common.Enums;
+using LMS.Domain.Enums;
 
 namespace LMS.Domain.Entities.Assignments;
 

@@ -1,5 +1,5 @@
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.DTOs.Users;
+using LMS.Application.Features.Users.DTO;
 using MediatR;
 
 namespace LMS.Application.Features.Users.Queries.GetUserById;

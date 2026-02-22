@@ -1,8 +1,8 @@
 ﻿using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
-using LMS.Domain.Common.Enums;
-using LMS.Domain.Common.Errors;
 using LMS.Domain.Entities.Courses;
+using LMS.Domain.Enums;
+using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;

@@ -1,5 +1,5 @@
-using LMS.API.Common.Responses;
 using LMS.API.Controllers.Common;
+using LMS.API.Models;
 using LMS.Application.Features.Students.Queries.GetMyCourses;
 using LMS.Application.Features.Users.Commands.AddUserToRole;
 using LMS.Application.Features.Users.Commands.DeleteUserRole;

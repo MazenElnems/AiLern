@@ -1,10 +1,10 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Common.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using LMS.Application.DTOs.Students;
+using LMS.Domain.Errors;
+using LMS.Application.Features.Students.DTO;
 
 namespace LMS.Application.Features.Courses.Queries.GetEnrolledStudents;
 

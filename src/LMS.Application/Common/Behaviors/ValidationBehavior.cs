@@ -1,7 +1,7 @@
 using FluentValidation;
 using LMS.Application.Common.Results;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Common.Errors;
+using LMS.Domain.Errors;
 using MediatR;
 
 namespace LMS.Application.Common.Behaviors;

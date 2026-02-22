@@ -1,5 +1,4 @@
 using LMS.Application.Commands.Auth.EmailConfirmationCommands;
-using LMS.API.Common.Responses;
 using LMS.API.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +13,7 @@ using LMS.Application.Features.Instructors.Commands.CreateInstructor;
 using LMS.Application.Features.Students.Commands.CreateStudent;
 using Microsoft.AspNetCore.Http;
 using Swashbuckle.AspNetCore.Annotations;
+using LMS.API.Models;
 
 namespace LMS.API.Controllers;
 

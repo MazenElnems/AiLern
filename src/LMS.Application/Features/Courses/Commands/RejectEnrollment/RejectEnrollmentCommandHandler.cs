@@ -1,11 +1,11 @@
 using LMS.Domain.Repositories;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Common.Errors;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using LMS.Domain.Common.Enums;
 using LMS.Domain.Entities.Users;
+using LMS.Domain.Enums;
+using LMS.Domain.Errors;
 
 namespace LMS.Application.Features.Courses.Commands.RejectEnrollment;
 

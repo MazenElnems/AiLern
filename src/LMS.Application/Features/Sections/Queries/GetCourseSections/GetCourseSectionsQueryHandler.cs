@@ -2,10 +2,10 @@
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.ConfigurationOptions;
 using LMS.Application.CurrentUser;
-using LMS.Application.DTOs.Sections;
-using LMS.Domain.Common.Errors;
+using LMS.Application.Features.Sections.DTO;
 using LMS.Domain.Constants;
 using LMS.Domain.Entities.Courses;
+using LMS.Domain.Errors;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;

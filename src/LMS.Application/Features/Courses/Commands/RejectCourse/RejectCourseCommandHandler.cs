@@ -1,10 +1,10 @@
 using LMS.Domain.Repositories;
 using LMS.Domain.Entities;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Common.Errors;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using LMS.Domain.Common.Enums;
+using LMS.Domain.Enums;
+using LMS.Domain.Errors;
 
 namespace LMS.Application.Features.Courses.Commands.RejectCourse;
 

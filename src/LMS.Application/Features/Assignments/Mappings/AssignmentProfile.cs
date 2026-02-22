@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using LMS.Application.DTOs.Assignments;
 using LMS.Application.Features.Assignments.Commands.CreateAssignment;
 using LMS.Application.Features.Assignments.Commands.UpdateAssignment;
+using LMS.Application.Features.Assignments.DTO;
 using LMS.Domain.Entities.Assignments;
 
 namespace LMS.Application.Features.Assignments.Mappings;

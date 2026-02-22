@@ -1,10 +1,7 @@
 using LMS.Application.ConfigurationOptions;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.DTOs.Auth.Request;
-using LMS.Application.Services.Auth.Interfaces;
 using LMS.Domain.Repositories;
 using LMS.Domain.Entities;
-using LMS.Domain.Common.Errors;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -13,6 +10,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using LMS.Application.Features.Auth.Commands.Login;
 using LMS.Domain.Entities.Users;
+using LMS.Domain.Errors;
+using LMS.Domain.Interfaces;
+using LMS.Application.Features.Auth.DTO;
 
 namespace LMS.Application.Features.Auth.Commands.RefreshTokens;
 

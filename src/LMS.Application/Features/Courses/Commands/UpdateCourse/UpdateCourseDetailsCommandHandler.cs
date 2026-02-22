@@ -1,9 +1,9 @@
 using LMS.Domain.Repositories;
 using LMS.Domain.Entities;
 using LMS.Application.Common.Results;
-using LMS.Domain.Common.Errors;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using LMS.Domain.Errors;
 
 namespace LMS.Application.Features.Courses.Commands.UpdateCourse;
 

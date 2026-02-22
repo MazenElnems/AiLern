@@ -1,6 +1,6 @@
-﻿using LMS.Domain.Common.Enums;
-using LMS.Domain.Entities.Assignments;
+﻿using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Entities.Users;
+using LMS.Domain.Enums;
 
 namespace LMS.Domain.Entities.Courses;
 

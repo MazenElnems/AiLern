@@ -1,4 +1,5 @@
 ﻿using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Entities.Courses;
 using LMS.Domain.Interfaces;
 
 namespace LMS.Domain.Repositories;
@@ -13,6 +14,6 @@ public interface IUnitOfWork
     public IBaseRepository<AssignmentSubmissionFile> SubmissionFiles { get; }
     public IBaseRepository<AssignmentSubmission> AssignmentSubmissions { get; }
     public IMaterialFileRepository MaterialFiles { get; }
-    public ISectionRepository Sections { get; }
+    public IBaseRepository<Section> Sections { get; }
     Task<int> CommitAsync();
 }

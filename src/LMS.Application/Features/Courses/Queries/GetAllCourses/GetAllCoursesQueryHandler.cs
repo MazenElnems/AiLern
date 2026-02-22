@@ -1,6 +1,5 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Common.Errors;
 using LMS.Domain.Repositories;
 using LMS.Domain.Constants;
 using MediatR;
@@ -8,7 +7,8 @@ using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
 using LMS.Application.Common.Models.Responses;
 using LMS.Domain.Entities.Courses;
-using LMS.Application.DTOs.Courses;
+using LMS.Domain.Errors;
+using LMS.Application.Features.Courses.DTO;
 
 namespace LMS.Application.Features.Courses.Queries.GetAllCourses;
 

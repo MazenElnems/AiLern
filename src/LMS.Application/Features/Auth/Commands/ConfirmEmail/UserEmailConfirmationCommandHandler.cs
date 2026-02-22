@@ -1,6 +1,6 @@
 using LMS.Application.Common.Results;
-using LMS.Domain.Common.Errors;
 using LMS.Domain.Entities.Users;
+using LMS.Domain.Errors;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;

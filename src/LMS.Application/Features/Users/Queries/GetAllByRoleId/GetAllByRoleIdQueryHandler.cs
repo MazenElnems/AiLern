@@ -1,6 +1,5 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Common.Errors;
 using LMS.Domain.Constants;
 using LMS.Domain.Repositories;
 using MediatR;
@@ -8,7 +7,8 @@ using Microsoft.AspNetCore.Identity;
 using System.Linq.Expressions;
 using LMS.Application.Common.Models.Responses;
 using LMS.Domain.Entities.Users;
-using LMS.Application.DTOs.Users;
+using LMS.Domain.Errors;
+using LMS.Application.Features.Users.DTO;
 
 namespace LMS.Application.Features.Users.Queries.GetAllByRoleId;
 

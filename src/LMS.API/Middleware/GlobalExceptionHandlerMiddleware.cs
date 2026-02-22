@@ -1,4 +1,4 @@
-﻿using LMS.API.Common.Responses;
+﻿using LMS.API.Models;
 using LMS.Domain.Exceptions;
 using System.ComponentModel.DataAnnotations;
 

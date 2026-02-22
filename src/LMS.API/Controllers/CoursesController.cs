@@ -1,4 +1,3 @@
-using LMS.API.Common.Responses;
 using LMS.API.Controllers.Common;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
@@ -15,6 +14,7 @@ using LMS.Application.Features.Courses.Commands.DeleteEnrollment;
 using LMS.Application.Features.Courses.Queries.GetEnrolledStudents;
 using LMS.Application.Features.Courses.Commands.CreateEnrollment;
 using Swashbuckle.AspNetCore.Annotations;
+using LMS.API.Models;
 
 namespace LMS.API.Controllers;
 

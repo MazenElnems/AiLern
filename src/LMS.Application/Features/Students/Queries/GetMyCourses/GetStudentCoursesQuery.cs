@@ -1,6 +1,6 @@
 using LMS.Application.Common.Models.Request;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.DTOs.Courses;
+using LMS.Application.Features.Courses.DTO;
 using MediatR;
 
 namespace LMS.Application.Features.Students.Queries.GetMyCourses;

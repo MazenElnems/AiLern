@@ -1,7 +1,7 @@
-using LMS.API.Common.Responses;
+using LMS.API.Models;
 using LMS.Application.Common.Results;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Common.Enums;
+using LMS.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS.API.Controllers.Common;

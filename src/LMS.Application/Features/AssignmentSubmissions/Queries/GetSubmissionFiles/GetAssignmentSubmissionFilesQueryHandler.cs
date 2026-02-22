@@ -1,9 +1,9 @@
 ﻿using LMS.Application.Common.Results.Generic;
 using LMS.Application.ConfigurationOptions;
 using LMS.Application.CurrentUser;
-using LMS.Domain.Common.Errors;
 using LMS.Domain.Constants;
 using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Errors;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;

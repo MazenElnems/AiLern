@@ -1,5 +1,5 @@
 ﻿using LMS.Application.Common.Results.Generic;
-using LMS.Application.DTOs.Sections;
+using LMS.Application.Features.Sections.DTO;
 using MediatR;
 
 namespace LMS.Application.Features.Sections.Queries.GetSection;

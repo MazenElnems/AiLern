@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
-using LMS.Application.DTOs.Assignments;
-using LMS.Domain.Common.Errors;
+using LMS.Application.Features.Assignments.DTO;
+using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

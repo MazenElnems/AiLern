@@ -2,16 +2,16 @@ using AutoMapper;
 using LMS.Application.CurrentUser;
 using LMS.Domain.Constants;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Common.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
-using LMS.Domain.Common.Enums;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Entities.Courses;
-using LMS.Application.DTOs.Courses;
+using LMS.Domain.Enums;
+using LMS.Domain.Errors;
+using LMS.Application.Features.Courses.DTO;
 
 namespace LMS.Application.Features.Students.Queries.GetMyCourses;
 
@@ -45,7 +45,7 @@ public class GetStudentCoursesQueryHandler : IRequestHandler<GetStudentCoursesQu
                 return Result<List<GetStudentCoursesDto>>.Failure(DomainErrors.User.NotFound(id.ToString()));
 
             Expression<Func<Course, bool>> predicate = c =>
-                c.Enrollments.Any(s => s.Status == EnrollmentStatus.Approved && s.Student_id == id);
+                c.Enrollments.Any(s => s.Status == EnrollmentStatus.Approved && s.StudentId == id);
 
             var sortBy = request.SortBy?.ToLower();
             var order = request.Order?.ToLower();

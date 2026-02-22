@@ -28,17 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Admins\Mappings\" />
-    <Folder Include="Features\Admins\Queries\" />
     <Folder Include="Features\Auth\Commands\ForgetPassword\" />
-    <Folder Include="Features\Auth\Mappings\" />
-    <Folder Include="Features\Auth\Queries\" />
-    <Folder Include="Features\Courses\Mappings\" />
-    <Folder Include="Features\Instructors\Mappings\" />
-    <Folder Include="Features\Instructors\Queries\" />
     <Folder Include="Features\Sections\Mappings\" />
-    <Folder Include="Features\Students\Mappings\" />
-    <Folder Include="Features\Users\Mappings\" />
   </ItemGroup>
 
 </Project>

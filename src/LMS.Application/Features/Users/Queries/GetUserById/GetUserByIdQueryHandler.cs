@@ -1,8 +1,8 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.DTOs.Users;
-using LMS.Domain.Common.Errors;
+using LMS.Application.Features.Users.DTO;
 using LMS.Domain.Entities.Users;
+using LMS.Domain.Errors;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 

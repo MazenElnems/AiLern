@@ -1,13 +1,13 @@
 using AutoMapper;
 using LMS.Application.CurrentUser;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Common.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using LMS.Domain.Entities.Users;
+using LMS.Domain.Errors;
 
 namespace LMS.Application.Features.Students.Commands.CreateStudent;
 
