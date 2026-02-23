@@ -1,15 +1,15 @@
 ﻿using FluentValidation;
 using LMS.Application.Common.Validators;
 
-namespace LMS.Application.Features.Admins.Commands.CreateAdmin;
+namespace LMS.Application.Features.Instructors.Commands.CreateInstructor;
 
-public class CreateAdminCommandValidator : AbstractValidator<CreateAdminCommand>
+public class CreateInstructorCommandValidator : AbstractValidator<CreateInstructorCommand>
 {
-    public CreateAdminCommandValidator()
+    public CreateInstructorCommandValidator()
     {
         RuleFor(s => s.FullName)
-        .NotEmpty()
-        .WithMessage("Full name is required");
+            .NotEmpty()
+            .WithMessage("Full name is required");
 
         RuleFor(s => s.UserName)
             .NotEmpty()

@@ -135,6 +135,9 @@ public static class DomainErrors
         public static Error PasswordResetFailed =>
             Common.BusinessRule("Auth.PasswordResetFailed", "Can't reset the password, please try again.");
 
+        public static Error ChangePasswordFailed(string message) =>
+            Common.BusinessRule("Auth.ChangePasswordFailed", message);
+
         public static Error RefreshTokenNotFound(string token) =>
             Common.NotFound("RefreshToken", token);
     }

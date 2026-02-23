@@ -9,10 +9,13 @@ using LMS.Infrastructure.Jobs;
 using LMS.Infrastructure.Persistence;
 using LMS.Infrastructure.Persistence.Repositories;
 using LMS.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace LMS.Infrastructure;
 
@@ -26,14 +29,17 @@ public static class DependencyInjection
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IWasabiService, WasabiService>();
-        services.AddScoped<IMailSender,MailSender>();
+        services.AddScoped<IEmailSender,EmailSender>();
         services.AddScoped<IBunnyUrlSigner, BunnyUrlSigner>();
         services.AddScoped<IDbInitializer, DbInitializer>();
         services.AddScoped<ITokensService, TokensService>();
         services.AddScoped<IBackgroundService, HangfireJobService>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
         services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+        services.Configure<FrontEndSettings>(configuration.GetSection("FrontEndSettings"));
 
         // Hangfire
         services.AddHangfire(config => config
@@ -64,6 +70,32 @@ public static class DependencyInjection
             .AddRoles<IdentityRole<int>>()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
+
+        // JWT 
+        services.Configure<JwtOptions>(configuration.GetSection("JWT"));
+        services.Configure<RefreshTokenOptions>(configuration.GetSection("RefreshTokenOptions"));
+        var jwt = configuration.GetSection("JWT").Get<JwtOptions>();
+
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+            .AddJwtBearer(o =>
+            {
+                o.RequireHttpsMetadata = true;
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidIssuer = jwt?.Issuer,
+                    ValidAudience = jwt?.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt?.Key)),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
 
         // wasabi storage
         services.Configure<WasabiSettings>(configuration.GetSection("Wasabi"));

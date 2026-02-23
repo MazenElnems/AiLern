@@ -11,9 +11,11 @@ using LMS.Application.Features.Auth.Commands.PasswordResetEmail;
 using LMS.Application.Features.Admins.Commands.CreateAdmin;
 using LMS.Application.Features.Instructors.Commands.CreateInstructor;
 using LMS.Application.Features.Students.Commands.CreateStudent;
-using Microsoft.AspNetCore.Http;
 using Swashbuckle.AspNetCore.Annotations;
 using LMS.API.Models;
+using Microsoft.AspNetCore.Authorization;
+using LMS.Domain.Constants;
+using LMS.Application.Features.Auth.Commands.ChangePassword;
 
 namespace LMS.API.Controllers;
 
@@ -55,6 +57,7 @@ public class AuthController : ApiBaseController
     }
 
     [HttpPost("admin/register")]
+    [Authorize(Roles = UserRoles.Admin)]
     [SwaggerOperation(Summary = "Register admin", Description = "Creates a new admin account.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Admin registered successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -66,6 +69,7 @@ public class AuthController : ApiBaseController
     }
 
     [HttpPost("instructor/register")]
+    [Authorize(Roles = UserRoles.Admin)]
     [SwaggerOperation(Summary = "Register instructor", Description = "Creates a new instructor account.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Instructor registered successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -77,6 +81,7 @@ public class AuthController : ApiBaseController
     }
 
     [HttpPost("students/register")]
+    [Authorize(Roles = UserRoles.Admin)]
     [SwaggerOperation(Summary = "Register student", Description = "Creates a new student account.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Student registered successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -124,25 +129,37 @@ public class AuthController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpPost("send-password-reset-email")]
+    [HttpPost("forget-password")]
     [SwaggerOperation(Summary = "Send password reset email", Description = "Sends a password reset email to the user.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Password reset email sent.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "User not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> SendPasswordResetEmail(SendPasswordResetEmailCommand command)
+    public async Task<ActionResult<ApiResponse>> SendPasswordResetEmail(ForgetPasswordCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpPost("reset-password")]
+    [SwaggerOperation(Summary = "Reset password", Description = "Resets a user's password using a reset token.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Password Reseted successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request or token.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> ResetPassword(UserPasswordResetCommand command)
     {
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
 
     [HttpPost("change-password")]
-    [SwaggerOperation(Summary = "Change password", Description = "Resets a user's password using a reset token.")]
+    [SwaggerOperation(Summary = "Change password", Description = "Change password for logged-in users.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Password changed successfully.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request or token.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Email not found", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> ChangePassword(UserPasswordResetCommand command)
+    public async Task<ActionResult<ApiResponse>> ChangePassword(ChangePasswordCommand command)
     {
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);

@@ -1,0 +1,37 @@
+﻿using LMS.Application.Common.Results;
+using LMS.Domain.Entities.Users;
+using LMS.Domain.Errors;
+using LMS.Domain.Repositories;
+using MediatR;
+using Microsoft.AspNetCore.Identity;
+
+namespace LMS.Application.Features.Auth.Commands.ChangePassword;
+
+internal class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, Result>
+{
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public ChangePasswordCommandHandler(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork)
+    {
+        _userManager = userManager;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<Result> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+
+        if (user == null)
+            return DomainErrors.User.NotFound(request.Email);
+
+        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPasswor, request.NewPasswor);
+
+        if (!result.Succeeded)
+            return DomainErrors.Auth.ChangePasswordFailed(string.Join(", ", result.Errors.Select(err => err.Description)));
+
+        await _unitOfWork.Users.RevokeRefreshTokensByUserIdAsync(user.Id);
+
+        return Result.Success("changed password successfully");
+    }
+}

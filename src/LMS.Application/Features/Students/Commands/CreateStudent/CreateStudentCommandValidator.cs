@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using LMS.Application.Common.Validators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,9 @@ namespace LMS.Application.Features.Students.Commands.CreateStudent
                 .NotEmpty()
                 .Must(s => s > 0 && s.ToString().Length == 9)
                 .WithMessage("Student ID must be a 9-digit positive number.");
+
+            RuleFor(s => s.Password)
+                .MustBeValidPassword();
         }
     }
 }

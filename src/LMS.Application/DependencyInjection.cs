@@ -15,7 +15,6 @@ using LMS.Application.Features.Users.DTO;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Users;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -43,31 +42,6 @@ public static class DependencyInjection
         services
             .AddValidatorsFromAssemblyContaining<CreateStudentCommandValidator>();
 
-        // JWT 
-        services.Configure<JwtOptions>(configuration.GetSection("JWT"));
-        services.Configure<RefreshTokenOptions>(configuration.GetSection("RefreshTokenOptions"));
-        var jwt = configuration.GetSection("JWT").Get<JwtOptions>();
-
-        services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-            .AddJwtBearer(o =>
-            {
-                o.RequireHttpsMetadata = true;
-                o.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidIssuer = jwt?.Issuer,
-                    ValidAudience = jwt?.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt?.Key)),
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
 
         services.AddAutoMapper(cfg =>
         {

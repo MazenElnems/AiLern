@@ -1,13 +1,10 @@
 using LMS.Application.ConfigurationOptions;
 using LMS.Application.Common.Results.Generic;
 using LMS.Domain.Repositories;
-using LMS.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using LMS.Application.Features.Auth.Commands.Login;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
@@ -18,69 +15,57 @@ namespace LMS.Application.Features.Auth.Commands.RefreshTokens;
 
 public class GetRefreshTokenCommandHandler : IRequestHandler<GetRefreshTokenCommand, Result<GetTokenResponseDto>>
 {
-    private readonly ILogger<UserLoginByEmailAndPasswordCommandHandler> _logger;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly ITokensService _authService;
     private readonly RefreshTokenOptions _refreshToken;
+    private readonly JwtOptions _jwt;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IJwtTokenService _jwtTokenService;
 
-    public GetRefreshTokenCommandHandler(UserManager<ApplicationUser> userManager, ILogger<UserLoginByEmailAndPasswordCommandHandler> logger, ITokensService authService, IOptions<RefreshTokenOptions> refreshToken, IUnitOfWork unitOfWork)
+    public GetRefreshTokenCommandHandler(UserManager<ApplicationUser> userManager, ILogger<UserLoginByEmailAndPasswordCommandHandler> logger, ITokensService authService, IOptions<RefreshTokenOptions> refreshToken, IUnitOfWork unitOfWork, IRefreshTokenService refreshTokenService, IJwtTokenService jwtTokenService, IOptions<JwtOptions> jwt)
     {
-        _logger = logger;
-        _authService = authService;
         _refreshToken = refreshToken.Value;
         _unitOfWork = unitOfWork;
-        _userManager = userManager;
+        _refreshTokenService = refreshTokenService;
+        _jwtTokenService = jwtTokenService;
+        _jwt = jwt.Value;
     }
 
     public async Task<Result<GetTokenResponseDto>> Handle(GetRefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var oldRefreshToken = await _unitOfWork.Users.GetRefreshTokenAsync(request.RefreshToken, includeUser:true)
-            ;
+        var oldRefreshToken = await _unitOfWork.Users.GetRefreshTokenAsync(request.RefreshToken, includeUser:true);
+
         if (oldRefreshToken == null)
-            return Result<GetTokenResponseDto>.Failure(DomainErrors.Auth.RefreshTokenNotFound(request.RefreshToken));
+            return DomainErrors.Auth.RefreshTokenNotFound(request.RefreshToken);
+
+        // revoke old refresh token
+        oldRefreshToken.RevokesOn = DateTime.UtcNow;
 
         var user = oldRefreshToken.User;
 
-        var roles = await _userManager.GetRolesAsync(user);
-        var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role));
+        var accessTokenExpiration = DateTime.UtcNow.AddMinutes(_jwt.DurationInMinutes);
+        var accessToken = await _jwtTokenService.GenerateTokenAsync(user, accessTokenExpiration);
+        var newRefreshToken = _refreshTokenService.GenerateRefreshToken();
 
-        var claims = new List<Claim>()
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.UserName),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        }.Union(roleClaims).ToList();
-
-        var (accessToken, accessTokenExpiration) = _authService.GetAccessTokenAsync(claims);
-
-        oldRefreshToken.RevokesOn = DateTime.UtcNow;
-
-        var newRefreshToken = _authService.GetRefreshToken();
-
-        var refreshTokenEntity = new RefreshToken
+        await _unitOfWork.RefreshTokens.InsertAsync(new RefreshToken
         {
             Id = Guid.NewGuid(),
             Token = newRefreshToken,
             CreatedOn = DateTime.UtcNow,
             ExpiresOn = DateTime.UtcNow.AddDays(_refreshToken.DurationInDays),
             UserId = user.Id,
-        };
-
-        await _unitOfWork.RefreshTokens.InsertAsync(refreshTokenEntity);
+        });
         await _unitOfWork.CommitAsync();
 
         GetTokenResponseDto response = new GetTokenResponseDto
         {
-            UserName = user.UserName,
-            Email = user.Email,
+            UserName = user.UserName!,
+            Email = user.Email!,
             AccessToken = accessToken,
             ExpiresOn = accessTokenExpiration,
             RefreshToken = newRefreshToken,
-            Role = roles.FirstOrDefault() ?? "Student"
+            Role = user.Role
         };
 
-        return Result<GetTokenResponseDto>.Success(response);
+        return response;
     }
 }

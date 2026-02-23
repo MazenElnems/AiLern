@@ -4,8 +4,6 @@ using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
 using LMS.Domain.Interfaces;
@@ -16,30 +14,36 @@ namespace LMS.Application.Features.Auth.Commands.Login;
 public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLoginByEmailAndPasswordCommand, Result<GetTokenResponseDto>>
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly ITokensService _authService;
+    private readonly IJwtTokenService _jwtTokenService;
+    private readonly IRefreshTokenService _refreshTokenService;
     private readonly RefreshTokenOptions _refreshToken;
+    private readonly JwtOptions _jwt;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IMailSender _emailSender;
-    private readonly ApplicationDomain _applicationDomain;
+    private readonly IEmailSender _emailSender;
+    private readonly IBackgroundService _backgroundService;
 
-    public UserLoginByEmailAndPasswordCommandHandler(ITokensService authService,
+    public UserLoginByEmailAndPasswordCommandHandler(
         UserManager<ApplicationUser> userManager,
+        IOptions<JwtOptions> jwt,
         IOptions<RefreshTokenOptions> refreshToken,
-        IUnitOfWork unitOfWork, 
-        IMailSender emailSender,
-        IOptions<ApplicationDomain> applicationDomainOptions)
+        IUnitOfWork unitOfWork,
+        IEmailSender emailSender,
+        IBackgroundService backgroundService,
+        IJwtTokenService jwtTokenService,
+        IRefreshTokenService refreshTokenService)
     {
-        _authService = authService;
         _userManager = userManager;
         _refreshToken = refreshToken.Value;
+        _jwt = jwt.Value;
         _unitOfWork = unitOfWork;
         _emailSender = emailSender;
-        _applicationDomain = applicationDomainOptions.Value;
+        _backgroundService = backgroundService;
+        _jwtTokenService = jwtTokenService;
+        _refreshTokenService = refreshTokenService;
     }
 
     public async Task<Result<GetTokenResponseDto>> Handle(UserLoginByEmailAndPasswordCommand request, CancellationToken cancellationToken)
     {
-
         var user = await _userManager.FindByEmailAsync(request.Email);
 
         if (user == null)
@@ -48,55 +52,38 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
         if (!await _userManager.CheckPasswordAsync(user, request.Password))
             return Result<GetTokenResponseDto>.Failure(DomainErrors.Auth.InvalidCredentials);
 
-        // Is Email Confirmed 
-
         if (!user.EmailConfirmed)
         {
-            var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var template = await File.ReadAllTextAsync("EmailTemplates\\ConfirmationEmail.html");
-            var html = template
-                .Replace("{{ConfirmationLink}}", $"{_applicationDomain.Domain}/api/auth/email-confirm?token={emailConfirmationToken}&email={user.Email}");
-
-            await _emailSender.SendAsync(request.Email, "Email Confirmation", html);
-            return Result<GetTokenResponseDto>.Failure(DomainErrors.Auth.EmailNotConfirmed);
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            _backgroundService.Enqueue(() => _emailSender.SendConfirmationEmailAsync(user.Email!, user.FullName, token));
+            return DomainErrors.Auth.EmailNotConfirmed;
         }
 
-        var roles = await _userManager.GetRolesAsync(user);
-        var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role));
+        var accessTokenExpiration = DateTime.UtcNow.AddMinutes(_jwt.DurationInMinutes);
+        var accessToken = await _jwtTokenService.GenerateTokenAsync(user, accessTokenExpiration);
+        var refreshToken = _refreshTokenService.GenerateRefreshToken();
 
-        var claims = new List<Claim>()
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.UserName),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        }.Union(roleClaims).ToList();
-
-        var (accessToken, accessTokenExpiration) = _authService.GetAccessTokenAsync(claims);
-        var refreshToken = _authService.GetRefreshToken();
-
-        var refreshTokenEntity = new RefreshToken
+        await _unitOfWork.RefreshTokens.InsertAsync(new RefreshToken
         {
             Id = Guid.NewGuid(),
             Token = refreshToken,
             CreatedOn = DateTime.UtcNow,
             ExpiresOn = DateTime.UtcNow.AddDays(_refreshToken.DurationInDays),
             UserId = user.Id,
-        };
-
-        await _unitOfWork.RefreshTokens.InsertAsync(refreshTokenEntity);
+        });
         await _unitOfWork.CommitAsync();
 
         GetTokenResponseDto response = new GetTokenResponseDto
         {
-            UserName = user.UserName,
-            Email = user.Email,
+            UserName = user.UserName!,
+            Email = user.Email!,
             AccessToken = accessToken,
             ExpiresOn = accessTokenExpiration,
             RefreshToken = refreshToken,
-            Role = roles.FirstOrDefault()
+            Role = user.Role,
         };
 
         return Result<GetTokenResponseDto>.Success(response, "login successful");
     }
 }
+

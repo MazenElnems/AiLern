@@ -67,17 +67,19 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
                 message
             );
         }
-
-        response = (TResponse)typeof(Result<>)
-            .MakeGenericType(resultType.GenericTypeArguments[0])
-            .GetMethod("ValidationFailure")!
-            .Invoke(null,
-                [
-                    Error.Validation("Validation Errors", message),
-                    validationErrors,
-                    message
-                ]
-            )!;
+        else
+        {
+            response = (TResponse)typeof(Result<>)
+                .MakeGenericType(resultType.GenericTypeArguments[0])
+                .GetMethod("ValidationFailure")!
+                .Invoke(null,
+                    [
+                        Error.Validation("Validation Errors", message),
+                        validationErrors,
+                        message
+                    ]
+                )!;
+        }
 
         return response;
     }
