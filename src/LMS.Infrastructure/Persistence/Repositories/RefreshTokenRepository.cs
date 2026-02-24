@@ -14,6 +14,11 @@ internal class RefreshTokenRepository : BaseRepository<RefreshToken>, IRefreshTo
         _context = context;
     }
 
+    public async Task RemoveExpiredRefreshTokensAsync()
+    {
+        await _context.RefreshTokens.Where(x => x.ExpiresOn <= DateTime.UtcNow || x.RevokesOn != null).ExecuteDeleteAsync();
+    }
+
     public Task<RefreshToken?> GetRefreshTokenAsyn(string refreshToken)
     {
         return _context.RefreshTokens
