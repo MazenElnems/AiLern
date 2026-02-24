@@ -52,7 +52,8 @@ app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseHangfireDashboard();
+app.MapHangfireDashboard();
 app.MapControllers();
 
 app.Run();
