@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IBunnyUrlSigner, BunnyUrlSigner>();
         services.AddScoped<IDbInitializer, DbInitializer>();
         services.AddScoped<ITokensService, TokensService>();
+        services.AddScoped<IConfirmUploadedFilesJob,ConfirmUploadedFilesJob>();
         services.AddScoped<IBackgroundService, HangfireJobService>();
 
         services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));

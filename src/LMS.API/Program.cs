@@ -1,3 +1,4 @@
+using Hangfire;
 using LMS.API.Extensions;
 using LMS.API.Middleware;
 using LMS.Application;
@@ -36,7 +37,8 @@ app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseHangfireDashboard();
+app.MapHangfireDashboard();
 app.MapControllers();
 
 app.Run();

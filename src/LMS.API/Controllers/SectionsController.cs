@@ -43,13 +43,13 @@ public class SectionsController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpPost("{id}/confirm-upload")]
-    [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> ConfirmMaterialUpload(Guid id)
-    {
-        var result = await _mediator.Send(new ConfirmMaterialUploadCommand { SectionId = id });
-        return HandleResponse(this, result);
-    }
+    //[HttpPost("{id}/confirm-upload")]
+    //[Authorize(Roles = UserRoles.Instructor)]
+    //public async Task<ActionResult<ApiResponse>> ConfirmMaterialUpload(Guid id)
+    //{
+    //    var result = await _mediator.Send(new ConfirmMaterialUploadCommand { SectionId = id });
+    //    return HandleResponse(this, result);
+    //}
 
         [HttpPut("{id}")]
         [Authorize(Roles = UserRoles.Instructor)]
