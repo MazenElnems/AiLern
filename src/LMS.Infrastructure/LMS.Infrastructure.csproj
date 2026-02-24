@@ -25,8 +25,4 @@
     <ProjectReference Include="..\LMS.Application\LMS.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Identity\" />
-  </ItemGroup>
-
 </Project>

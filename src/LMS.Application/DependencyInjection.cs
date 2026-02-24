@@ -33,6 +33,9 @@ public static class DependencyInjection
         //MediatR
         services.AddMediatR(cfg => {
             cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+
+            // Pipline Behavior
+            cfg.AddOpenBehavior(typeof(ExceptionBehavior<,>));
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 
