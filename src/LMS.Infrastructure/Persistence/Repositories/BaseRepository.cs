@@ -140,6 +140,7 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
         return await query.AsNoTracking().ToListAsync();
     }
 
+
     public async Task<T?> GetAsync(Expression<Func<T, bool>> match)
         => await _dbSet.FirstOrDefaultAsync(match);
 

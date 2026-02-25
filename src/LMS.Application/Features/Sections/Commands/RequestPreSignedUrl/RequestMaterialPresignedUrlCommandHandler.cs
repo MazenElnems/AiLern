@@ -3,6 +3,7 @@ using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
+using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -15,13 +16,15 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IWasabiService _wasabiService;
+    private readonly IBackgroundService _backgroundService;
 
-    public RequestMaterialPresignedUrlCommandHandler(ILogger<RequestMaterialPresignedUrlCommandHandler> logger, IUnitOfWork unitOfWork, IUserContext userContext, IWasabiService wasabiService)
+    public RequestMaterialPresignedUrlCommandHandler(ILogger<RequestMaterialPresignedUrlCommandHandler> logger, IUnitOfWork unitOfWork, IUserContext userContext, IWasabiService wasabiService, IBackgroundService backgroundService)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _wasabiService = wasabiService;
+        _backgroundService = backgroundService;
     }
 
     public async Task<Result<List<string>>> Handle(RequestMaterialPresignedUrlCommand request, CancellationToken cancellationToken)
@@ -42,6 +45,7 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
                 return DomainErrors.Common.Forbidden("You do not have permission to request pre-signed URLs for this assignment.");
 
             List<string> response = new();
+            List<string> keys = new();
 
             var orderIndex = await _unitOfWork.MaterialFiles.GetMaxOrderIndexAsync(request.SectionId);
 
@@ -63,10 +67,15 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
                 });
 
                 response.Add(preSignedUrl);
+                keys.Add(key);
             }
 
             await _unitOfWork.CommitAsync();
 
+            _backgroundService.Schedule<IConfirmUploadedFilesJob>(
+                job => job.ExecuteAsync(keys),
+                TimeSpan.FromMinutes(2)
+            );
             return response;
             
         }

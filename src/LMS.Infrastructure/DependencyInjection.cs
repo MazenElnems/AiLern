@@ -33,6 +33,8 @@ public static class DependencyInjection
         services.AddScoped<IBunnyUrlSigner, BunnyUrlSigner>();
         services.AddScoped<IDbInitializer, DbInitializer>();
         services.AddScoped<ITokensService, TokensService>();
+        services.AddScoped<IConfirmUploadedFilesJob,ConfirmUploadedFilesJob>();
+        services.AddScoped<IRemoveExpiredRefreshTokensJob, RemoveExpiredRefreshTokensJob>();
         services.AddScoped<IBackgroundService, HangfireJobService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();

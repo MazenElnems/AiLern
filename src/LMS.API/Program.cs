@@ -1,7 +1,10 @@
+using Hangfire;
+using Hangfire.Common;
 using LMS.API.Extensions;
 using LMS.API.Middleware;
 using LMS.Application;
 using LMS.Infrastructure;
+using LMS.Infrastructure.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +20,17 @@ var app = builder.Build();
 
 await app.InitializeDatabaseAsync();
 
+using var scope = app.Services.CreateScope();
+
+// IRecurringJobManager
+var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+
+recurringJobManager.AddOrUpdate(
+    "remove-expired-refresh-tokens",
+    Job.FromExpression<RemoveExpiredRefreshTokensJob>(x => x.ExecuteAsync()),
+    Cron.Daily(2)
+);
+
 // Request Pipline
 
 app.UseGlobalExceptionHandler();
@@ -30,13 +44,16 @@ if (app.Environment.IsDevelopment())
 app.UseHsts();
 app.UseHttpsRedirection();
 
+
+
 app.UseRouting();
 
 app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseHangfireDashboard();
+app.MapHangfireDashboard();
 app.MapControllers();
 
 app.Run();
