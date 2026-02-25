@@ -50,7 +50,10 @@ public class QuestionEntityTypeConfiguration : IEntityTypeConfiguration<Question
             o.WithOwner(o => o.Question).HasForeignKey("QuestionId");
             
             o.HasKey(opt => new { opt.OptionNumber, opt.QuestionId });
-            
+
+            o.Property(opt => opt.OptionNumber)
+                .ValueGeneratedNever();
+
             o.Property(opt => opt.OptionText)
                 .HasColumnType("NVARCHAR(MAX)")
                 .IsRequired();
