@@ -21,7 +21,14 @@ public class GetRefreshTokenCommandHandler : IRequestHandler<GetRefreshTokenComm
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly IJwtTokenService _jwtTokenService;
 
-    public GetRefreshTokenCommandHandler(UserManager<ApplicationUser> userManager, ILogger<UserLoginByEmailAndPasswordCommandHandler> logger, ITokensService authService, IOptions<RefreshTokenOptions> refreshToken, IUnitOfWork unitOfWork, IRefreshTokenService refreshTokenService, IJwtTokenService jwtTokenService, IOptions<JwtOptions> jwt)
+    public GetRefreshTokenCommandHandler(
+        UserManager<ApplicationUser> userManager,
+        ILogger<UserLoginByEmailAndPasswordCommandHandler> logger,
+        IOptions<RefreshTokenOptions> refreshToken,
+        IUnitOfWork unitOfWork,
+        IRefreshTokenService refreshTokenService,
+        IJwtTokenService jwtTokenService,
+        IOptions<JwtOptions> jwt)
     {
         _refreshToken = refreshToken.Value;
         _unitOfWork = unitOfWork;

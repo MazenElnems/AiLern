@@ -4,7 +4,6 @@ using LMS.Application.ConfigurationOptions;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
-using LMS.Infrastructure.Identity;
 using LMS.Infrastructure.Jobs;
 using LMS.Infrastructure.Persistence;
 using LMS.Infrastructure.Persistence.Repositories;
@@ -32,10 +31,9 @@ public static class DependencyInjection
         services.AddScoped<IEmailSender,EmailSender>();
         services.AddScoped<IBunnyUrlSigner, BunnyUrlSigner>();
         services.AddScoped<IDbInitializer, DbInitializer>();
-        services.AddScoped<ITokensService, TokensService>();
         services.AddScoped<IConfirmUploadedFilesJob,ConfirmUploadedFilesJob>();
         services.AddScoped<IRemoveExpiredRefreshTokensJob, RemoveExpiredRefreshTokensJob>();
-        services.AddScoped<IBackgroundService, HangfireJobService>();
+        services.AddScoped<IBackgroundJobService, HangfireJobService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 

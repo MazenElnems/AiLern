@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace LMS.Infrastructure.Jobs;
 
-internal class HangfireJobService : IBackgroundService
+internal class HangfireJobService : IBackgroundJobService
 {
     public void Delete(string jobId)
         => BackgroundJob.Delete(jobId);

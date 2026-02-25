@@ -42,18 +42,21 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHsts();
+
 app.UseHttpsRedirection();
-
-
 
 app.UseRouting();
 
 app.UseCors();
 
 app.UseAuthentication();
+
 app.UseAuthorization();
+
 app.UseHangfireDashboard();
+
 app.MapHangfireDashboard();
+
 app.MapControllers();
 
 app.Run();

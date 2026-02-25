@@ -15,12 +15,12 @@ public class ForgetPasswordCommandHandler : IRequestHandler<ForgetPasswordComman
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailSender _emailSender;
-    private readonly IBackgroundService _backgroundService;
+    private readonly IBackgroundJobService _backgroundService;
 
     public ForgetPasswordCommandHandler(
         UserManager<ApplicationUser> userManager,
         IEmailSender emailSender,
-        IBackgroundService backgroundService)
+        IBackgroundJobService backgroundService)
     {
         _userManager = userManager;
         _emailSender = emailSender;

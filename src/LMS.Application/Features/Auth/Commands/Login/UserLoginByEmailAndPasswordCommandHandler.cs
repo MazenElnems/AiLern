@@ -20,7 +20,7 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
     private readonly JwtOptions _jwt;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailSender _emailSender;
-    private readonly IBackgroundService _backgroundService;
+    private readonly IBackgroundJobService _backgroundService;
 
     public UserLoginByEmailAndPasswordCommandHandler(
         UserManager<ApplicationUser> userManager,
@@ -28,7 +28,7 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
         IOptions<RefreshTokenOptions> refreshToken,
         IUnitOfWork unitOfWork,
         IEmailSender emailSender,
-        IBackgroundService backgroundService,
+        IBackgroundJobService backgroundService,
         IJwtTokenService jwtTokenService,
         IRefreshTokenService refreshTokenService)
     {

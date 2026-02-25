@@ -12,12 +12,12 @@ public class ResendEmailConfirmationCommandHandler : IRequestHandler<ResendEmail
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailSender _emailSender;
-    private readonly IBackgroundService _backgroundService;
+    private readonly IBackgroundJobService _backgroundService;
 
     public ResendEmailConfirmationCommandHandler(
         IEmailSender emailSender,
         UserManager<ApplicationUser> userManager,
-        IBackgroundService backgroundService)
+        IBackgroundJobService backgroundService)
     {
         _emailSender = emailSender;
         _userManager = userManager;

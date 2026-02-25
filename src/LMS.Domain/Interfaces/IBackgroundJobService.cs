@@ -2,7 +2,7 @@
 
 namespace LMS.Domain.Interfaces;
 
-public interface IBackgroundService
+public interface IBackgroundJobService
 {
     // Fire and Forget Jobs
     string Enqueue(Expression<Action> methodCall);

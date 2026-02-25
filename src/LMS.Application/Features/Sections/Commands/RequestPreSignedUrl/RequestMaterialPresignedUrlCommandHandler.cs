@@ -16,9 +16,9 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IWasabiService _wasabiService;
-    private readonly IBackgroundService _backgroundService;
+    private readonly IBackgroundJobService _backgroundService;
 
-    public RequestMaterialPresignedUrlCommandHandler(ILogger<RequestMaterialPresignedUrlCommandHandler> logger, IUnitOfWork unitOfWork, IUserContext userContext, IWasabiService wasabiService, IBackgroundService backgroundService)
+    public RequestMaterialPresignedUrlCommandHandler(ILogger<RequestMaterialPresignedUrlCommandHandler> logger, IUnitOfWork unitOfWork, IUserContext userContext, IWasabiService wasabiService, IBackgroundJobService backgroundService)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
