@@ -1,5 +1,6 @@
-﻿using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Entities.Courses;
+using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Entities.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -21,6 +22,8 @@ namespace LMS.Infrastructure.Persistence
         public DbSet<AssignmentSubmissionFile> AssignmentSubmissionFiles { get; set; }
         public DbSet<Section> Sections { get; set; }
         public DbSet<MaterialFile> MaterialFiles { get; set; }
+        public DbSet<Quiz> Quizzes { get; set; }
+        public DbSet<Question> Questions { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options):
             base(options)

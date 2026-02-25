@@ -1,4 +1,5 @@
 ﻿using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Enums;
 
@@ -18,7 +19,8 @@ public class Course
 
     // Navigation Properities
     public Instructor Instructor { get; set; }
-    public List<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
-    public List<Assignment> Assignments { get; set; } = new List<Assignment>();
-    public List<Section> Sections { get; set; } = new List<Section>();
+    public List<Enrollment> Enrollments { get; set; } = new();
+    public List<Assignment> Assignments { get; set; } = new();
+    public List<Section> Sections { get; set; } = new();
+    public List<Quiz> Quizzes { get; set; } = new();
 }
