@@ -10,6 +10,4 @@ public class SectionProfile : Profile
     {
         CreateMap<SectionCreateCommand, Section>();
     }
-
-
 }

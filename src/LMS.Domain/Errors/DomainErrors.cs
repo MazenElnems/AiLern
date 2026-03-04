@@ -26,7 +26,7 @@ public static class DomainErrors
             Common.NotFound("Course", id.ToString());
 
         public static Error NotApproved =>
-            Common.BusinessRule("Course.NotApproved", "Cannot enroll in a course that is not approved.");
+            Common.Forbidden("You cannot perform this action because the course has not been approved.");
 
         public static Error NotOwned =>
             Common.Forbidden("You do not have permission to access this course.");
