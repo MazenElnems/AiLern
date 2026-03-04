@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace LMS.Application.Features.Quizzes.Mappings
 {
-    public class QuizProfile : Profile
+public class QuizProfile : Profile
+{
+    public QuizProfile()
     {
-        public QuizProfile()
-        {
             CreateMap<CreateQuizCommand, Quiz>();
-            CreateMap<Quiz, QuizDto>();
-        }
+        CreateMap<Quiz, QuizDto>();
     }
+}
 }

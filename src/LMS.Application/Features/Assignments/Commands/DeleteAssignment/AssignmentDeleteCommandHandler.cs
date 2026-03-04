@@ -33,7 +33,7 @@ public class AssignmentDeleteCommandHandler : IRequestHandler<AssignmentDeleteCo
             return Result.Failure(DomainErrors.Assignment.NotFound(request.Id));
 
         var userId = _userContext.GetCurrentUser().Id;
-        if (assignment.Course.InstructorId != userId)
+        if (assignment.Course.InstructorId != userId)   
             return Result.Failure(DomainErrors.Common.Forbidden("You do not have permission to delete this assignment."));
 
         var filePaths = assignment.Files.Select(f => f.StoragePath);
