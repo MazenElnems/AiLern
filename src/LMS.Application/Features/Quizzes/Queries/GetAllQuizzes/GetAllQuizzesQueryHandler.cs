@@ -12,7 +12,7 @@ using System.Linq.Expressions;
 
 namespace LMS.Application.Features.Quizzes.Queries.GetAllQuizzes
 {
-    public class GetAllQuizzesQueryHandler : IRequestHandler<GetAllQuizzesByCourseIdQuery, Result<PaginationResult<QuizDto>>>
+    public class GetAllQuizzesQueryHandler : IRequestHandler<GetAllQuizzesByCourseIdQuery, Result<PaginationResult<GetAllQuizDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<GetAllQuizzesQueryHandler> _logger;
@@ -25,10 +25,10 @@ namespace LMS.Application.Features.Quizzes.Queries.GetAllQuizzes
             _mapper = mapper;
         }
 
-        public async Task<Result<PaginationResult<QuizDto>>> Handle(GetAllQuizzesByCourseIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PaginationResult<GetAllQuizDto>>> Handle(GetAllQuizzesByCourseIdQuery request, CancellationToken cancellationToken)
         {
             if (request.PageNumber < 1 || request.PageSize < 1)
-                return Result<PaginationResult<QuizDto>>.Failure(DomainErrors.Pagination.InvalidParameters);
+                return Result<PaginationResult<GetAllQuizDto>>.Failure(DomainErrors.Pagination.InvalidParameters);
 
             try
             {
@@ -51,8 +51,8 @@ namespace LMS.Application.Features.Quizzes.Queries.GetAllQuizzes
 
                 if (totalResult == 0)
                 {
-                    var emptyResult = new PaginationResult<QuizDto>(request.PageNumber, request.PageSize, 0, new List<QuizDto>());
-                    return Result<PaginationResult<QuizDto>>.Success(emptyResult);
+                    var emptyResult = new PaginationResult<GetAllQuizDto>(request.PageNumber, request.PageSize, 0, new List<GetAllQuizDto>());
+                    return Result<PaginationResult<GetAllQuizDto>>.Success(emptyResult);
                 }
 
                 var quizzes = await _unitOfWork.Quizzes.FilterAsync(
@@ -62,9 +62,9 @@ namespace LMS.Application.Features.Quizzes.Queries.GetAllQuizzes
                     (request.PageNumber - 1) * request.PageSize,
                     request.PageSize);
 
-                var dto = _mapper.Map<List<QuizDto>>(quizzes);
-                return Result<PaginationResult<QuizDto>>.Success(
-                    new PaginationResult<QuizDto>(request.PageNumber, request.PageSize, totalResult, dto));
+                var dto = _mapper.Map<List<GetAllQuizDto>>(quizzes);
+                return Result<PaginationResult<GetAllQuizDto>>.Success(
+                    new PaginationResult<GetAllQuizDto>(request.PageNumber, request.PageSize, totalResult, dto));
             }
             catch (Exception ex)
             {

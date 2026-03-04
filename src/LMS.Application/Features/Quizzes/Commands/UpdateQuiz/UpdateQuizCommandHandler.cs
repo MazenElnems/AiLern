@@ -9,7 +9,7 @@ using MediatR;
 
 namespace LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
 
-public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Result<QuizDto>>
+public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Result<GetAllQuizDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
@@ -22,7 +22,7 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
         _mapper = mapper;
     }
 
-    public async Task<Result<QuizDto>> Handle(UpdateQuizCommand request, CancellationToken cancellationToken)
+    public async Task<Result<GetAllQuizDto>> Handle(UpdateQuizCommand request, CancellationToken cancellationToken)
     {
         var userId = _userContext.GetCurrentUser().Id;
         var quiz = await _unitOfWork.Quizzes.GetAsync(a => a.Id == request.Id,
@@ -51,9 +51,9 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
             return DomainErrors.Quiz.AlreadyPublished;
         }
 
-        var dto = _mapper.Map<QuizDto>(quiz);
+        var dto = _mapper.Map<GetAllQuizDto>(quiz);
         await _unitOfWork.CommitAsync();
-        return Result<QuizDto>.Success(dto, "quiz updated successfully.");
+        return Result<GetAllQuizDto>.Success(dto, "quiz updated successfully.");
 
     }
 }

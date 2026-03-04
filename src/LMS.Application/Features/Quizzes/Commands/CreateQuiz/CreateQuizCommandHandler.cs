@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace LMS.Application.Features.Quizzes.Commands.CreateQuiz
 {
-    public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Result<QuizDto>>
+    public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Result<GetAllQuizDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserContext _userContext;
@@ -29,7 +29,7 @@ namespace LMS.Application.Features.Quizzes.Commands.CreateQuiz
             _mapper = mapper;
         }
 
-        public async Task<Result<QuizDto>> Handle(CreateQuizCommand request, CancellationToken cancellationToken)
+        public async Task<Result<GetAllQuizDto>> Handle(CreateQuizCommand request, CancellationToken cancellationToken)
         {
             var user = _userContext.GetCurrentUser();
             var course = await _unitOfWork.Courses.GetByIdAsync(request.CourseId);
@@ -54,9 +54,9 @@ namespace LMS.Application.Features.Quizzes.Commands.CreateQuiz
             await _unitOfWork.Quizzes.InsertAsync(quiz);
             await _unitOfWork.CommitAsync();
 
-            var quizDto = _mapper.Map<QuizDto>(quiz);
+            var quizDto = _mapper.Map<GetAllQuizDto>(quiz);
 
-            return Result<QuizDto>.Success(quizDto, "The quiz was created successfully.");
+            return Result<GetAllQuizDto>.Success(quizDto, "The quiz was created successfully.");
         }
     }
 }

@@ -15,7 +15,7 @@ public class QuizProfile : Profile
     public QuizProfile()
     {
             CreateMap<CreateQuizCommand, Quiz>();
-        CreateMap<Quiz, QuizDto>();
+            CreateMap<Quiz, GetAllQuizDto>();
     }
 }
 }

@@ -23,6 +23,14 @@ namespace LMS.API.Controllers
         {
             _mediator = mediator;
         }
+
+        [HttpPost]
+        public async Task<ActionResult<ApiResponse>> Create(CreateQuizCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return HandleResponse(this, result);
+        }
+
         [HttpPut("{id}")]
         [Authorize(Roles = UserRoles.Instructor)]
         [SwaggerOperation(Summary = "Update quiz", Description = "Updates an existing quiz.")]
@@ -32,14 +40,13 @@ namespace LMS.API.Controllers
         [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Assignment not found.", typeof(ApiResponse))]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-        public async Task<ActionResult<ApiResponse>> Update(Guid id,UpdateQuizCommand command)
-        [HttpPost]
-        public async Task<ActionResult<ApiResponse>> Create(CreateQuizCommand command)
+        public async Task<ActionResult<ApiResponse>> Update(Guid id, UpdateQuizCommand command)
         {
             command.Id = id;
             var result = await _mediator.Send(command);
             return HandleResponse(this, result);
         }
+
         [HttpDelete("{id}")]
         [Authorize(Roles = UserRoles.Instructor)]
         [SwaggerOperation(Summary = "Delete quiz", Description = "Deletes an quiz.")]
@@ -50,11 +57,14 @@ namespace LMS.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "Assignment not found.", typeof(ApiResponse))]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
         public async Task<ActionResult<ApiResponse>> Delete(Guid id)
+        {
+            var result = await _mediator.Send(new DeleteQuizCommand(id));
+            return HandleResponse(this, result);
+        }
 
         [HttpGet("courses/{courseId}/quizzes")]
         public async Task<ActionResult<ApiResponse>> GetAllQuizzesByCourseId(int courseId,[FromQuery] GetAllQuizzesByCourseIdQuery query)
         {
-            var result = await _mediator.Send(new DeleteQuizCommand(id));
             query.CourseId = courseId;
             var result = await _mediator.Send(query);
             return HandleResponse(this, result);

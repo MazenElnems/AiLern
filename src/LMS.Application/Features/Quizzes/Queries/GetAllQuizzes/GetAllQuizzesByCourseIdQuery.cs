@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace LMS.Application.Features.Quizzes.Queries.GetAllQuizzes
 {
-    public class GetAllQuizzesByCourseIdQuery : BasePaginatedQuery , IRequest<Result<PaginationResult<QuizDto>>>
+    public class GetAllQuizzesByCourseIdQuery : BasePaginatedQuery , IRequest<Result<PaginationResult<GetAllQuizDto>>>
     {
         [BindNever]
         public int CourseId { get; set; } 

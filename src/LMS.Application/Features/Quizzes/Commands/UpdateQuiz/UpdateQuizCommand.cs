@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
 
-public class UpdateQuizCommand : IRequest<Result<QuizDto>>
+public class UpdateQuizCommand : IRequest<Result<GetAllQuizDto>>
 {
     [JsonIgnore]
     public Guid Id { get; set; }
