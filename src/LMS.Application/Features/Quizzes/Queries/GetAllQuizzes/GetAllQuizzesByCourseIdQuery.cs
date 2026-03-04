@@ -3,7 +3,7 @@ using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.Features.Courses.DTO;
-using LMS.Application.Features.Quizzes.DTO;
+using LMS.Application.Features.Quizzes.Shared.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;

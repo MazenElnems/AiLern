@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.Features.Quizzes.DTO;
+using LMS.Application.Features.Quizzes.Shared.DTO;
 using LMS.Domain.Constants;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Errors;

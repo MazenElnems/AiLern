@@ -1,5 +1,5 @@
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.Features.Auth.DTO;
+using LMS.Application.Features.Auth.Shared.DTO;
 using MediatR;
 
 namespace LMS.Application.Features.Auth.Commands.Login;

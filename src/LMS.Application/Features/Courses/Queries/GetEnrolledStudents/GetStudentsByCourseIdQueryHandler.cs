@@ -4,7 +4,7 @@ using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using LMS.Domain.Errors;
-using LMS.Application.Features.Students.DTO;
+using LMS.Application.Features.Students.Shared.DTO;
 
 namespace LMS.Application.Features.Courses.Queries.GetEnrolledStudents;
 

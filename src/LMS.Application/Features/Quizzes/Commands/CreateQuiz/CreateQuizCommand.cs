@@ -1,5 +1,5 @@
 ﻿using LMS.Application.Common.Results.Generic;
-using LMS.Application.Features.Quizzes.DTO;
+using LMS.Application.Features.Quizzes.Shared.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using System;

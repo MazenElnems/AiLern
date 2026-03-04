@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Sections\Mappings\" />
+    <Folder Include="Features\Sections\Shared\Mappings\" />
   </ItemGroup>
 
 </Project>

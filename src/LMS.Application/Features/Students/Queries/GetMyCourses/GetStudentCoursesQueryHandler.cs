@@ -11,7 +11,7 @@ using LMS.Domain.Entities.Users;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
-using LMS.Application.Features.Courses.DTO;
+using LMS.Application.Features.Courses.Shared.DTO;
 
 namespace LMS.Application.Features.Students.Queries.GetMyCourses;
 

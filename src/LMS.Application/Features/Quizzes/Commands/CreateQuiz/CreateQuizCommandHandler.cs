@@ -2,7 +2,7 @@
 using LMS.Application.Common.Results;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
-using LMS.Application.Features.Quizzes.DTO;
+using LMS.Application.Features.Quizzes.Shared.DTO;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;

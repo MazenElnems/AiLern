@@ -9,7 +9,7 @@ using LMS.Application.ConfigurationOptions;
 using Microsoft.Extensions.Options;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Errors;
-using LMS.Application.Features.Assignments.DTO;
+using LMS.Application.Features.Assignments.Shared.DTO;
 
 namespace LMS.Application.Features.Assignments.Queries.GetAssignment;
 

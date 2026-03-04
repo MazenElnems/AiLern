@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
 using LMS.Domain.Interfaces;
-using LMS.Application.Features.Auth.DTO;
+using LMS.Application.Features.Auth.Shared.DTO;
 
 namespace LMS.Application.Features.Auth.Commands.Login;
 

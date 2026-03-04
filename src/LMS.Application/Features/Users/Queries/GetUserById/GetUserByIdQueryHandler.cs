@@ -1,6 +1,6 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.Features.Users.DTO;
+using LMS.Application.Features.Users.Shared.DTO;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
 using MediatR;
