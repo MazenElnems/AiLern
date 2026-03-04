@@ -42,20 +42,20 @@ public class AssignmentsController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpPost("confirm-upload")]
-    [Authorize(Roles = UserRoles.Instructor)]
-    [SwaggerOperation(Summary = "Confirm assignment upload", Description = "Confirms uploaded assignment files and finalizes the assignment.")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Assignment upload confirmed.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status404NotFound, "Assignment not found.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> ConfirmAssignmentUpload(ConfirmAssignmentUploadCommand command)
-    {
-        var result = await _mediator.Send(command);
-        return HandleResponse(this, result);
-    }
+    //[HttpPost("confirm-upload")]
+    //[Authorize(Roles = UserRoles.Instructor)]
+    //[SwaggerOperation(Summary = "Confirm assignment upload", Description = "Confirms uploaded assignment files and finalizes the assignment.")]
+    //[SwaggerResponse(StatusCodes.Status200OK, "Assignment upload confirmed.", typeof(ApiResponse))]
+    //[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    //[SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    //[SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    //[SwaggerResponse(StatusCodes.Status404NotFound, "Assignment not found.", typeof(ApiResponse))]
+    //[SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    //public async Task<ActionResult<ApiResponse>> ConfirmAssignmentUpload(ConfirmAssignmentUploadCommand command)
+    //{
+    //    var result = await _mediator.Send(command);
+    //    return HandleResponse(this, result);
+    //}
 
     [HttpPut("{id}")]
     [Authorize(Roles = UserRoles.Instructor)]

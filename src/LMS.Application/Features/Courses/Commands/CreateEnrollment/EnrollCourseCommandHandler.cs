@@ -28,13 +28,13 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand, R
 
         var course = await _unitOfWork.Courses.GetByIdAsync(request.CourseId);
         if (course == null)
-            return Result.Failure(DomainErrors.Course.NotFound(request.CourseId));
+            return DomainErrors.Course.NotFound(request.CourseId);
 
         if(course.CourseStatus != CourseStatus.Approved)
-            return Result.Failure(DomainErrors.Course.NotApproved);
+            return DomainErrors.Course.NotApproved;
         
         if(await _unitOfWork.Enrollments.GetEnrollmentByIdAsync(currentStudentId, request.CourseId) != null)
-            return Result.Failure(DomainErrors.Course.AlreadyEnrolled);
+            return DomainErrors.Course.AlreadyEnrolled;
 
         var enrollment = new Enrollment
         {
