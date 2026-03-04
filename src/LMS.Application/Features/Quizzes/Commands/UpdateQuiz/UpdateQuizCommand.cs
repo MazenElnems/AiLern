@@ -1,5 +1,4 @@
 ﻿using LMS.Application.Common.Results.Generic;
-using LMS.Application.Features.Assignments.DTO;
 using LMS.Application.Features.Quizzes.Shared.DTO;
 using MediatR;
 using System.Text.Json.Serialization;
@@ -20,8 +19,4 @@ public class UpdateQuizCommand : IRequest<Result<GetAllQuizDto>>
     public bool ShuffleOptions { get; set; }
     public int MaximumAttempts { get; set; }
     public int TotalPoints { get; set; }
-    
-
-
 }
-

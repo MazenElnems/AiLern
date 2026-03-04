@@ -33,23 +33,23 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
             return DomainErrors.Course.NotOwned;
         quiz.Title = request.Title;
         quiz.Description = request.Description;
-        if (quiz.IsPublished == false)
-        {
-            if (request.AvailableUntil <= request.AvailableFrom)
-                return DomainErrors.Quiz.InvalidAvailabilityRange;
-            quiz.AvailableFrom = request.AvailableFrom;
-            quiz.AvailableUntil = request.AvailableUntil;
-            quiz.ShowCorrectAnswersAfterClose = request.ShowCorrectAnswersAfterClose;
-            quiz.IsPublished = request.IsPublished;
-            quiz.ShuffleQuestions = request.ShuffleQuestions;
-            quiz.ShuffleOptions = request.ShuffleOptions;
-            quiz.MaximumAttempts = request.MaximumAttempts;
-            quiz.TotalPoints = request.TotalPoints;
-        }
-        else
-        {
-            return DomainErrors.Quiz.AlreadyPublished;
-        }
+        //if (quiz.IsPublished == false)
+        //{
+        //    if (request.AvailableUntil <= request.AvailableFrom)
+        //        return DomainErrors.Quiz.InvalidAvailabilityRange;
+        //    quiz.AvailableFrom = request.AvailableFrom;
+        //    quiz.AvailableUntil = request.AvailableUntil;
+        //    quiz.ShowCorrectAnswersAfterClose = request.ShowCorrectAnswersAfterClose;
+        //    quiz.IsPublished = request.IsPublished;
+        //    quiz.ShuffleQuestions = request.ShuffleQuestions;
+        //    quiz.ShuffleOptions = request.ShuffleOptions;
+        //    quiz.MaximumAttempts = request.MaximumAttempts;
+        //    quiz.TotalPoints = request.TotalPoints;
+        //}
+        //else
+        //{
+        //    return DomainErrors.Quiz.AlreadyPublished;
+        //}
 
         var dto = _mapper.Map<GetAllQuizDto>(quiz);
         await _unitOfWork.CommitAsync();

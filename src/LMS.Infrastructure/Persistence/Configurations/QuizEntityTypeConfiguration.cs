@@ -17,7 +17,7 @@ public class QuizEntityTypeConfiguration : IEntityTypeConfiguration<Quiz>
             .IsRequired();
 
         builder.Property(q => q.Description)
-            .HasColumnType("NVARCHAR(MAX)")
+            .HasColumnType("NVARCHAR(2000)")
             .IsRequired();
 
         builder.Property(q => q.AvailableFrom)
@@ -28,15 +28,11 @@ public class QuizEntityTypeConfiguration : IEntityTypeConfiguration<Quiz>
             .HasColumnType("DATETIME2")
             .IsRequired();
 
-        builder.Property(q => q.IsPublished)
-            .HasColumnType("BIT")
-            .IsRequired();
-
         builder.Property(q => q.MaximumAttempts)
             .HasColumnType("INT")
             .IsRequired();
 
-        builder.Property(q => q.ShowCorrectAnswersAfterClose)
+        builder.Property(q => q.ShowResultOnClose)
             .HasColumnType("BIT")
             .IsRequired();
 
@@ -48,8 +44,9 @@ public class QuizEntityTypeConfiguration : IEntityTypeConfiguration<Quiz>
             .HasColumnType("DATETIME2")
             .IsRequired(false);
 
-        builder.Property(q => q.TotalPoints)
-            .HasColumnType("FLOAT")
+        builder.Property(q => q.Status)
+            .HasConversion<string>()
+            .HasColumnType("VARCHAR(10)")
             .IsRequired();
 
         builder.HasOne(q => q.Course)

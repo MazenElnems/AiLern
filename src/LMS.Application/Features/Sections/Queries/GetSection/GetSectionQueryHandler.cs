@@ -2,7 +2,6 @@
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.ConfigurationOptions;
 using LMS.Application.CurrentUser;
-using LMS.Application.Features.Sections.DTO;
 using LMS.Application.Features.Sections.Shared.DTO;
 using LMS.Domain.Constants;
 using LMS.Domain.Entities.Courses;

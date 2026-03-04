@@ -1,4 +1,5 @@
 using LMS.Domain.Entities.Courses;
+using LMS.Domain.Enums;
 
 namespace LMS.Domain.Entities.Quizzes;
 
@@ -9,12 +10,12 @@ public class Quiz
     public string Description { get; set; }
     public DateTime AvailableFrom { get; set; }
     public DateTime AvailableUntil { get; set; }
-    public bool IsPublished { get; set; }
     public int MaximumAttempts { get; set; }
-    public bool ShowCorrectAnswersAfterClose { get; set; }
-    public double TotalPoints { get; set; }
+    public bool ShowResultOnClose { get; set; }
+    public double TotalPoints => Questions.Sum(q => q.Mark);
     public bool ShuffleQuestions { get; set; }
     public bool ShuffleOptions { get; set; }
+    public QuizStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 
