@@ -40,21 +40,21 @@ public class AssignmentSubmissionsController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpPost("{id}/confirm-upload")]
-    [Authorize(Roles = UserRoles.Student)]
-    [SwaggerOperation(Summary = "Confirm submission upload", Description = "Confirms uploaded submission files.")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Submission upload confirmed.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status404NotFound, "Submission not found.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> ConfirmSubmissionUploadAsync(int id)
-    {
-        var result = await _mediator.Send(new ConfirmSubmissionUploadCommand { SubmissionId = id });
-        return HandleResponse(this, result);
+    //[HttpPost("{id}/confirm-upload")]
+    //[Authorize(Roles = UserRoles.Student)]
+    //[SwaggerOperation(Summary = "Confirm submission upload", Description = "Confirms uploaded submission files.")]
+    //[SwaggerResponse(StatusCodes.Status200OK, "Submission upload confirmed.", typeof(ApiResponse))]
+    //[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    //[SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    //[SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    //[SwaggerResponse(StatusCodes.Status404NotFound, "Submission not found.", typeof(ApiResponse))]
+    //[SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    //public async Task<ActionResult<ApiResponse>> ConfirmSubmissionUploadAsync(int id)
+    //{
+    //    var result = await _mediator.Send(new ConfirmSubmissionUploadCommand { SubmissionId = id });
+    //    return HandleResponse(this, result);
 
-    }
+    //}
 
     [HttpDelete("{id}")]
     [Authorize(Roles = UserRoles.Student)]

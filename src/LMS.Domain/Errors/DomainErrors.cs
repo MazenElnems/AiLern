@@ -64,6 +64,27 @@ public static class DomainErrors
         public static Error InValidDueDate =>
             Common.BusinessRule("Assignment.InValidDueDate", "Due date cannot be earlier than the current date.");
     }
+    public static class Quiz
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Quiz", id.ToString());
+
+        public static Error NotOwned =>
+            Common.Forbidden("You do not have permission to access this quiz.");
+
+        public static Error NotPublished =>
+            Common.BusinessRule("Quiz.NotPublished", "Quiz is not published.");
+
+        public static Error InValidDueDate =>
+            Common.BusinessRule("Quiz.InValidDueDate", "Due date cannot be earlier than the current date.");
+        public static Error AlreadyPublished =>
+            Common.BusinessRule("Quiz.AlreadyPublished", "Quiz is already published and cannot be modified.");
+        public static Error InvalidAvailabilityRange =>
+            Common.BusinessRule(
+                "Quiz.InvalidAvailabilityRange",
+                "AvailableUntil must be later than AvailableFrom."
+            );
+    }
 
     public static class AssignmentFile
     {

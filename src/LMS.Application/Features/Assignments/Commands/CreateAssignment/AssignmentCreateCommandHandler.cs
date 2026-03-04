@@ -1,12 +1,14 @@
 using AutoMapper;
-using LMS.Application.CurrentUser;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Repositories;
-using MediatR;
+using LMS.Application.CurrentUser;
+using LMS.Application.Features.Assignments.DTO;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
-using LMS.Application.Features.Assignments.DTO;
+using LMS.Domain.Interfaces;
+using LMS.Domain.Repositories;
+using MediatR;
+using Microsoft.Extensions.Hosting;
 
 namespace LMS.Application.Features.Assignments.Commands.CreateAssignment;
 
@@ -16,13 +18,15 @@ public class AssignmentCreateCommandHandler : IRequestHandler<AssignmentCreateCo
     private readonly IUserContext _userContext;
     private readonly IMapper _mapper;
     private readonly IWasabiService _wasabiService;
+    private readonly IBackgroundJobService _backgroundService;
 
-    public AssignmentCreateCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, IWasabiService wasabiService)
+    public AssignmentCreateCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, IWasabiService wasabiService, IBackgroundJobService backgroundService)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _mapper = mapper;
         _wasabiService = wasabiService;
+        _backgroundService = backgroundService;
     }
 
     public async Task<Result<AssignmentDto>> Handle(AssignmentCreateCommand request, CancellationToken cancellationToken)
@@ -44,7 +48,7 @@ public class AssignmentCreateCommandHandler : IRequestHandler<AssignmentCreateCo
         await _unitOfWork.CommitAsync();
 
         var dto = _mapper.Map<AssignmentDto>(assignment);
-
+        List<string> keys = new();
         if (request.UploadedFileMetaData is not null)
         {
             foreach (var file in request.UploadedFileMetaData)
@@ -61,8 +65,14 @@ public class AssignmentCreateCommandHandler : IRequestHandler<AssignmentCreateCo
                     StoragePath = key,
                     UploadStatus = UploadStatus.Pending,
                 });
+                keys.Add(key);
             }
         }
+
+            _backgroundService.Schedule<IConfirmUploadedFilesJob>(
+        job => job.ExecuteAsync(keys),
+        TimeSpan.FromMinutes(2)
+);
 
         await _unitOfWork.CommitAsync();
 

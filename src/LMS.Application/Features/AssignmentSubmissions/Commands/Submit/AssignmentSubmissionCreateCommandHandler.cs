@@ -1,13 +1,15 @@
 using AutoMapper;
-using LMS.Application.CurrentUser;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Repositories;
-using MediatR;
-using LMS.Domain.Entities.Courses;
+using LMS.Application.CurrentUser;
+using LMS.Application.Features.AssignmentSubmissions.DTO;
 using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Entities.Courses;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
-using LMS.Application.Features.AssignmentSubmissions.DTO;
+using LMS.Domain.Interfaces;
+using LMS.Domain.Repositories;
+using MediatR;
+using Microsoft.Extensions.Hosting;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Commands.Submit;
 
@@ -17,13 +19,15 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IWasabiService _wasabiService;
+    private readonly IBackgroundJobService _backgroundService;
 
-    public AssignmentSubmissionCreateCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IMapper mapper, IWasabiService wasabiService)
+    public AssignmentSubmissionCreateCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IMapper mapper, IWasabiService wasabiService, IBackgroundJobService backgroundService)
     {
         _userContext = userContext;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _wasabiService = wasabiService;
+        _backgroundService = backgroundService;
     }
 
     public async Task<Result<AssignmentSubmissionDto>> Handle(AssignmentSubmissionCreateCommand request, CancellationToken cancellationToken)
@@ -62,6 +66,7 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
 
 
         List<string> fileUrls = new();
+        List<string> keys = new();
         foreach (var file in request.FileMetaData)
         {
             var key = $"courses/{course.Name}/assignments/{assignment.Id}/submissions/{submission.Id}/{file.FileName}";
@@ -75,10 +80,15 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
                 FileType = file.ContentType,
                 UploadStatus = UploadStatus.Pending
             });
+            keys.Add(key);
         }
 
         await _unitOfWork.CommitAsync();
-        
+                _backgroundService.Schedule<IConfirmUploadedFilesJob>(
+            job => job.ExecuteAsync(keys),
+            TimeSpan.FromMinutes(2)
+            );
+
         var dto = _mapper.Map<AssignmentSubmissionDto>(submission);
         dto.UploadFilesUrls = fileUrls;
 

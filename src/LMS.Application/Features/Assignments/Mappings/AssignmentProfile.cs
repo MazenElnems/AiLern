@@ -18,4 +18,6 @@ public class AssignmentProfile : Profile
             .ForMember(dto => dto.IsSubmitted, opt => opt.MapFrom(src => src.Submissions.Any()))
             .ForMember(dto => dto.SubmissionDate, opt => opt.MapFrom(src => src.Submissions.Any() ? src.Submissions.First().SubmissionDate : default));
     }
+
+
 }
