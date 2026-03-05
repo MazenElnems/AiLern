@@ -18,7 +18,7 @@ public class QuizEntityTypeConfiguration : IEntityTypeConfiguration<Quiz>
 
         builder.Property(q => q.Description)
             .HasColumnType("NVARCHAR(2000)")
-            .IsRequired();
+            .IsRequired(false);
 
         builder.Property(q => q.AvailableFrom)
             .HasColumnType("DATETIME2")

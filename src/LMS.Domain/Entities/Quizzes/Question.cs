@@ -9,8 +9,8 @@ public class Question
     public QuestionType Type { get; set; }
     public double Mark { get; set; }
     public int Order { get; set; }
-    public string Instructions { get; set; }
-    public string Explanation { get; set; } 
+    public string? Instructions { get; set; }
+    public string? Explanation { get; set; } 
 
     // Foreign Keys
     public Guid QuizId { get; set; }

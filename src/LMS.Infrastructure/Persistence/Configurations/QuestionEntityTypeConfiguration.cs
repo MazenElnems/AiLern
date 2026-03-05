@@ -31,11 +31,11 @@ public class QuestionEntityTypeConfiguration : IEntityTypeConfiguration<Question
 
         builder.Property(q => q.Instructions)
             .HasColumnType("NVARCHAR(2000)")
-            .IsRequired();
+            .IsRequired(false);
 
         builder.Property(q => q.Explanation)
             .HasColumnType("NVARCHAR(2000)")
-            .IsRequired();
+            .IsRequired(false);
 
         builder.Property(q => q.QuizId)
             .HasColumnType("UNIQUEIDENTIFIER")

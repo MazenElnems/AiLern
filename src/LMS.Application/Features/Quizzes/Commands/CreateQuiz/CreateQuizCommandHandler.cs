@@ -41,6 +41,7 @@ public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Resul
 
         var quiz = _mapper.Map<Quiz>(request);
 
+        int questionNumber = 1;
         quiz.Questions?.ForEach((question) =>
         {
             int optionNumber = 1;
@@ -48,6 +49,7 @@ public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Resul
             {
                 option.OptionNumber = optionNumber++;
             });
+            question.Order = questionNumber++;
         });
 
         quiz.CreatedAt = DateTime.UtcNow;

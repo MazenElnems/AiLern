@@ -23,6 +23,7 @@ internal class QuizPublishSchedulerJob : IQuizPublishSchedulerJob
         if(quiz.Status == QuizStatus.Scheduled)
         {
             quiz.Status = QuizStatus.Published;
+            quiz.PublishedAt = DateTime.UtcNow;
             await _unitOfWork.CommitAsync();
         }
     }

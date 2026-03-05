@@ -21,6 +21,7 @@ internal class UnitOfWork : IUnitOfWork
     public IBaseRepository<AssignmentSubmission> AssignmentSubmissions { get; }
 
     public IBaseRepository<Quiz> Quizzes { get; }
+    public IBaseRepository<Question> Questions { get; }
 
     public UnitOfWork(AppDbContext context)
     {
@@ -35,6 +36,7 @@ internal class UnitOfWork : IUnitOfWork
         SubmissionFiles = new BaseRepository<AssignmentSubmissionFile>(_context);
         AssignmentSubmissions = new BaseRepository<AssignmentSubmission>(_context);
         Quizzes = new BaseRepository<Quiz>(_context);
+        Questions = new BaseRepository<Question>(_context);
     }
 
     public async Task<int> CommitAsync() => await _context.SaveChangesAsync();
