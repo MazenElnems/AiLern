@@ -1,21 +1,22 @@
 ﻿using AutoMapper;
 using LMS.Application.Features.Quizzes.Commands.CreateQuiz;
 using LMS.Application.Features.Quizzes.Shared.DTO;
+using LMS.Application.Features.Quizzes.Shared.Requests;
 using LMS.Domain.Entities.Quizzes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace LMS.Application.Features.Quizzes.Shared.Mappings
-{
+namespace LMS.Application.Features.Quizzes.Shared.Mappings;
+
 public class QuizProfile : Profile
 {
     public QuizProfile()
     {
-            CreateMap<CreateQuizCommand, Quiz>();
-            CreateMap<Quiz, GetAllQuizDto>();
+        CreateMap<OptionRequest, Option>();
+
+        CreateMap<QuestionRequest, Question>();
+
+        CreateMap<CreateQuizCommand, Quiz>();
+
+        CreateMap<Quiz, GetAllQuizDto>();
+
     }
-}
 }

@@ -36,6 +36,7 @@ public static class DependencyInjection
         services.AddScoped<IBackgroundJobService, HangfireJobService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        services.AddScoped<IQuizPublishSchedulerJob, QuizPublishSchedulerJob>();
 
         services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));

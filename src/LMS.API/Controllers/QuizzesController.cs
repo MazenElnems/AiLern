@@ -24,7 +24,8 @@ public class QuizzesController : ApiBaseController
     }
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse>> Create(CreateQuizCommand command)
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> Create([FromBody] CreateQuizCommand command)
     {
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);

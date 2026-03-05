@@ -1,29 +1,31 @@
 ﻿using AutoMapper;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
-using LMS.Application.Features.Quizzes.Shared.DTO;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
+using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
 
 namespace LMS.Application.Features.Quizzes.Commands.CreateQuiz;
 
-public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Result<GetAllQuizDto>>
+public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Result<Guid>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IMapper _mapper;
+    private readonly IBackgroundJobService _backgroundJobService;
 
-    public CreateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper)
+    public CreateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, IBackgroundJobService backgroundJobService)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _mapper = mapper;
+        _backgroundJobService = backgroundJobService;
     }
 
-    public async Task<Result<GetAllQuizDto>> Handle(CreateQuizCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreateQuizCommand request, CancellationToken cancellationToken)
     {
         var user = _userContext.GetCurrentUser();
         var course = await _unitOfWork.Courses.GetByIdAsync(request.CourseId);
@@ -32,24 +34,30 @@ public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Resul
             return DomainErrors.Course.NotFound(request.CourseId);
 
         if (user.Id != course.InstructorId)
-            return DomainErrors.Common.Forbidden("You do not have permission to create a quiz for this course.");
+            return DomainErrors.Course.NotOwned;
 
         if (course.CourseStatus != CourseStatus.Approved)
             return DomainErrors.Course.NotApproved;
 
-
-
         var quiz = _mapper.Map<Quiz>(request);
 
+        quiz.Questions?.ForEach((question) =>
+        {
+            int optionNumber = 1;
+            question.Options?.ForEach((option) =>
+            {
+                option.OptionNumber = optionNumber++;
+            });
+        });
+
         quiz.CreatedAt = DateTime.UtcNow;
-        //quiz.IsPublished = false;
-        quiz.UpdatedAt = null;
 
         await _unitOfWork.Quizzes.InsertAsync(quiz);
         await _unitOfWork.CommitAsync();
 
-        var quizDto = _mapper.Map<GetAllQuizDto>(quiz);
+        if (request.Status == QuizStatus.Scheduled)
+            _backgroundJobService.Schedule<IQuizPublishSchedulerJob>(job => job.ExecuteAsync(quiz.Id), request.PublishedDate!.Value);
 
-        return Result<GetAllQuizDto>.Success(quizDto, "The quiz was created successfully.");
+        return quiz.Id;
     }
 }
