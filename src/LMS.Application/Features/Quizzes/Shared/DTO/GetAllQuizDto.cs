@@ -1,4 +1,6 @@
-﻿namespace LMS.Application.Features.Quizzes.Shared.DTO;
+﻿using LMS.Domain.Enums;
+
+namespace LMS.Application.Features.Quizzes.Shared.DTO;
 
 public class GetAllQuizDto
 {
@@ -8,13 +10,10 @@ public class GetAllQuizDto
     public string Description { get; set; }
     public DateTime AvailableFrom { get; set; }
     public DateTime AvailableUntil { get; set; }
-    public bool IsPublished { get; set; }
+    public QuizStatus Status { get; set; }
     public int MaximumAttempts { get; set; }
-    public bool ShowCorrectAnswersAfterClose { get; set; }
-    public double TotalPoints { get; set; }
-    public bool ShuffleQuestions { get; set; }
-    public bool ShuffleOptions { get; set; }
+    public bool ShowResultOnClose { get; set; }
     public DateTime CreatedAt { get; set; }
-
+    public DateTime? PublishedAt { get; set; }
 }
 

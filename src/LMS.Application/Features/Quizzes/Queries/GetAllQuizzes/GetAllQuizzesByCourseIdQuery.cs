@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace LMS.Application.Features.Quizzes.Queries.GetAllQuizzes
 {
-    public class GetAllQuizzesByCourseIdQuery : BasePaginatedQuery , IRequest<Result<PaginationResult<GetAllQuizDto>>>
+    public class GetAllQuizzesByCourseIdQuery : IRequest<Result<List<GetAllQuizDto>>>
     {
         [BindNever]
         public int CourseId { get; set; } 

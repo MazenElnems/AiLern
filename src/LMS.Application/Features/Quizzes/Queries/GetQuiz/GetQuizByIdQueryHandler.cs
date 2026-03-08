@@ -40,31 +40,30 @@ public class GetQuizByIdQueryHandler : IRequestHandler<GetQuizByIdQuery, Result<
             if (quiz == null)
                 return DomainErrors.Quiz.NotFound(request.Id);
 
-                var dto = _mapper.Map<GetQuizDto>(quiz);
-            if (user.IsInRole(UserRoles.Instructor))
-            {
-                if (quiz.Course.InstructorId != user.Id)
-                    return DomainErrors.Course.NotOwned;
-            }
+            var dto = _mapper.Map<GetQuizDto>(quiz);
+
+            if (user.IsInRole(UserRoles.Instructor) && quiz.Course.InstructorId != user.Id)
+                return DomainErrors.Course.NotOwned;
+
             else if (user.IsInRole(UserRoles.Student))
             {
                 var isEnrolled = await _unitOfWork.Enrollments.IsEnrolledAsync(quiz.Course.Id, user.Id);
+
                 if (!isEnrolled)
                     return DomainErrors.Course.NotEnrolled;
+
                 if (quiz.Status != QuizStatus.Published)
-                    return DomainErrors.Quiz.NotFound(request.Id);
+                    return DomainErrors.Common.Forbidden("You do not have permissions to access this quiz.");
+
                 dto.ShuffleQuestions = null;
                 dto.ShuffleOptions = null;
                 dto.Questions = null;
                 dto.ShowResultOnClose = null;
                 dto.CreatedAt = null;
                 dto.Status = null;
-                dto.IsPublished = null;
-
             }
+
             return Result<GetQuizDto>.Success(dto);
-
-
         }
         catch (Exception ex)
         {

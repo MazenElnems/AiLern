@@ -13,10 +13,11 @@ public class GetQuizDto
     public DateTime AvailableUntil { get; set; }
     public int MaximumAttempts { get; set; }
     public double TotalPoints { get; set; } 
+    public DateTime? PublishedAt { get; set; }
+
 
     // Doctor Only
 
-    public bool? IsPublished { get; set; }
     public QuizStatus? Status { get; set; }
     public bool? ShowResultOnClose { get; set; }
     public bool? ShuffleQuestions { get; set; }
