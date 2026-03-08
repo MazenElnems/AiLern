@@ -63,13 +63,15 @@ public class QuizzesController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpGet("courses/{courseId}/quizzes")]
+    [HttpGet("/api/courses/{courseId}/quizzes")]
+    [Authorize(Roles = $"{UserRoles.Instructor},{UserRoles.Student}")]
     public async Task<ActionResult<ApiResponse>> GetAllQuizzesByCourseId(int courseId,[FromQuery] GetAllQuizzesByCourseIdQuery query)
     {
         query.CourseId = courseId;
         var result = await _mediator.Send(query);
         return HandleResponse(this, result);
     }
+
     [HttpGet("{id}")]
     [Authorize(Roles = $"{UserRoles.Instructor},{UserRoles.Student}")]
     [SwaggerOperation(Summary = "Get quiz", Description = "Get an quiz by id.")]
