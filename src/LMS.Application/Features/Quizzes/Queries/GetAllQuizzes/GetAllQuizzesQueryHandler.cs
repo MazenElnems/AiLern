@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.CurrentUser;
 using LMS.Application.Features.Quizzes.Shared.DTO;
 using LMS.Domain.Constants;
 using LMS.Domain.Entities.Quizzes;
+using LMS.Domain.Enums;
 using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
@@ -17,12 +19,14 @@ namespace LMS.Application.Features.Quizzes.Queries.GetAllQuizzes
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<GetAllQuizzesQueryHandler> _logger;
         private readonly IMapper _mapper;
+        private readonly IUserContext _userContext;
 
-        public GetAllQuizzesQueryHandler(IUnitOfWork unitOfWork, ILogger<GetAllQuizzesQueryHandler> logger, IMapper mapper)
+        public GetAllQuizzesQueryHandler(IUnitOfWork unitOfWork, ILogger<GetAllQuizzesQueryHandler> logger, IMapper mapper, IUserContext userContext)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _mapper = mapper;
+            _userContext = userContext;
         }
 
         public async Task<Result<PaginationResult<GetAllQuizDto>>> Handle(GetAllQuizzesByCourseIdQuery request, CancellationToken cancellationToken)
@@ -30,9 +34,21 @@ namespace LMS.Application.Features.Quizzes.Queries.GetAllQuizzes
             if (request.PageNumber < 1 || request.PageSize < 1)
                 return Result<PaginationResult<GetAllQuizDto>>.Failure(DomainErrors.Pagination.InvalidParameters);
 
+
             try
             {
                 Expression<Func<Quiz, bool>> predicate = c => true;
+                var user =  _userContext.GetCurrentUser();
+                if (user.IsInRole(UserRoles.Instructor))
+                {
+                    predicate = (c => c.Course.InstructorId == user.Id);
+                }
+                else if (user.IsInRole(UserRoles.Student))
+                {
+                    var isEnrolled = await _unitOfWork.Enrollments.IsEnrolledAsync(request.CourseId, user.Id);
+                    predicate = ( c => c.Status == QuizStatus.Published && isEnrolled);
+                }
+
 
                 var sortBy = request.SortBy;
                 var order = request.Order?.ToLower();
@@ -55,12 +71,17 @@ namespace LMS.Application.Features.Quizzes.Queries.GetAllQuizzes
                     return Result<PaginationResult<GetAllQuizDto>>.Success(emptyResult);
                 }
 
+
                 var quizzes = await _unitOfWork.Quizzes.FilterAsync(
                     predicate,
                     orderBy,
                     isDescending,
                     (request.PageNumber - 1) * request.PageSize,
-                    request.PageSize);
+                    request.PageSize,
+                    includeProperties : [nameof(Quiz.Course)]);
+
+
+
 
                 var dto = _mapper.Map<List<GetAllQuizDto>>(quizzes);
                 return Result<PaginationResult<GetAllQuizDto>>.Success(

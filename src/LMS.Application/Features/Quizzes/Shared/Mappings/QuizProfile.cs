@@ -15,8 +15,12 @@ public class QuizProfile : Profile
         CreateMap<QuestionRequest, Question>();
 
         CreateMap<CreateQuizCommand, Quiz>();
+        CreateMap<Quiz, GetQuizDto>();
 
         CreateMap<Quiz, GetAllQuizDto>();
+        CreateMap<Question, QuestionDto>();
+
+        CreateMap<Option, OptionDto>();
 
     }
 }

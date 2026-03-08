@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using LMS.Application.Features.Quizzes.Queries.GetQuiz;
 
 namespace LMS.API.Controllers;
 
@@ -66,6 +67,21 @@ public class QuizzesController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetAllQuizzesByCourseId(int courseId,[FromQuery] GetAllQuizzesByCourseIdQuery query)
     {
         query.CourseId = courseId;
+        var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
+    }
+    [HttpGet("{id}")]
+    [Authorize(Roles = $"{UserRoles.Instructor},{UserRoles.Student}")]
+    [SwaggerOperation(Summary = "Get quiz", Description = "Get an quiz by id.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Quiz retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "quiz not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetQuizById(Guid id , [FromQuery] GetQuizByIdQuery query)
+    {
+        query.Id = id;
         var result = await _mediator.Send(query);
         return HandleResponse(this, result);
     }
