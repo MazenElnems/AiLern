@@ -13,12 +13,12 @@ public class QuestionEntityTypeConfiguration : IEntityTypeConfiguration<Question
         builder.HasKey(q => q.Id);
 
         builder.Property(q => q.QuestionText)
-            .HasColumnType("NVARCHAR(MAX)")
+            .HasColumnType("NVARCHAR(2000)")
             .IsRequired();
 
-        builder.Property(q => q.QuestionType)
+        builder.Property(q => q.Type)
             .HasConversion<string>()
-            .HasColumnType("NVARCHAR(20)")
+            .HasColumnType("VARCHAR(10)")
             .IsRequired();
 
         builder.Property(q => q.Mark)
@@ -30,8 +30,12 @@ public class QuestionEntityTypeConfiguration : IEntityTypeConfiguration<Question
             .IsRequired();
 
         builder.Property(q => q.Instructions)
-            .HasColumnType("NVARCHAR(MAX)")
-            .IsRequired();
+            .HasColumnType("NVARCHAR(2000)")
+            .IsRequired(false);
+
+        builder.Property(q => q.Explanation)
+            .HasColumnType("NVARCHAR(2000)")
+            .IsRequired(false);
 
         builder.Property(q => q.QuizId)
             .HasColumnType("UNIQUEIDENTIFIER")
@@ -55,7 +59,7 @@ public class QuestionEntityTypeConfiguration : IEntityTypeConfiguration<Question
                 .ValueGeneratedNever();
 
             o.Property(opt => opt.OptionText)
-                .HasColumnType("NVARCHAR(MAX)")
+                .HasColumnType("NVARCHAR(500)")
                 .IsRequired();
            
             o.Property(opt => opt.IsCorrect)

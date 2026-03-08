@@ -1,6 +1,6 @@
 using LMS.Application.Common.Models.Request;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.Features.AssignmentSubmissions.DTO;
+using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
 using MediatR;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Commands.Submit;

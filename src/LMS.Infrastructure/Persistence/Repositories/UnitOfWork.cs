@@ -1,5 +1,6 @@
 ﻿using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Entities.Courses;
+using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 
@@ -19,6 +20,9 @@ internal class UnitOfWork : IUnitOfWork
     public IMaterialFileRepository MaterialFiles { get; }
     public IBaseRepository<AssignmentSubmission> AssignmentSubmissions { get; }
 
+    public IBaseRepository<Quiz> Quizzes { get; }
+    public IBaseRepository<Question> Questions { get; }
+
     public UnitOfWork(AppDbContext context)
     {
         _context = context;
@@ -30,7 +34,9 @@ internal class UnitOfWork : IUnitOfWork
         Sections = new BaseRepository<Section>(_context);
         MaterialFiles = new MaterialFileRepository(_context);
         SubmissionFiles = new BaseRepository<AssignmentSubmissionFile>(_context);
-        AssignmentSubmissions = new BaseRepository<AssignmentSubmission>(_context); 
+        AssignmentSubmissions = new BaseRepository<AssignmentSubmission>(_context);
+        Quizzes = new BaseRepository<Quiz>(_context);
+        Questions = new BaseRepository<Question>(_context);
     }
 
     public async Task<int> CommitAsync() => await _context.SaveChangesAsync();

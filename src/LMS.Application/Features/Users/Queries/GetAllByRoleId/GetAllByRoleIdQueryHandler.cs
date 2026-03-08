@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using LMS.Application.Common.Models.Responses;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
-using LMS.Application.Features.Users.DTO;
+using LMS.Application.Features.Users.Shared.DTO;
 
 namespace LMS.Application.Features.Users.Queries.GetAllByRoleId;
 

@@ -3,7 +3,7 @@ using LMS.Domain.Repositories;
 using LMS.Application.Common.Results.Generic;
 using MediatR;
 using LMS.Domain.Errors;
-using LMS.Application.Features.Courses.DTO;
+using LMS.Application.Features.Courses.Shared.DTO;
 
 namespace LMS.Application.Features.Courses.Queries.GetById;
 

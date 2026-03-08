@@ -1,7 +1,7 @@
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.Features.AssignmentSubmissions.DTO;
 using LMS.Application.Features.AssignmentSubmissions.Queries.Responses;
+using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 

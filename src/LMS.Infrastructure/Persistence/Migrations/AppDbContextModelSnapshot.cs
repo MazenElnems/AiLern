@@ -301,9 +301,11 @@ namespace LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Explanation")
+                        .HasColumnType("NVARCHAR(2000)");
+
                     b.Property<string>("Instructions")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(MAX)");
+                        .HasColumnType("NVARCHAR(2000)");
 
                     b.Property<double>("Mark")
                         .HasColumnType("FLOAT");
@@ -313,14 +315,14 @@ namespace LMS.Infrastructure.Migrations
 
                     b.Property<string>("QuestionText")
                         .IsRequired()
-                        .HasColumnType("NVARCHAR(MAX)");
-
-                    b.Property<string>("QuestionType")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(20)");
+                        .HasColumnType("NVARCHAR(2000)");
 
                     b.Property<Guid>("QuizId")
                         .HasColumnType("UNIQUEIDENTIFIER");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(10)");
 
                     b.HasKey("Id");
 
@@ -348,16 +350,15 @@ namespace LMS.Infrastructure.Migrations
                         .HasColumnType("DATETIME2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(MAX)");
-
-                    b.Property<bool>("IsPublished")
-                        .HasColumnType("BIT");
+                        .HasColumnType("NVARCHAR(2000)");
 
                     b.Property<int>("MaximumAttempts")
                         .HasColumnType("INT");
 
-                    b.Property<bool>("ShowCorrectAnswersAfterClose")
+                    b.Property<DateTime?>("PublishedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("ShowResultOnClose")
                         .HasColumnType("BIT");
 
                     b.Property<bool>("ShuffleOptions")
@@ -366,12 +367,13 @@ namespace LMS.Infrastructure.Migrations
                     b.Property<bool>("ShuffleQuestions")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(10)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("NVARCHAR(200)");
-
-                    b.Property<double>("TotalPoints")
-                        .HasColumnType("FLOAT");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("DATETIME2");
@@ -782,7 +784,7 @@ namespace LMS.Infrastructure.Migrations
 
                             b1.Property<string>("OptionText")
                                 .IsRequired()
-                                .HasColumnType("NVARCHAR(MAX)");
+                                .HasColumnType("NVARCHAR(500)");
 
                             b1.HasKey("OptionNumber", "QuestionId");
 

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
-using LMS.Application.Features.Assignments.DTO;
+using LMS.Application.Features.Assignments.Shared.DTO;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Errors;
 using LMS.Domain.Repositories;

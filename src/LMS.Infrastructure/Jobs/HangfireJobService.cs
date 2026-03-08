@@ -27,6 +27,9 @@ internal class HangfireJobService : IBackgroundJobService
     public string Schedule<T>(Expression<Action<T>> methodCall, TimeSpan delay)
         => BackgroundJob.Schedule(methodCall, delay);
 
+    public string Schedule<T>(Expression<Action<T>> methodCall, DateTime date)
+        => BackgroundJob.Schedule(methodCall, date);
+
     public string Schedule(Expression<Func<Task>> methodCall, TimeSpan delay)
         => BackgroundJob.Schedule(methodCall, delay);
 

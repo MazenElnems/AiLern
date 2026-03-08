@@ -1,5 +1,5 @@
 ﻿using LMS.Application.Common.Results.Generic;
-using LMS.Application.Features.Assignments.DTO;
+using LMS.Application.Features.Assignments.Shared.DTO;
 using MediatR;
 
 namespace LMS.Application.Features.Assignments.Queries.GetCourseAssignmentsForInstructors;

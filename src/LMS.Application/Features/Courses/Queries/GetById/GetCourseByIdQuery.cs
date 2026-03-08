@@ -1,5 +1,5 @@
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.Features.Courses.DTO;
+using LMS.Application.Features.Courses.Shared.DTO;
 using MediatR;
 
 namespace LMS.Application.Features.Courses.Queries.GetById;
