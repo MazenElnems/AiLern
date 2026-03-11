@@ -2,6 +2,7 @@
 using Amazon.S3.Model;
 using LMS.Application.ConfigurationOptions;
 using LMS.Domain.Repositories;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -66,6 +67,32 @@ public class WasabiService : IWasabiService
         catch(AmazonS3Exception ex) 
         {
             _logger.LogError(ex, "Error deleting file from Wasabi: {Key}", key);
+            throw;
+        }
+    }
+
+    public async Task<List<Stream>> GetFileStreamAsync(List<string> keys)
+    {
+        try
+        {
+            var tasks = keys.Select(async key =>
+            {
+                var request = new GetObjectRequest
+                {
+                    BucketName = _wasabiSettings.BucketName,
+                    Key = key
+                };
+
+                return await _s3Client.GetObjectAsync(request);
+            });
+
+            var respones = await Task.WhenAll(tasks);
+
+            return respones.Select(r => r.ResponseStream).ToList();
+        }
+        catch (AmazonS3Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting file from Wasabi: {Keys}", string.Join(", ", keys));
             throw;
         }
     }

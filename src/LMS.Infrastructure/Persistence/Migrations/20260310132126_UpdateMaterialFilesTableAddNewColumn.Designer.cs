@@ -4,6 +4,7 @@ using LMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260310132126_UpdateMaterialFilesTableAddNewColumn")]
+    partial class UpdateMaterialFilesTableAddNewColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -296,34 +299,6 @@ namespace LMS.Infrastructure.Migrations
                     b.HasIndex("CourseId");
 
                     b.ToTable("Sections", (string)null);
-                });
-
-            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.AIQuestionGenerationJob", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Error")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("QuizId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuizId");
-
-                    b.ToTable("QuestionGenerationJobs");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Question", b =>
@@ -794,17 +769,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Course");
                 });
 
-            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.AIQuestionGenerationJob", b =>
-                {
-                    b.HasOne("LMS.Domain.Entities.Quizzes.Quiz", "Quiz")
-                        .WithMany("QuestionGenerationJobs")
-                        .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Quiz");
-                });
-
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Question", b =>
                 {
                     b.HasOne("LMS.Domain.Entities.Quizzes.Quiz", "Quiz")
@@ -948,8 +912,6 @@ namespace LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Quiz", b =>
                 {
-                    b.Navigation("QuestionGenerationJobs");
-
                     b.Navigation("Questions");
                 });
 

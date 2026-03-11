@@ -26,4 +26,5 @@ public class Quiz
     // Navigation Properties
     public Course Course { get; set; }
     public List<Question> Questions { get; set; } = new();
+    public List<AIQuestionGenerationJob> QuestionGenerationJobs { get; set; } = new();  
 }
