@@ -3,9 +3,9 @@ using LMS.Domain.Enums;
 
 namespace LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
 
-public class QenerateQuestionsCommandValidator : AbstractValidator<QenerateQuestionsCommand>
+public class GenerateQuestionsCommandValidator : AbstractValidator<GenerateQuestionsCommand>
 {
-    public QenerateQuestionsCommandValidator()
+    public GenerateQuestionsCommandValidator()
     {
         RuleFor(x => x.QuestionsCount)
             .GreaterThan(0)

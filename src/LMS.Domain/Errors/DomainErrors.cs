@@ -86,6 +86,17 @@ public static class DomainErrors
             );
     }
 
+    public static class QuestionGenerationJobs
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Quiz", id.ToString());
+
+        public static Error NotInProgress =>
+            Common.BusinessRule("QuestionGenerationJobs.NotInProgress", "QuestionGenerationJob is not In Progress");
+        public static Error AlreadyCanceled =>
+            Common.BusinessRule("QuestionGenerationJobs.AlreadyCanceled", "QuestionGenerationJob is AlreadyCanceled");
+    }
+
     public static class AssignmentFile
     {
         public static Error NotFound(Guid id) =>

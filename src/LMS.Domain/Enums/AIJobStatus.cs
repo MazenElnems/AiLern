@@ -5,5 +5,6 @@ public enum AIJobStatus
     Pending,
     InProgress,
     Completed,
-    Failed
+    Failed,
+    Canceled
 }
