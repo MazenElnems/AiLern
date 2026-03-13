@@ -85,6 +85,13 @@ public static class DomainErrors
                 "AvailableUntil must be later than AvailableFrom."
             );
     }
+    public static class QuestionGenerationJob
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Job", id.ToString());
+
+
+    }
 
     public static class AssignmentFile
     {

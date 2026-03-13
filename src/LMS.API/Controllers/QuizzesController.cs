@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using LMS.Application.Features.Quizzes.Queries.GetQuiz;
+using LMS.Application.Features.Quizzes.Queries.GetJob;
 
 namespace LMS.API.Controllers;
 
@@ -82,6 +83,23 @@ public class QuizzesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status404NotFound, "quiz not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
     public async Task<ActionResult<ApiResponse>> GetQuizById(Guid id , [FromQuery] GetQuizByIdQuery query)
+    {
+        query.Id = id;
+        var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
+    }
+
+
+    [HttpGet("job/{id}")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Get job", Description = "Get an job by id.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Job retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "job not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetJobById(Guid id, [FromQuery] GetJobByIdQuery query)
     {
         query.Id = id;
         var result = await _mediator.Send(query);
