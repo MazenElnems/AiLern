@@ -11,5 +11,7 @@ public class AIQuestionGenerationJobEntityTypeConfiguration : IEntityTypeConfigu
         builder.HasOne(x => x.Quiz)
             .WithMany(j => j.QuestionGenerationJobs)
             .HasForeignKey(x => x.QuizId);
+
+        builder.Property(x => x.HangfireJobId).IsRequired();
     }
 }

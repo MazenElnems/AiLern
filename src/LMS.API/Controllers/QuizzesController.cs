@@ -1,10 +1,12 @@
 ﻿using LMS.API.Controllers.Common;
 using LMS.API.Models;
-using LMS.Application.Features.Quizzes.Commands.DeleteQuiz;
-using LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
-using LMS.Domain.Constants;
 using LMS.Application.Features.Quizzes.Commands.CreateQuiz;
+using LMS.Application.Features.Quizzes.Commands.DeleteQuiz;
+using LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
+using LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
 using LMS.Application.Features.Quizzes.Queries.GetAllQuizzes;
+using LMS.Application.Features.Quizzes.Queries.GetQuiz;
+using LMS.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -86,6 +88,15 @@ public class QuizzesController : ApiBaseController
     {
         query.Id = id;
         var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
+    }
+
+    [HttpPost("{quizId}/generate-by-ai")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> GenerateByAi([FromRoute] Guid quizId, [FromBody] GenerateQuestionsCommand command)
+    {
+        command.QuizId = quizId;
+        var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
 

@@ -11,4 +11,5 @@ public class AIQuestionGenerationJob
     public DateTime CreatedAt { get; set; }
     public DateTime? CompletedAt { get; set; }
     public string? Error { get; set; }
+    public string HangfireJobId { get; set; }
 }

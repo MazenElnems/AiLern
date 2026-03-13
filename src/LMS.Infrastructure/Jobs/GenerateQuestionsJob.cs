@@ -1,5 +1,7 @@
+using Hangfire;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
+using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.ExternalServices.AIService.Contracts;
 using LMS.Infrastructure.ExternalServices.AIService.Models;
@@ -9,7 +11,7 @@ using System.Globalization;
 
 namespace LMS.Infrastructure.Jobs;
 
-public class GenerateQuestionsJob
+public class GenerateQuestionsJob : IGenerateQuestionsJob
 {
     private readonly IAIService _service;
     private readonly IWasabiService _wasabiService;
@@ -29,6 +31,7 @@ public class GenerateQuestionsJob
         int questionsCount,
         Dictionary<QuestionType, int> questionTypeCounts,
         Dictionary<QuestionDifficultyLevels, float> questionDifficultyPercents,
+        CancellationToken token,
         string? query = null)
     {
         var openedStreams = new List<Stream>();
@@ -48,9 +51,11 @@ public class GenerateQuestionsJob
                 .FilterAsync(m => !m.HasUploadedToAIService && ids.Contains(m.Id)))
                 .ToList();
 
+            token.ThrowIfCancellationRequested();
             var materialFileStreams = await _wasabiService.GetFileStreamAsync(
                 materialFiles.Select(m => m.StoragePath).ToList());
             openedStreams.AddRange(materialFileStreams);
+
 
             var uploadedFileStreams = files.Select(f => f.OpenReadStream()).ToList();
             openedStreams.AddRange(uploadedFileStreams);
@@ -71,6 +76,8 @@ public class GenerateQuestionsJob
             var responses = new List<AIUploadFilesResponse>();
             for(var i = 0; i < projectIds.Count; i++)
             {
+                token.ThrowIfCancellationRequested();
+
                 var response = await _service.UploadFileAsync(projectIds[i], fileNames[i], streams[i]);
                 responses.Add(response);
             }
@@ -87,6 +94,7 @@ public class GenerateQuestionsJob
 
             foreach(var materialFile in materialFiles)
             {
+
                 materialFile.HasUploadedToAIService = true;
                 _unitOfWork.MaterialFiles.Update(materialFile);
             }
@@ -107,6 +115,8 @@ public class GenerateQuestionsJob
                 Query = query
             };
 
+
+            token.ThrowIfCancellationRequested();
             var result = await _service.GenerateQuestionsAsync(request);
 
             if(!result.Status.Equals("ok", StringComparison.OrdinalIgnoreCase))
@@ -122,9 +132,12 @@ public class GenerateQuestionsJob
             var order = existingCount + 1;
             foreach(var generatedQuestion in result.Questions ?? [])
             {
+                token.ThrowIfCancellationRequested();
+
                 var question = MapQuestion(generatedQuestion, quizId, order++);
                 await _unitOfWork.Questions.InsertAsync(question);
             }
+
 
             job.Status = AIJobStatus.Completed;
             job.CompletedAt = DateTime.UtcNow;
@@ -132,7 +145,18 @@ public class GenerateQuestionsJob
 
             await _unitOfWork.CommitAsync();
         }
-        catch(Exception ex)
+        catch (OperationCanceledException)
+        {
+            var job = await _unitOfWork.QuestionGenerationJobs.GetByIdAsync(jobId);
+            if (job != null)
+            {
+                job.Status = AIJobStatus.Canceled;
+                job.Error = "Job Canceled by User";
+                job.CompletedAt = DateTime.UtcNow;
+                await _unitOfWork.CommitAsync();
+            }
+        }
+        catch (Exception ex)
         {
             var job = await _unitOfWork.QuestionGenerationJobs.GetByIdAsync(jobId);
             if(job != null)
