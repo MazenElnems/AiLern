@@ -1,5 +1,6 @@
 using LMS.API.Controllers.Common;
 using LMS.API.Models;
+using LMS.Application.Features.Instructors.Queries.GetMyCourses;
 using LMS.Application.Features.Students.Queries.GetMyCourses;
 using LMS.Application.Features.Users.Commands.AddUserToRole;
 using LMS.Application.Features.Users.Commands.DeleteUserRole;
@@ -87,6 +88,19 @@ public class UsersController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
     public async Task<ActionResult<ApiResponse>> GetCourses([FromQuery] GetStudentCoursesQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("instructor/my-courses") ]
+    [SwaggerOperation(Summary = "Get my courses", Description = "Retrieves the current instructor's courses.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Courses retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid query parameters.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetInstructorCourses([FromQuery] GetInstructorCoursesQuery query)
     {
         var result = await _mediator.Send(query);
         return HandleResponse(this, result);

@@ -61,6 +61,8 @@ public static class DependencyInjection
             cfg.CreateMap<Course, GetStudentCoursesDto>()
                .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.UserName));
 
+            cfg.CreateMap<Course, GetInstructorCoursesDto>();
+
             cfg.CreateMap<Course, GetAvailableCoursesDto>()
                .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.FullName));
 
