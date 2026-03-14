@@ -6,7 +6,9 @@ using LMS.Application.Features.Users.Commands.AddUserToRole;
 using LMS.Application.Features.Users.Commands.DeleteUserRole;
 using LMS.Application.Features.Users.Queries.GetAllByRoleId;
 using LMS.Application.Features.Users.Queries.GetUserById;
+using LMS.Domain.Constants;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -94,15 +96,16 @@ public class UsersController : ApiBaseController
     }
 
     [HttpGet("instructor/my-courses") ]
+    [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Get my courses", Description = "Retrieves the current instructor's courses.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Courses retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid query parameters.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetInstructorCourses([FromQuery] GetInstructorCoursesQuery query)
+    public async Task<ActionResult<ApiResponse>> GetInstructorCourses()
     {
-        var result = await _mediator.Send(query);
+        var result = await _mediator.Send(new GetInstructorCoursesQuery());
         return HandleResponse(this, result);
     }
 }
