@@ -23,5 +23,6 @@ public class QuizProfile : Profile
 
         CreateMap<Option, OptionDto>();
 
+        CreateMap<QuestionGenerationFiles, QuestionGenerationFilesDto>();
     }
 }

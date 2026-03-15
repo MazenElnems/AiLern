@@ -19,5 +19,6 @@ public interface IUnitOfWork
     public IBaseRepository<Quiz> Quizzes { get; }
     public IBaseRepository<Question> Questions { get; }
     public IBaseRepository<AIQuestionGenerationJob> QuestionGenerationJobs { get; }
+    public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
     Task<int> CommitAsync();
 }

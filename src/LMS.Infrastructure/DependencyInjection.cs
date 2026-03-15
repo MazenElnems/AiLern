@@ -41,6 +41,7 @@ public static class DependencyInjection
         services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.Configure<FrontEndSettings>(configuration.GetSection("FrontEndSettings"));
+        services.Configure<AIServiceSettings>(configuration.GetSection("AIServiceSettings"));
 
         // Hangfire
         services.AddHangfire(config => config

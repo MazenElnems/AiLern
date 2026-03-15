@@ -10,5 +10,5 @@ public class AIQuestionGeneratedResponse
     public List<string> Options { get; set; }
     public string CorrectAnswer { get; set; }
     public string? Answer { get; set; }
-    public string Explaination { get; set; }
+    public string? Explanation { get; set; }
 }

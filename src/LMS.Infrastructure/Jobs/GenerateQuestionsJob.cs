@@ -1,13 +1,11 @@
-using Hangfire;
+using AutoMapper;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.ExternalServices.AIService.Contracts;
-using LMS.Infrastructure.ExternalServices.AIService.Models;
 using LMS.Infrastructure.ExternalServices.AIService.Requests;
-using Microsoft.AspNetCore.Http;
-using System.Globalization;
+using Microsoft.Extensions.Logging;
 
 namespace LMS.Infrastructure.Jobs;
 
@@ -16,107 +14,88 @@ public class GenerateQuestionsJob : IGenerateQuestionsJob
     private readonly IAIService _service;
     private readonly IWasabiService _wasabiService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+    private readonly ILogger<GenerateQuestionsJob> _logger;
 
-    public GenerateQuestionsJob(IAIService service, IWasabiService wasabiService, IUnitOfWork unitOfWork)
+    public GenerateQuestionsJob(IAIService service, IWasabiService wasabiService, IUnitOfWork unitOfWork, IMapper mapper, ILogger<GenerateQuestionsJob> logger)
     {
         _service = service;
         _wasabiService = wasabiService;
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task ExecuteAsync(Guid jobId,
         Guid quizId,
-        List<string> materialFileIds,
-        List<IFormFile> files,
         int questionsCount,
         Dictionary<QuestionType, int> questionTypeCounts,
         Dictionary<QuestionDifficultyLevels, float> questionDifficultyPercents,
-        CancellationToken token,
+        CancellationToken cancellationToken,
         string? query = null)
     {
-        var openedStreams = new List<Stream>();
+        var job = default(AIQuestionGenerationJob);
+
         try
         {
-            var job = await _unitOfWork.QuestionGenerationJobs.GetByIdAsync(jobId);
-            if(job == null)
-                return;
+            _logger.LogInformation("Start Question Generation Job: {Job}", jobId);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            job = await _unitOfWork.QuestionGenerationJobs.GetByIdAsync(jobId)
+                ?? throw new ArgumentException("Invalid Job Id");
 
             job.Status = AIJobStatus.InProgress;
             job.Error = null;
             job.CompletedAt = null;
             await _unitOfWork.CommitAsync();
 
-            var ids = materialFileIds.Select(Guid.Parse).ToList();
-            var materialFiles = (await _unitOfWork.MaterialFiles
-                .FilterAsync(m => !m.HasUploadedToAIService && ids.Contains(m.Id)))
-                .ToList();
+            var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == quizId,
+                includeProperties: [nameof(Quiz.QuestionGenerationFiles)]);
 
-            token.ThrowIfCancellationRequested();
-            var materialFileStreams = await _wasabiService.GetFileStreamAsync(
-                materialFiles.Select(m => m.StoragePath).ToList());
-            openedStreams.AddRange(materialFileStreams);
+            var questionGenerationFiles = quiz.QuestionGenerationFiles;
 
+            var notUploadedFiles = questionGenerationFiles.Where(f => !f.HasUploadedToAIService);
 
-            var uploadedFileStreams = files.Select(f => f.OpenReadStream()).ToList();
-            openedStreams.AddRange(uploadedFileStreams);
+            var streamsByKey = await _wasabiService
+                .GetFileStreamAsync(notUploadedFiles.Select(f => f.StoragePath).ToList());
 
-            var fileNames = materialFiles.Select(m => m.FileName)
-                .Concat(files.Select(f => f.FileName))
-                .ToList();
-
-            var uploadedNewFileProjectIds = files.Select(_ => Guid.NewGuid().ToString()).ToList();
-            var projectIds = materialFiles.Select(m => m.Id.ToString())
-                .Concat(uploadedNewFileProjectIds)
-                .ToList();
-
-            var streams = materialFileStreams
-                .Concat(uploadedFileStreams)
-                .ToList();
-
-            var responses = new List<AIUploadFilesResponse>();
-            for(var i = 0; i < projectIds.Count; i++)
+            foreach(var q in notUploadedFiles)
             {
-                token.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
 
-                var response = await _service.UploadFileAsync(projectIds[i], fileNames[i], streams[i]);
-                responses.Add(response);
+                var stream = streamsByKey[q.StoragePath];
+                var response = await _service.UploadFileAsync(q.Id.ToString(), q.FileName, stream);
+
+                if(!response.Status.Equals("ok", StringComparison.OrdinalIgnoreCase))
+                { 
+                    job.Status = AIJobStatus.Failed;
+                    job.Error = $"Failed to upload file {q.FileName} to AI service.";
+                    job.CompletedAt = DateTime.UtcNow;
+                    await _unitOfWork.CommitAsync();
+                    _logger.LogError("Question Generation Job: {Job} Was Failed {Message}", jobId, job.Error);
+                    return;
+                }
             }
 
-            var failedUpload = responses.FirstOrDefault(r => !r.Status.Equals("ok", StringComparison.OrdinalIgnoreCase));
-            if(failedUpload != null)
+            foreach(var file in notUploadedFiles)
             {
-                job.Status = AIJobStatus.Failed;
-                job.Error = $"Failed to upload file {failedUpload.Filename} to AI service.";
-                job.CompletedAt = DateTime.UtcNow;
-                await _unitOfWork.CommitAsync();
-                return;
+                file.HasUploadedToAIService = true;
             }
 
-            foreach(var materialFile in materialFiles)
-            {
-
-                materialFile.HasUploadedToAIService = true;
-                _unitOfWork.MaterialFiles.Update(materialFile);
-            }
-
-            // Reuse already uploaded AI project ids for material files that were not re-uploaded.
-            var allProjectIds = materialFiles.Select(m => m.Id.ToString())
-                .Concat(uploadedNewFileProjectIds)
-                .Concat(materialFileIds)
-                .Distinct()
-                .ToArray();
+            cancellationToken.ThrowIfCancellationRequested();
 
             var request = new AIQuizGenerationRequest
             {
-                ProjectIDs = allProjectIds,
+                ProjectIDs = questionGenerationFiles.Select(f => f.Id.ToString()).ToArray(),
                 NumberOfQuestions = questionsCount,
                 QuestionTypeCount = questionTypeCounts,
                 QuestionDifficultyPercents = questionDifficultyPercents,
                 Query = query
             };
 
+            cancellationToken.ThrowIfCancellationRequested();
 
-            token.ThrowIfCancellationRequested();
             var result = await _service.GenerateQuestionsAsync(request);
 
             if(!result.Status.Equals("ok", StringComparison.OrdinalIgnoreCase))
@@ -125,98 +104,34 @@ public class GenerateQuestionsJob : IGenerateQuestionsJob
                 job.Error = $"Failed to generate questions. Message: {result.Message}";
                 job.CompletedAt = DateTime.UtcNow;
                 await _unitOfWork.CommitAsync();
+                _logger.LogError("Question Generation Job: {Job} Was Failed {Message}", jobId, result.Message);
                 return;
             }
 
-            var existingCount = await _unitOfWork.Questions.CountAsync(q => q.QuizId == quizId);
-            var order = existingCount + 1;
-            foreach(var generatedQuestion in result.Questions ?? [])
-            {
-                token.ThrowIfCancellationRequested();
+            var questions = _mapper.Map<List<Question>>(result.Questions);
 
-                var question = MapQuestion(generatedQuestion, quizId, order++);
-                await _unitOfWork.Questions.InsertAsync(question);
-            }
+            quiz.Questions.AddRange(questions);
 
-
-            job.Status = AIJobStatus.Completed;
-            job.CompletedAt = DateTime.UtcNow;
-            job.Error = null;
+            cancellationToken.ThrowIfCancellationRequested();
 
             await _unitOfWork.CommitAsync();
         }
-        catch (OperationCanceledException)
+        catch(OperationCanceledException ex)
         {
-            var job = await _unitOfWork.QuestionGenerationJobs.GetByIdAsync(jobId);
-            if (job != null)
-            {
-                job.Status = AIJobStatus.Canceled;
-                job.Error = "Job Canceled by User";
-                job.CompletedAt = DateTime.UtcNow;
-                await _unitOfWork.CommitAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            var job = await _unitOfWork.QuestionGenerationJobs.GetByIdAsync(jobId);
+            _logger.LogError(ex, "Question Generation Job: {Job} Was Canceled", jobId);
             if(job != null)
             {
-                job.Status = AIJobStatus.Failed;
-                job.Error = ex.Message;
-                job.CompletedAt = DateTime.UtcNow;
+                job.Status = AIJobStatus.Canceled;
                 await _unitOfWork.CommitAsync();
             }
         }
-        finally
+        catch(ArgumentException ex)
         {
-            foreach(var stream in openedStreams)
-                stream.Dispose();
+            _logger.LogError(ex, "{Job} not found", jobId);
         }
-    }
-
-    private static Question MapQuestion(AIQuestionGeneratedResponse generatedQuestion, Guid quizId, int order)
-    {
-        var question = new Question
+        catch(Exception ex)
         {
-            Id = Guid.NewGuid(),
-            QuizId = quizId,
-            QuestionText = generatedQuestion.Question,
-            Type = generatedQuestion.QuestionType,
-            Mark = 1,
-            Order = order,
-            Instructions = null,
-            Explanation = generatedQuestion.Answer ?? generatedQuestion.Explaination
-        };
-
-        if(generatedQuestion.QuestionType != QuestionType.Written)
-        {
-            var correctAnswer = generatedQuestion.CorrectAnswer?.Trim() ?? string.Empty;
-            var options = generatedQuestion.Options ?? [];
-            var optionNumber = 1;
-
-            foreach(var optionText in options)
-            {
-                var normalizedOption = optionText?.Trim() ?? string.Empty;
-                question.Options.Add(new Option
-                {
-                    OptionNumber = optionNumber++,
-                    OptionText = optionText,
-                    IsCorrect = string.Equals(normalizedOption, correctAnswer, StringComparison.OrdinalIgnoreCase),
-                    QuestionId = question.Id
-                });
-            }
-
-            if(question.Options.Count > 0 && question.Options.All(o => !o.IsCorrect))
-            {
-                if(int.TryParse(correctAnswer, NumberStyles.Integer, CultureInfo.InvariantCulture, out var correctIndex)
-                   && correctIndex >= 1
-                   && correctIndex <= question.Options.Count)
-                {
-                    question.Options[correctIndex - 1].IsCorrect = true;
-                }
-            }
+            _logger.LogError(ex, "An Exception Was Thrown While Run Question Generation Job: {Job}", jobId);
         }
-
-        return question;
     }
 }

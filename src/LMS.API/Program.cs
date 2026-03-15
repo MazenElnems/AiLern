@@ -55,9 +55,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseHangfireDashboard();
-
-app.MapHangfireDashboard();
+app.UseHangfireDashboard("/hangfire");
 
 app.MapControllers();
 

@@ -10,6 +10,7 @@ namespace LMS.Infrastructure.Persistence
 {
     public class AppDbContext : IdentityDbContext<ApplicationUser,IdentityRole<int>,int>
     {
+        public DbSet<QuestionGenerationFiles> QuestionGenerationFiles { get; set; }
         public DbSet<AIQuestionGenerationJob>  QuestionGenerationJobs { get; set; } 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Admin> Admins { get; set; }

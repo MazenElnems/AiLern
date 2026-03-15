@@ -11,8 +11,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using LMS.Application.Features.Quizzes.Queries.GetQuiz;
 using LMS.Application.Features.Quizzes.Queries.GetJob;
+using LMS.Application.Features.Quizzes.Queries.GetQuestionGenerationFiles;
 
 namespace LMS.API.Controllers;
 
@@ -114,6 +114,14 @@ public class QuizzesController : ApiBaseController
     {
         query.Id = id;
         var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("{id}/generate-questions-files")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> GetQuestionGenerationFiles(Guid id)
+    {
+        var result = await _mediator.Send(new GetQuestionGenerationFilesQuery(id));
         return HandleResponse(this, result);
     }
 }

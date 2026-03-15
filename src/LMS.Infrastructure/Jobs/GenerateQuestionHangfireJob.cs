@@ -16,8 +16,6 @@ public class GenerateQuestionHangfireJob   // Hangfire Adapter
 
     public Task Execute(Guid jobId,
            Guid quizId,
-           List<string> materialFileIds,
-           List<IFormFile> files,
            int questionsCount,
            Dictionary<QuestionType, int> questionTypeCounts,
            Dictionary<QuestionDifficultyLevels, float> questionDifficultyPercents,
@@ -25,10 +23,11 @@ public class GenerateQuestionHangfireJob   // Hangfire Adapter
            string? query = null)
     {
         return _job.ExecuteAsync(jobId,
-            quizId, materialFileIds,
-            files, questionsCount,
+            quizId,
+            questionsCount,
             questionTypeCounts,
             questionDifficultyPercents,
-            token.ShutdownToken, query);
+            token.ShutdownToken, query
+        );
     }
 }

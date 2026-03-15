@@ -1,4 +1,4 @@
-﻿using Amazon.S3;
+using Amazon.S3;
 using Amazon.S3.Model;
 using LMS.Application.ConfigurationOptions;
 using LMS.Domain.Repositories;
@@ -71,11 +71,11 @@ public class WasabiService : IWasabiService
         }
     }
 
-    public async Task<List<Stream>> GetFileStreamAsync(List<string> keys)
+    public async Task<Dictionary<string, Stream>> GetFileStreamAsync(List<string> keys)
     {
         try
         {
-            var tasks = keys.Select(async key =>
+            var tasks = keys.Distinct().Select(async key =>
             {
                 var request = new GetObjectRequest
                 {
@@ -83,16 +83,39 @@ public class WasabiService : IWasabiService
                     Key = key
                 };
 
-                return await _s3Client.GetObjectAsync(request);
+                var response = await _s3Client.GetObjectAsync(request);
+                return new KeyValuePair<string, Stream>(key, response.ResponseStream);
             });
 
-            var respones = await Task.WhenAll(tasks);
+            var responses = await Task.WhenAll(tasks);
 
-            return respones.Select(r => r.ResponseStream).ToList();
+            return responses.ToDictionary(x => x.Key, x => x.Value);
         }
         catch (AmazonS3Exception ex)
         {
             _logger.LogError(ex, "Error deleting file from Wasabi: {Keys}", string.Join(", ", keys));
+            throw;
+        }
+    }
+
+    public async Task UploadFilesAsync(List<Stream> streams, List<string> keys)
+    {
+        try
+        {
+            for(int i = 0; i < keys.Count; i++ ) 
+            {
+                var request = new PutObjectRequest
+                {
+                    BucketName = _wasabiSettings.BucketName,
+                    Key = keys[i],
+                    InputStream = streams[i]
+                };
+                await _s3Client.PutObjectAsync(request);
+            }
+        }
+        catch (AmazonS3Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading files to Wasabi: {Keys}", string.Join(", ", keys));
             throw;
         }
     }

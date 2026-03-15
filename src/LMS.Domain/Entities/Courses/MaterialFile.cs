@@ -12,7 +12,6 @@ public class MaterialFile
     public string StoragePath { get; set; }
     public string FileType { get; set; }
     public long FileSize { get; set; }
-    public bool HasUploadedToAIService { get; set; }
 
     // Foreign Keys
     public Guid SectionId { get; set; }

@@ -19,10 +19,10 @@ internal class UnitOfWork : IUnitOfWork
     public IBaseRepository<Section> Sections { get; }
     public IMaterialFileRepository MaterialFiles { get; }
     public IBaseRepository<AssignmentSubmission> AssignmentSubmissions { get; }
-
     public IBaseRepository<Quiz> Quizzes { get; }
     public IBaseRepository<Question> Questions { get; }
     public IBaseRepository<AIQuestionGenerationJob> QuestionGenerationJobs { get; }
+    public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
 
     public UnitOfWork(AppDbContext context)
     {
@@ -39,6 +39,7 @@ internal class UnitOfWork : IUnitOfWork
         Quizzes = new BaseRepository<Quiz>(_context);
         Questions = new BaseRepository<Question>(_context);
         QuestionGenerationJobs = new BaseRepository<AIQuestionGenerationJob>(_context);
+        QuestionGenerationFiles = new BaseRepository<QuestionGenerationFiles>(_context);
     }
 
     public async Task<int> CommitAsync() => await _context.SaveChangesAsync();

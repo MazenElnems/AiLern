@@ -11,9 +11,9 @@ public class GenerateQuestionsCommandValidator : AbstractValidator<GenerateQuest
             .GreaterThan(0)
             .WithMessage("QuestionsCount must be greater than 0.");
 
-        When(x => x.MaterialIds == null || !x.MaterialIds.Any(), () =>
+        When(x => x.FileIds == null || !x.FileIds.Any(), () =>
         {
-            RuleFor(x => x.UploadedFiles)
+            RuleFor(x => x.NewUploadedFiles)
                 .NotEmpty()
                 .WithMessage("At least one file must be uploaded if no materials are selected.");
         });
