@@ -41,9 +41,12 @@ public class GenerateQuestionsCommandHandler : IRequestHandler<GenerateQuestions
 
         var questionGenerationFiles = quiz.QuestionGenerationFiles;
 
-        var removedFileIds = request.FileIds.Except(questionGenerationFiles.Select(f => f.Id)).ToList();
-        var addedFileIds = questionGenerationFiles.Select(f => f.Id).Except(request.FileIds).ToList();
-        var newAddedMaterialFiles = await _unitOfWork.MaterialFiles.FilterAsync(f => addedFileIds.Contains(f.Id));
+        var addedFileIds = request.FileIds.Except(questionGenerationFiles.Select(f => f.Id)).ToList();
+        var removedFileIds = questionGenerationFiles.Select(f => f.Id).Except(request.FileIds).ToList();
+
+        var sections = await _unitOfWork.Sections.FilterAsync(s => s.CourseId == course.Id && s.MaterialFiles.Any(f => addedFileIds.Contains(f.Id)));
+        var newAddedMaterialFiles = sections.SelectMany(s => s.MaterialFiles);
+
         questionGenerationFiles.RemoveAll(f => removedFileIds.Contains(f.Id));  
         questionGenerationFiles.AddRange(newAddedMaterialFiles.Select(f => new QuestionGenerationFiles { Id = f.Id, QuizId = request.QuizId, IsCourseMaterial = true, StoragePath = f.StoragePath, FileName = f.FileName, HasUploadedToAIService = false }));
 

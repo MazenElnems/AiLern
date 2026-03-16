@@ -51,7 +51,7 @@ public class WasabiService : IWasabiService
         return await _s3Client.GetPreSignedURLAsync(request);
     }
 
-    public async Task DeleteFileAsync(string key)
+    public async Task DeleteFileAsync(string key, CancellationToken cancellationToken)
     {
         try
         {
@@ -62,7 +62,7 @@ public class WasabiService : IWasabiService
                 Key = key
             };
 
-            await _s3Client.DeleteObjectAsync(request);
+            await _s3Client.DeleteObjectAsync(request, cancellationToken);
         }
         catch(AmazonS3Exception ex) 
         {

@@ -40,7 +40,7 @@ public class AssignmentDeleteFileCommandHandler : IRequestHandler<AssignmentDele
         var filePath = file.StoragePath;
         try
         {
-            await _wasabiService.DeleteFileAsync(filePath);
+            await _wasabiService.DeleteFileAsync(filePath, cancellationToken);
         }
         catch (Exception ex)
         {

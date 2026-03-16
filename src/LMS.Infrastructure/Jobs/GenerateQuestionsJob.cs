@@ -65,7 +65,7 @@ public class GenerateQuestionsJob : IGenerateQuestionsJob
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var stream = streamsByKey[q.StoragePath];
-                var response = await _service.UploadFileAsync(q.Id.ToString(), q.FileName, stream);
+                var response = await _service.UploadFileAsync(q.Id.ToString(), q.FileName, stream, cancellationToken);
 
                 if(!response.Status.Equals("ok", StringComparison.OrdinalIgnoreCase))
                 { 
@@ -87,16 +87,16 @@ public class GenerateQuestionsJob : IGenerateQuestionsJob
 
             var request = new AIQuizGenerationRequest
             {
-                ProjectIDs = questionGenerationFiles.Select(f => f.Id.ToString()).ToArray(),
-                NumberOfQuestions = questionsCount,
-                QuestionTypeCount = questionTypeCounts,
-                QuestionDifficultyPercents = questionDifficultyPercents,
+                ProjectIds = questionGenerationFiles.Select(f => f.Id.ToString()).ToArray(),
+                QuestionsNumber = questionsCount,
+                QuestionsTypes = questionTypeCounts,
+                DifficultyLevels = questionDifficultyPercents,
                 Query = query
             };
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var result = await _service.GenerateQuestionsAsync(request);
+            var result = await _service.GenerateQuestionsAsync(request, cancellationToken);
 
             if(!result.Status.Equals("ok", StringComparison.OrdinalIgnoreCase))
             {
@@ -113,6 +113,9 @@ public class GenerateQuestionsJob : IGenerateQuestionsJob
             quiz.Questions.AddRange(questions);
 
             cancellationToken.ThrowIfCancellationRequested();
+
+            job.Status = AIJobStatus.Completed;
+            job.CompletedAt = DateTime.UtcNow;
 
             await _unitOfWork.CommitAsync();
         }
@@ -131,6 +134,12 @@ public class GenerateQuestionsJob : IGenerateQuestionsJob
         }
         catch(Exception ex)
         {
+            if (job != null)
+            {
+                job.Status = AIJobStatus.Failed;
+                job.Error = "An Exception Was Thrown While Run Question Generation Job";
+                await _unitOfWork.CommitAsync();
+            }
             _logger.LogError(ex, "An Exception Was Thrown While Run Question Generation Job: {Job}", jobId);
         }
     }

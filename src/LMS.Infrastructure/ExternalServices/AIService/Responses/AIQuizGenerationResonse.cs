@@ -1,4 +1,6 @@
-﻿namespace LMS.Infrastructure.ExternalServices.AIService.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace LMS.Infrastructure.ExternalServices.AIService.Responses;
 
 public class AIQuizGenerationResonse
 {

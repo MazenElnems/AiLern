@@ -45,7 +45,7 @@ public class SectionDeleteCommandHandler : IRequestHandler<SectionDeleteCommand,
         {
             foreach (var filePath in filePaths)
             {
-                await _wasabiService.DeleteFileAsync(filePath);
+                await _wasabiService.DeleteFileAsync(filePath, cancellationToken);
             }
         }
         catch (Exception ex)

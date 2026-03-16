@@ -34,20 +34,21 @@ internal class DeleteMaterialFileCommandHandler : IRequestHandler<DeleteMaterial
             return DomainErrors.Common.Forbidden("You do not have permission to delete this section file.");
 
         var file = section.MaterialFiles.FirstOrDefault(f => f.Id == request.FileId);
+
         if (file == null)
             return DomainErrors.MaterialFile.NotFound(request.FileId);
 
         var filePath = file.StoragePath;
         try
         {
-            await _wasabiService.DeleteFileAsync(filePath);
+            await _wasabiService.DeleteFileAsync(filePath, cancellationToken);
         }
         catch (Exception ex)
         {
             throw new Exception("Failed to delete file from storage.", ex);
         }
 
-        _unitOfWork.MaterialFiles.DeleteFile(file);
+        section.RemoveFile(file);
         await _unitOfWork.CommitAsync();
 
         return Result.Success();

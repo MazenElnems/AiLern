@@ -17,7 +17,6 @@ internal class UnitOfWork : IUnitOfWork
     public IAssignmentRepository Assignments { get; }
     public IBaseRepository<AssignmentSubmissionFile> SubmissionFiles { get; }
     public IBaseRepository<Section> Sections { get; }
-    public IMaterialFileRepository MaterialFiles { get; }
     public IBaseRepository<AssignmentSubmission> AssignmentSubmissions { get; }
     public IBaseRepository<Quiz> Quizzes { get; }
     public IBaseRepository<Question> Questions { get; }
@@ -33,7 +32,6 @@ internal class UnitOfWork : IUnitOfWork
         RefreshTokens = new RefreshTokenRepository(_context);
         Assignments = new AssignmentRepository(_context);
         Sections = new BaseRepository<Section>(_context);
-        MaterialFiles = new MaterialFileRepository(_context);
         SubmissionFiles = new BaseRepository<AssignmentSubmissionFile>(_context);
         AssignmentSubmissions = new BaseRepository<AssignmentSubmission>(_context);
         Quizzes = new BaseRepository<Quiz>(_context);

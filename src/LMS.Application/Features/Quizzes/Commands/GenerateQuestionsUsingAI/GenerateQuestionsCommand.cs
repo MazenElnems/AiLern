@@ -11,11 +11,6 @@ public class GenerateQuestionsCommand : IRequest<Result<Guid>>
     [JsonIgnore]
     public Guid QuizId { get; set; }
 
-    // var qFiles = Db;
-
-    // qFiles.RemoveRange(FileIds.Except(qFiles.Select(f => f.Id)));
-    // qFiles.AddRange( FileIds.Except(qFiles.Select(f => f.Id)).Select(id => new QuestionGenerationFiles { Id = id, QuizId = QuizId }));
-
     public List<Guid> FileIds { get; set; } // MaterialIDs + QuestionGenerationFiles
     public List<IFormFile> NewUploadedFiles { get; set; }
     public int QuestionsCount { get; set; }

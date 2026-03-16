@@ -1,7 +1,6 @@
 ﻿using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Quizzes;
-using LMS.Domain.Interfaces;
 
 namespace LMS.Domain.Repositories;
 
@@ -14,7 +13,6 @@ public interface IUnitOfWork
     public IAssignmentRepository Assignments { get; }
     public IBaseRepository<AssignmentSubmissionFile> SubmissionFiles { get; }
     public IBaseRepository<AssignmentSubmission> AssignmentSubmissions { get; }
-    public IMaterialFileRepository MaterialFiles { get; }
     public IBaseRepository<Section> Sections { get; }
     public IBaseRepository<Quiz> Quizzes { get; }
     public IBaseRepository<Question> Questions { get; }

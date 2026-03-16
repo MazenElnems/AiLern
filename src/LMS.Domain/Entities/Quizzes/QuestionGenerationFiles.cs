@@ -1,7 +1,10 @@
-﻿namespace LMS.Domain.Entities.Quizzes;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace LMS.Domain.Entities.Quizzes;
 
 public class QuestionGenerationFiles
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public Guid Id { get; set; }
     public string FileName { get; set; }
     public string StoragePath { get; set; }

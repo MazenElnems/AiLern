@@ -1,6 +1,6 @@
 ﻿using LMS.Domain.Enums;
 
-namespace LMS.Infrastructure.ExternalServices.AIService.Models;
+namespace LMS.Infrastructure.ExternalServices.AIService.Responses;
 
 public class AIQuestionGeneratedResponse
 {

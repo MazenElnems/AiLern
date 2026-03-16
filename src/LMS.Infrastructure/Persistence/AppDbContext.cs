@@ -23,7 +23,6 @@ namespace LMS.Infrastructure.Persistence
         public DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; }
         public DbSet<AssignmentSubmissionFile> AssignmentSubmissionFiles { get; set; }
         public DbSet<Section> Sections { get; set; }
-        public DbSet<MaterialFile> MaterialFiles { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<Question> Questions { get; set; }
 

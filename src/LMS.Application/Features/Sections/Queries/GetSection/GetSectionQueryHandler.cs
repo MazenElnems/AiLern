@@ -59,15 +59,16 @@ public class GetSectionQueryHandler : IRequestHandler<GetSectionQuery, Result<Co
         var materialFiles = section.MaterialFiles
             .OrderBy(f => f.OrderIndex)
             .Select(file => new SectionFileDto
-                {
-                    FileName = file.FileName,
-                    FileSize = file.FileSize,
-                    ContentType = file.FileType,
-                    OrderIndex = file.OrderIndex,
-                    UploadDate = file.UploadDate,
-                    FileUrl = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl,
-                                                                    _bunnyOptions.Token, file.StoragePath, TimeSpan.FromMinutes(5))
-                }).ToList();
+            {
+                Id = file.Id,
+                FileName = file.FileName,
+                FileSize = file.FileSize,
+                ContentType = file.FileType,
+                OrderIndex = file.OrderIndex,
+                UploadDate = file.UploadDate,
+                FileUrl = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl,
+                                                                _bunnyOptions.Token, file.StoragePath, TimeSpan.FromMinutes(5))
+            }).ToList();
 
         sectiondto.SectionFiles = materialFiles;
         return sectiondto;

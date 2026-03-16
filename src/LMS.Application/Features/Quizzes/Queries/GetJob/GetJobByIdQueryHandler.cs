@@ -37,13 +37,11 @@ public class GetJobByIdQueryHandler : IRequestHandler<GetJobByIdQuery, Result<Ge
             if (job == null)
                 return DomainErrors.QuestionGenerationJob.NotFound(request.Id);
 
-
             var isInstructor = await _unitOfWork.Courses.AnyAsync(c => c.Id == job.Quiz.CourseId && c.InstructorId == userId);
             if (!isInstructor)
                 return DomainErrors.Course.NotOwned;
 
             var dto = _mapper.Map<GetJobDto>(job);
-
 
             return Result<GetJobDto>.Success(dto);
         }

@@ -10,9 +10,10 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddAuthentication();
 builder.Services
+    .ConfigureHttpClient()
     .AddCorsConfigurations()
     .AddSwaggerConfigrations()
     .AddInfrastructureServices(builder.Configuration)
