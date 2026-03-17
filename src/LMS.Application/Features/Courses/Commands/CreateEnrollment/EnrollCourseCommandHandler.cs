@@ -30,8 +30,7 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand, R
         if (course == null)
             return DomainErrors.Course.NotFound(request.CourseId);
 
-        if(course.CourseStatus != CourseStatus.Approved)
-            return DomainErrors.Course.NotApproved;
+        
         
         if(await _unitOfWork.Enrollments.GetEnrollmentByIdAsync(currentStudentId, request.CourseId) != null)
             return DomainErrors.Course.AlreadyEnrolled;

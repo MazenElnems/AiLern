@@ -5,7 +5,6 @@ using LMS.Application.Features.Courses.Commands.CreateCourse;
 using LMS.Application.Features.Courses.Commands.CreateEnrollment;
 using LMS.Application.Features.Courses.Commands.DeleteCourse;
 using LMS.Application.Features.Courses.Commands.DeleteEnrollment;
-using LMS.Application.Features.Courses.Commands.RejectCourse;
 using LMS.Application.Features.Courses.Commands.RejectEnrollment;
 using LMS.Application.Features.Courses.Commands.UpdateCourse;
 using LMS.Application.Features.Courses.Queries.GetAllCourses;
@@ -102,20 +101,7 @@ public class CoursesController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpPut("{id}/reject")]
-    [SwaggerOperation(Summary = "Reject course", Description = "Rejects a course.")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Course rejected successfully.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> Reject(int id,RejectCourseCommand command)
-    {
-        command.Id = id;
-        var result = await _mediator.Send(command);
-        return HandleResponse(this, result);
-    }
+    
 
     [HttpPut("{id}/enrollments/{studentId}/approve")]
     [SwaggerOperation(Summary = "Approve enrollment", Description = "Approves a student's enrollment request.")]

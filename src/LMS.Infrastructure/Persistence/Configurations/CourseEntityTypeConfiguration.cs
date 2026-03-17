@@ -46,8 +46,5 @@ public class CourseEntityTypeConfiguration : IEntityTypeConfiguration<Course>
             .HasColumnType("DATETIME2")
             .IsRequired();
 
-        builder.Property(c => c.CourseStatus)
-            .HasConversion<string>()
-            .HasDefaultValue(CourseStatus.Pending);
     }
 }

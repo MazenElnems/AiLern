@@ -36,8 +36,6 @@ public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Resul
         if (user.Id != course.InstructorId)
             return DomainErrors.Course.NotOwned;
 
-        if (course.CourseStatus != CourseStatus.Approved)
-            return DomainErrors.Course.NotApproved;
 
         var quiz = _mapper.Map<Quiz>(request);
 

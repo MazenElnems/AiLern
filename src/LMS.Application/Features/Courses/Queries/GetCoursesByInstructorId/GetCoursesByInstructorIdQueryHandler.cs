@@ -31,7 +31,7 @@ public class GetCoursesByInstructorIdQueryHandler : IRequestHandler<GetCoursesBy
         if (user == null)
             return DomainErrors.User.NotFound(request.instructorId.ToString());
 
-        var courses = await _unitOfWork.Courses.FilterAsync(c => c.InstructorId == request.instructorId && c.CourseStatus == CourseStatus.Approved,
+        var courses = await _unitOfWork.Courses.FilterAsync(c => c.InstructorId == request.instructorId ,
             includeProperties: [nameof(Course.Instructor)]);
 
         var result = _mapper.Map<List<GetStudentCoursesDto>>(courses);

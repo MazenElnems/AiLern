@@ -5,6 +5,7 @@ using LMS.Application.Common.Results.Generic;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using LMS.Domain.Entities.Courses;
+using LMS.Domain.Errors;
 
 namespace LMS.Application.Features.Courses.Commands.CreateCourse;
 
@@ -27,14 +28,28 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
     {
         try
         {
+            var CodeNormalized = request.Code.Trim().ToUpper();
+            var NameNormalized = request.Name.ToLower();
+
+            var isExist = await _unitOfWork.Courses.AnyAsync(c => c.Code == CodeNormalized || c.Name == NameNormalized);
+
+            if (isExist)
+                return DomainErrors.Course.AlreadyExist;
+
             var currentUser = _userContext.GetCurrentUser();
+
+            request.Code = CodeNormalized;
+            request.Name = NameNormalized;
 
             var course = _mapper.Map<Course>(request);
             course.InstructorId = currentUser.Id;
+            course.CreatedAt = DateTime.UtcNow;
 
             _logger.LogInformation("Creating new course {@Course}", request);
+
             await _unitOfWork.Courses.InsertAsync(course);
             await _unitOfWork.CommitAsync();
+
             _logger.LogInformation("new Course created successfully with ID: {courseId}", course.Id);
             return Result<int>.Success(course.Id);
         }
