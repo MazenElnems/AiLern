@@ -50,22 +50,26 @@ public class GenerateQuestionsCommandHandler : IRequestHandler<GenerateQuestions
         questionGenerationFiles.RemoveAll(f => removedFileIds.Contains(f.Id));  
         questionGenerationFiles.AddRange(newAddedMaterialFiles.Select(f => new QuestionGenerationFiles { Id = f.Id, QuizId = request.QuizId, IsCourseMaterial = true, StoragePath = f.StoragePath, FileName = f.FileName, HasUploadedToAIService = false }));
 
-        var newUploadedFileStreams = request.NewUploadedFiles.Select(f => f.OpenReadStream()).ToList();
-        var newUploadedFileKeys = request.NewUploadedFiles.Select(f =>
+        if (request.NewUploadedFiles.Any())
         {
-            var filePath = $"ailern-storage/quiz-{request.QuizId}/uploaded/{Guid.NewGuid()}-{f.FileName}";
-            return filePath;
-        }).ToList();
+            var newUploadedFileStreams = request.NewUploadedFiles.Select(f => f.OpenReadStream()).ToList();
+            var newUploadedFileKeys = request.NewUploadedFiles.Select(f =>
+            {
+                var filePath = $"ailern-storage2/quiz-{request.QuizId}/uploaded/{Guid.NewGuid()}-{f.FileName}";
+                return filePath;
+            }).ToList();
 
-        await _wasabiService.UploadFilesAsync(newUploadedFileStreams, newUploadedFileKeys);
+            await _wasabiService.UploadFilesAsync(newUploadedFileStreams, newUploadedFileKeys);
 
-        questionGenerationFiles.AddRange(newUploadedFileKeys.Select(f => new QuestionGenerationFiles
-        {
-            FileName = f.Split('/').Last().Split('-').Last(),
-            StoragePath = f,
-            IsCourseMaterial = false,
-            HasUploadedToAIService = false,
-        }));
+            questionGenerationFiles.AddRange(newUploadedFileKeys.Select(f => new QuestionGenerationFiles
+            {
+                Id = Guid.NewGuid(),
+                FileName = f.Split('/').Last().Split('-').Last(),
+                StoragePath = f,
+                IsCourseMaterial = false,
+                HasUploadedToAIService = false,
+            }));
+        }
 
         var newJob = new AIQuestionGenerationJob
         {

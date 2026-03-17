@@ -6,7 +6,7 @@ public static class CorsConfigurations
     {
         services.AddCors(options =>
         {
-            options.AddDefaultPolicy(policy => policy.AllowAnyMethod().AllowAnyOrigin().AllowAnyMethod());
+            options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
         });
         return services;
     }

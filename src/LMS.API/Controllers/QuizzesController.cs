@@ -13,18 +13,22 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using LMS.Application.Features.Quizzes.Queries.GetJob;
 using LMS.Application.Features.Quizzes.Queries.GetQuestionGenerationFiles;
+using LMS.Application.Features.Quizzes.Shared.Requests;
+using AutoMapper;
 
 namespace LMS.API.Controllers;
 
 [Route("api/[controller]")]
-[ApiController]
+//[ApiController]
 public class QuizzesController : ApiBaseController
 {
     private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
 
-    public QuizzesController(IMediator mediator)
+    public QuizzesController(IMediator mediator, IMapper mapper)
     {
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     [HttpPost]
@@ -93,13 +97,13 @@ public class QuizzesController : ApiBaseController
 
     [HttpPost("{quizId}/generate-by-ai")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> GenerateByAi([FromRoute] Guid quizId, [FromBody] GenerateQuestionsCommand command)
+    public async Task<ActionResult<ApiResponse>> GenerateByAi([FromRoute] Guid quizId, [FromForm] GenerateQuestionByAIRequest request)
     {
+        var command = _mapper.Map<GenerateQuestionsCommand>(request);
         command.QuizId = quizId;
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
-
 
     [HttpGet("job/{id}")]
     [Authorize(Roles = UserRoles.Instructor)]
