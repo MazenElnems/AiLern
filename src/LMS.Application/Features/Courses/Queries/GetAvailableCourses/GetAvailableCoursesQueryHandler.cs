@@ -35,7 +35,7 @@ public class GetAvailableCoursesQueryHandler : IRequestHandler<GetAvailableCours
                 return Result<PaginationResult<GetAvailableCoursesDto>>.Failure(DomainErrors.Pagination.InvalidParameters);
             }
 
-            Expression<Func<Course, bool>> predicate = c => c.CourseStatus == CourseStatus.Approved;
+            Expression<Func<Course, bool>> predicate = c => true;
 
             var sortBy = request.SortBy?.ToLower();
             var order = request.Order?.ToLower();

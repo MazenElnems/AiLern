@@ -19,11 +19,8 @@ public class EnrollmentEntityTypeConfiguration : IEntityTypeConfiguration<Enroll
             .WithMany(s => s.Enrollments)
             .HasForeignKey(e => e.StudentId);
 
-        builder.Property(e => e.Status)
-            .HasConversion<string>()
-            .HasDefaultValue(EnrollmentStatus.Pending);
 
-        builder.Property(e => e.RequestedAt)
+        builder.Property(e => e.EnrolledAt)
             .HasColumnType("DATETIME2")
             .IsRequired();
     }
