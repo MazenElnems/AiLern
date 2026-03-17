@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using LMS.Application.Features.Quizzes.Commands.CreateQuiz;
+using LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
 using LMS.Application.Features.Quizzes.Shared.DTO;
 using LMS.Application.Features.Quizzes.Shared.Requests;
 using LMS.Domain.Entities.Quizzes;
@@ -24,5 +25,7 @@ public class QuizProfile : Profile
         CreateMap<Option, OptionDto>();
 
         CreateMap<QuestionGenerationFiles, QuestionGenerationFilesDto>();
+
+        CreateMap<GenerateQuestionByAIRequest, GenerateQuestionsCommand>();
     }
 }

@@ -5,12 +5,14 @@ using LMS.API.Middleware;
 using LMS.Application;
 using LMS.Infrastructure;
 using LMS.Infrastructure.Jobs;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
 builder.Services.AddAuthentication();
 builder.Services
     .ConfigureHttpClient()
@@ -42,6 +44,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHangfireDashboard("/hangfire");
 }
 
 app.UseHsts();
@@ -55,8 +58,6 @@ app.UseCors();
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseHangfireDashboard("/hangfire");
 
 app.MapControllers();
 

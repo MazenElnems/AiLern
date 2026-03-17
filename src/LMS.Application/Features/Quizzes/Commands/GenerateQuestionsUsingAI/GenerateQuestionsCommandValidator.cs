@@ -19,9 +19,9 @@ public class GenerateQuestionsCommandValidator : AbstractValidator<GenerateQuest
         });
 
         RuleFor(x => x.QuestionTypeCounts)
-            .NotEmpty()
-            .WithMessage("Question types must be specified.")
-            .Must(types => types.Keys.All(k =>
+            .NotNull().WithMessage("Question types can't be null.")
+            .NotEmpty().WithMessage("Question types must be specified.")
+            .Must(types => types != null && types.Keys.All(k =>
                 k == QuestionType.MCQ ||
                 k == QuestionType.TrueFalse ||
                 k == QuestionType.Written));
