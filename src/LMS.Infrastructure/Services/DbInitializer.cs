@@ -101,7 +101,8 @@ public class DbInitializer : IDbInitializer
                 UserName = instructorEmail,
                 Email = instructorEmail,
                 FullName = "Instructor User",
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Role = UserRoles.Instructor
             };
 
             await _userManager.CreateAsync(instructorUser, instructorPassword!);
@@ -116,7 +117,8 @@ public class DbInitializer : IDbInitializer
                 UserName = studentEmail,
                 Email = studentEmail,
                 FullName = "Student User",
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Role = UserRoles.Student
             };
 
             await _userManager.CreateAsync(studentUser, studentPassword!);
@@ -139,7 +141,8 @@ public class DbInitializer : IDbInitializer
                 UserName = adminEmail,
                 Email = adminEmail,
                 FullName = "Root Admin",
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Role = UserRoles.Admin
             };
 
             await _userManager.CreateAsync(adminUser, adminPassword!);
