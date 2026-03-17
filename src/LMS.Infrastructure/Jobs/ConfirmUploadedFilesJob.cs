@@ -18,10 +18,13 @@ public  class ConfirmUploadedFilesJob : IConfirmUploadedFilesJob
 
     public async Task ExecuteAsync(List<string> Keys)
     {
-        var files = await _unitOfWork.MaterialFiles
-            .TrackedQuery
-            .Where(f => Keys.Contains(f.StoragePath))
-            .ToListAsync();
+        var sections = await _unitOfWork.Sections
+            .FilterAsync(s => s.MaterialFiles.Any(f => Keys.Contains(f.StoragePath)));
+
+        var files = sections
+            .ToList()
+            .SelectMany(s => s.MaterialFiles);
+
         foreach (var file in files)
         {
             var exists = await _wasabiService.FileExists(file.StoragePath);
@@ -29,10 +32,7 @@ public  class ConfirmUploadedFilesJob : IConfirmUploadedFilesJob
             file.UploadStatus = exists
                 ? UploadStatus.Completed
                 : UploadStatus.Failed;
-
-
         }
         await _unitOfWork.CommitAsync();
-
     }
 }

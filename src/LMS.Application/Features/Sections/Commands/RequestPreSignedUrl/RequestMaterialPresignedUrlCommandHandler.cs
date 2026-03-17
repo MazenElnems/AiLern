@@ -47,7 +47,7 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
             List<string> response = new();
             List<string> keys = new();
 
-            var orderIndex = await _unitOfWork.MaterialFiles.GetMaxOrderIndexAsync(request.SectionId);
+            var orderIndex = section.GetMaxFileOrderIndexAsync();
 
             foreach(var file in request.Files)
             {

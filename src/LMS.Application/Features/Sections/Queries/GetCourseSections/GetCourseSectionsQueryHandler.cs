@@ -34,56 +34,41 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
     {
         var user = _userContext.GetCurrentUser();
 
-        var sections = await _unitOfWork.Sections.FilterAsync(a => a.CourseId == request.CourseId,
-            includeProperties: [nameof(Section.MaterialFiles),nameof(Section.Course)]);
+        var course = await _unitOfWork.Courses.GetAsync(c => c.Id == request.CourseId,
+            includeProperties: [nameof(Course.Sections)]);
 
-        var course = sections.FirstOrDefault()==null?null:sections.FirstOrDefault().Course;
-
-        if (course == null)
-        {
+        if(course == null)
             return DomainErrors.Course.NotFound(request.CourseId);
-        }
 
+        if (user.IsInRole(UserRoles.Instructor) && course.InstructorId != user.Id)
+            return DomainErrors.Course.NotOwned;
 
-        if (user.IsInRole(UserRoles.Instructor))
-        {
-            if (course.InstructorId != user.Id)
-            {
-                return DomainErrors.Common.Forbidden("You are not the instructor of this course.");
-            }
-        }
-        if (user.IsInRole(UserRoles.Student))
-        {
-            var isnrolled = await _unitOfWork.Enrollments.IsEnrolledAsync(request.CourseId, user.Id);
-            if (!isnrolled)
-            {
-                return DomainErrors.Common.Forbidden("You are not student in this course.");
-            }
-        }
+        if (user.IsInRole(UserRoles.Student) && !await _unitOfWork.Enrollments.IsEnrolledAsync(request.CourseId, user.Id))
+            return DomainErrors.Course.NotEnrolled;
 
         var result = new List<CourseSectionsDto>();
 
-        foreach (var section in sections)
+        var dto = course.Sections.Select(s =>
         {
-            result.Add(_mapper.Map<CourseSectionsDto>(section));
+            var sectionDto = _mapper.Map<CourseSectionsDto>(s);
 
-            var materialFiles = section.MaterialFiles
-                                .OrderBy(f => f.OrderIndex)
-                                .Select(file => new SectionFileDto
-                                {
-                                    FileName = file.FileName,
-                                    FileSize = file.FileSize,
-                                    ContentType = file.FileType,
-                                    OrderIndex = file.OrderIndex,
-                                    UploadDate = file.UploadDate,
-                                    FileUrl = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl,
-                                                            _bunnyOptions.Token,file.StoragePath, TimeSpan.FromMinutes(5))
-                                }).ToList();
+            sectionDto.SectionFiles = s.MaterialFiles
+                .OrderBy(f => f.OrderIndex)
+                .Select(file => new SectionFileDto
+                {
+                    Id = file.Id,
+                    FileName = file.FileName,
+                    FileSize = file.FileSize,
+                    ContentType = file.FileType,
+                    OrderIndex = file.OrderIndex,
+                    UploadDate = file.UploadDate,
+                    FileUrl = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl,
+                                            _bunnyOptions.Token, file.StoragePath, TimeSpan.FromMinutes(5))
+                }).ToList();
 
-            result.Last().SectionFiles = materialFiles;
+            return sectionDto;
+        }).ToList();
 
-        }
-
-        return result;
+        return dto;
     }
 }

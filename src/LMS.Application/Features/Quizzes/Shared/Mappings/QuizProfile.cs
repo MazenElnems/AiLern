@@ -16,11 +16,13 @@ public class QuizProfile : Profile
 
         CreateMap<CreateQuizCommand, Quiz>();
         CreateMap<Quiz, GetQuizDto>();
+        CreateMap<AIQuestionGenerationJob, GetJobDto>();
 
         CreateMap<Quiz, GetAllQuizDto>();
         CreateMap<Question, QuestionDto>();
 
         CreateMap<Option, OptionDto>();
 
+        CreateMap<QuestionGenerationFiles, QuestionGenerationFilesDto>();
     }
 }

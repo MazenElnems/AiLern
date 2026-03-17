@@ -10,9 +10,10 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddAuthentication();
 builder.Services
+    .ConfigureHttpClient()
     .AddCorsConfigurations()
     .AddSwaggerConfigrations()
     .AddInfrastructureServices(builder.Configuration)
@@ -55,9 +56,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseHangfireDashboard();
-
-app.MapHangfireDashboard();
+app.UseHangfireDashboard("/hangfire");
 
 app.MapControllers();
 

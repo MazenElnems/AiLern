@@ -4,6 +4,8 @@ using LMS.Application.ConfigurationOptions;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
+using LMS.Infrastructure.ExternalServices.AIService;
+using LMS.Infrastructure.ExternalServices.AIService.Contracts;
 using LMS.Infrastructure.Jobs;
 using LMS.Infrastructure.Persistence;
 using LMS.Infrastructure.Persistence.Repositories;
@@ -37,10 +39,17 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IQuizPublishSchedulerJob, QuizPublishSchedulerJob>();
+        services.AddScoped<IGenerateQuestionsJob, GenerateQuestionsJob>();
+        services.AddScoped<IAIService, AIService>();
 
         services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.Configure<FrontEndSettings>(configuration.GetSection("FrontEndSettings"));
+        services.Configure<AIServiceSettings>(configuration.GetSection("AIServiceSettings"));
+
+        // AutoMapper
+        services.AddAutoMapper(cfg => { } ,
+            [typeof(DependencyInjection).Assembly]);
 
         // Hangfire
         services.AddHangfire(config => config

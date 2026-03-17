@@ -85,6 +85,24 @@ public static class DomainErrors
                 "AvailableUntil must be later than AvailableFrom."
             );
     }
+    public static class QuestionGenerationJob
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Job", id.ToString());
+
+
+    }
+
+    public static class QuestionGenerationJobs
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Quiz", id.ToString());
+
+        public static Error NotInProgress =>
+            Common.BusinessRule("QuestionGenerationJobs.NotInProgress", "QuestionGenerationJob is not In Progress");
+        public static Error AlreadyCanceled =>
+            Common.BusinessRule("QuestionGenerationJobs.AlreadyCanceled", "QuestionGenerationJob is AlreadyCanceled");
+    }
 
     public static class AssignmentFile
     {

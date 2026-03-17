@@ -16,6 +16,7 @@ public interface IBackgroundJobService
     string Schedule<T>(Expression<Action<T>> methodCall, DateTime date);
     string Schedule(Expression<Func<Task>> methodCall, TimeSpan delay);
     string Schedule<T>(Expression<Func<T, Task>> methodCall, TimeSpan delay);
+
     
     void Delete(string jobId);
 }

@@ -8,7 +8,6 @@ using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
 using LMS.Application.Features.Courses.Commands.CreateCourse;
 using LMS.Application.Features.Courses.Shared.DTO;
 using LMS.Application.Features.Instructors.Commands.CreateInstructor;
-using LMS.Application.Features.Sections.Shared.DTO;
 using LMS.Application.Features.Students.Commands.CreateStudent;
 using LMS.Application.Features.Students.Shared.DTO;
 using LMS.Application.Features.Users.Shared.DTO;
@@ -17,8 +16,6 @@ using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Users;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 
 namespace LMS.Application;
@@ -75,9 +72,6 @@ public static class DependencyInjection
             cfg.CreateMap<AssignmentSubmission, AssignmentSubmissionDto>();
             cfg.CreateMap<Assignment, AssignmentDto>();
             cfg.CreateMap<AssignmentSubmission, AssignmentSubmissionDto>();
-            cfg.CreateMap<Section, SectionDto>();
-            cfg.CreateMap<Section, CourseSectionsDto>()
-            .ForMember(dest => dest.CourseName, opt => opt.MapFrom(src => src.Course.Name));
         }, [typeof(DependencyInjection).Assembly]);
 
         return services;
