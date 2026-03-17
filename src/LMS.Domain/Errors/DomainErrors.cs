@@ -33,6 +33,8 @@ public static class DomainErrors
 
         public static Error AlreadyEnrolled =>
             Common.BusinessRule("Course.AlreadyEnrolled", "Student is already enrolled in this course.");
+        public static Error AlreadyExist =>
+            Common.BusinessRule("Course.AlreadyExist", "A course with the same code or name already exists.");
 
         public static Error RejectApproved =>
             Common.BusinessRule("Course.RejectApproved", "Can't reject approved course.");
