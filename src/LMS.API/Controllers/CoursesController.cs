@@ -1,20 +1,26 @@
 using LMS.API.Controllers.Common;
-using Microsoft.AspNetCore.Mvc;
-using MediatR;
+using LMS.API.Models;
+using LMS.Application.Features.Courses.Commands.ApproveEnrollment;
 using LMS.Application.Features.Courses.Commands.CreateCourse;
-using LMS.Application.Features.Courses.Commands.UpdateCourse;
+using LMS.Application.Features.Courses.Commands.CreateEnrollment;
+using LMS.Application.Features.Courses.Commands.DeleteCourse;
+using LMS.Application.Features.Courses.Commands.DeleteEnrollment;
 using LMS.Application.Features.Courses.Commands.RejectCourse;
+using LMS.Application.Features.Courses.Commands.RejectEnrollment;
+using LMS.Application.Features.Courses.Commands.UpdateCourse;
 using LMS.Application.Features.Courses.Queries.GetAllCourses;
 using LMS.Application.Features.Courses.Queries.GetAvailableCourses;
 using LMS.Application.Features.Courses.Queries.GetById;
+using LMS.Application.Features.Courses.Queries.GetCoursesByInstructorId;
 using LMS.Application.Features.Courses.Commands.DeleteCourse;
 using LMS.Application.Features.Courses.Commands.DeleteEnrollment;
 using LMS.Application.Features.Courses.Queries.GetEnrolledStudents;
-using LMS.Application.Features.Courses.Commands.CreateEnrollment;
-using Swashbuckle.AspNetCore.Annotations;
-using LMS.API.Models;
-using Microsoft.AspNetCore.Authorization;
+using LMS.Application.Features.Courses.Shared.DTO;
 using LMS.Domain.Constants;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace LMS.API.Controllers;
 
@@ -31,6 +37,7 @@ public class CoursesController : ApiBaseController
     }
 
     [HttpPost]
+    [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Create course", Description = "Creates a new course.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Course created successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -44,6 +51,7 @@ public class CoursesController : ApiBaseController
     }
 
     [HttpGet]
+    [Authorize(Roles = UserRoles.Admin)]
     [SwaggerOperation(Summary = "Get all courses", Description = "Retrieves all courses with pagination and filtering.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Courses retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid query parameters.", typeof(ApiResponse))]
@@ -55,6 +63,7 @@ public class CoursesController : ApiBaseController
     }
 
     [HttpGet("{id}")]
+    [Authorize]
     [SwaggerOperation(Summary = "Get course by ID", Description = "Retrieves course details by ID.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Course retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -165,6 +174,22 @@ public class CoursesController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetAvailableCourses([FromQuery] GetAvailableCoursesQuery query)
     {
         var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("instructors/{id}")]
+    [Authorize]
+    [SwaggerOperation(
+    Summary = "Get courses by instructor id", Description = "Retrieves approved courses for a specific instructor.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Courses retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Instructor not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetCoursesByInstructorId(int id)
+    {
+        var query = new GetCoursesByInstructorIdQuery(id);
+
+        var result = await _mediator.Send(query);
+
         return HandleResponse(this, result);
     }
 }
