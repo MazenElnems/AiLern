@@ -4,8 +4,6 @@ using LMS.Application.Features.Courses.Commands.CreateCourse;
 using LMS.Application.Features.Courses.Commands.CreateEnrollment;
 using LMS.Application.Features.Courses.Commands.DeleteCourse;
 using LMS.Application.Features.Courses.Commands.DeleteEnrollment;
-using LMS.Application.Features.Courses.Commands.RejectCourse;
-using LMS.Application.Features.Courses.Commands.RejectEnrollment;
 using LMS.Application.Features.Courses.Commands.UpdateCourse;
 using LMS.Application.Features.Courses.Queries.GetAllCourses;
 using LMS.Application.Features.Courses.Queries.GetAvailableCourses;

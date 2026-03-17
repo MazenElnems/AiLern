@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Errors;
+using LMS.Domain.Constants;
 
 namespace LMS.Application.Features.Courses.Commands.CreateEnrollment;
 
@@ -26,8 +27,9 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand, R
         //var user = _userContext.GetCurrentUser();
 
         var user = await _unitOfWork.Users.GetByIdAsync(request.StudentId);
-        if (user == null)
+        if (user == null || user.Role != UserRoles.Student)
             return DomainErrors.User.NotFound(request.StudentId.ToString());
+
         var course = await _unitOfWork.Courses.GetByIdAsync(request.CourseId);
         if (course == null)
             return DomainErrors.Course.NotFound(request.CourseId);
