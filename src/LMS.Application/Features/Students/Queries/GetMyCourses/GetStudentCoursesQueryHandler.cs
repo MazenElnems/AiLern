@@ -45,7 +45,7 @@ public class GetStudentCoursesQueryHandler : IRequestHandler<GetStudentCoursesQu
                 return Result<List<GetStudentCoursesDto>>.Failure(DomainErrors.User.NotFound(id.ToString()));
 
             Expression<Func<Course, bool>> predicate = c =>
-                c.Enrollments.Any(s => s.Status == EnrollmentStatus.Approved && s.StudentId == id);
+                c.Enrollments.Any(s => s.StudentId == id);
 
             var sortBy = request.SortBy?.ToLower();
             var order = request.Order?.ToLower();

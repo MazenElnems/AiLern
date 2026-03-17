@@ -24,7 +24,7 @@ internal class CourseRepository : BaseRepository<Course>, ICourseRepository
     public async Task<List<Student>> GetStudentsByCourseIdAsync(int courseId)
     {
         return await _context.Students
-            .Where(s => s.Enrollments.Any(e => e.CourseId == courseId && e.Status == EnrollmentStatus.Approved))
+            .Where(s => s.Enrollments.Any(e => e.CourseId == courseId ))
             .ToListAsync();
     }
 

@@ -1,10 +1,10 @@
 using LMS.API.Controllers.Common;
 using LMS.API.Models;
-using LMS.Application.Features.Courses.Commands.ApproveEnrollment;
 using LMS.Application.Features.Courses.Commands.CreateCourse;
 using LMS.Application.Features.Courses.Commands.CreateEnrollment;
 using LMS.Application.Features.Courses.Commands.DeleteCourse;
 using LMS.Application.Features.Courses.Commands.DeleteEnrollment;
+using LMS.Application.Features.Courses.Commands.RejectCourse;
 using LMS.Application.Features.Courses.Commands.RejectEnrollment;
 using LMS.Application.Features.Courses.Commands.UpdateCourse;
 using LMS.Application.Features.Courses.Queries.GetAllCourses;
@@ -12,7 +12,6 @@ using LMS.Application.Features.Courses.Queries.GetAvailableCourses;
 using LMS.Application.Features.Courses.Queries.GetById;
 using LMS.Application.Features.Courses.Queries.GetCoursesByInstructorId;
 using LMS.Application.Features.Courses.Queries.GetEnrolledStudents;
-using LMS.Application.Features.Courses.Shared.DTO;
 using LMS.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -103,21 +102,10 @@ public class CoursesController : ApiBaseController
 
     
 
-    [HttpPut("{id}/enrollments/{studentId}/approve")]
-    [SwaggerOperation(Summary = "Approve enrollment", Description = "Approves a student's enrollment request.")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Enrollment approved successfully.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status404NotFound, "Course or student not found.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> ApproveEnrollment(int id,int studentId)
-    {
-        var result = await _mediator.Send(new ApproveEnrollmentCommand(id, studentId));
-        return HandleResponse(this, result);
-    }
+
 
     [HttpDelete("{id}/enrollments/{studentId}")]
+    [Authorize(Roles = UserRoles.Admin)]
     [SwaggerOperation(Summary = "Delete enrollment", Description = "Removes a student enrollment from a course.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Enrollment deleted successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -131,21 +119,7 @@ public class CoursesController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpPut("{id}/enrollments/{studentId}/reject")]
-    [SwaggerOperation(Summary = "Reject enrollment", Description = "Rejects a student's enrollment request.")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Enrollment rejected successfully.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status404NotFound, "Course or student not found.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> RejectEnrollment(int id ,int studentId,RejectEnrollmentCommand command)
-    {
-        command.CourseId = id ;
-        command.StudentId = studentId;
-        var result = await _mediator.Send(command);
-        return HandleResponse(this, result);
-    }
+
 
     [HttpGet("{id}/students")]
     [SwaggerOperation(Summary = "Get enrolled students", Description = "Lists students enrolled in a course.")]
@@ -160,17 +134,18 @@ public class CoursesController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpPost("{id}/enroll")]
-    [SwaggerOperation(Summary = "Enroll in course", Description = "Creates an enrollment request for the current student.")]
+    [HttpPost("enroll")]
+    [Authorize(Roles = UserRoles.Admin)]
+    [SwaggerOperation(Summary = "Enroll in course", Description = "Creates an enrollment request.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Enrollment request created.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> EnrollCourse(int id)
+    public async Task<ActionResult<ApiResponse>> EnrollCourse(int studentId,int courseId)
     {
-        var result = await _mediator.Send(new EnrollCourseCommand(id));
+        var result = await _mediator.Send(new EnrollCourseCommand(studentId, courseId));
         return HandleResponse(this, result);
     }
 
