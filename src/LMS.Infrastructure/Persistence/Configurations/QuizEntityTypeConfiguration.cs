@@ -28,6 +28,10 @@ public class QuizEntityTypeConfiguration : IEntityTypeConfiguration<Quiz>
             .HasColumnType("DATETIME2")
             .IsRequired();
 
+        builder.Property(q => q.AttemptTimeLimit)
+            .HasColumnType("INT")
+            .IsRequired(false);
+
         builder.Property(q => q.MaximumAttempts)
             .HasColumnType("INT")
             .IsRequired();
@@ -58,6 +62,12 @@ public class QuizEntityTypeConfiguration : IEntityTypeConfiguration<Quiz>
         builder.HasMany(q => q.Questions)
             .WithOne(qu => qu.Quiz)
             .HasForeignKey(qu => qu.QuizId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(q => q.Attempts)
+            .WithOne(a => a.Quiz)
+            .HasForeignKey(a => a.QuizId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
     }
