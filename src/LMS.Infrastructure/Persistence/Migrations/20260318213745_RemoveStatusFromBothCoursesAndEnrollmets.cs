@@ -5,7 +5,7 @@
 namespace LMS.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class removestatusfromenrollment : Migration
+    public partial class RemoveStatusFromBothCoursesAndEnrollmets : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -13,6 +13,10 @@ namespace LMS.Infrastructure.Migrations
             migrationBuilder.DropColumn(
                 name: "Status",
                 table: "Enrollments");
+
+            migrationBuilder.DropColumn(
+                name: "CourseStatus",
+                table: "Courses");
 
             migrationBuilder.RenameColumn(
                 name: "RequestedAt",
@@ -31,6 +35,13 @@ namespace LMS.Infrastructure.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "Status",
                 table: "Enrollments",
+                type: "nvarchar(max)",
+                nullable: false,
+                defaultValue: "Pending");
+
+            migrationBuilder.AddColumn<string>(
+                name: "CourseStatus",
+                table: "Courses",
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "Pending");
