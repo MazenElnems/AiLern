@@ -47,6 +47,12 @@ public class QuestionEntityTypeConfiguration : IEntityTypeConfiguration<Question
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany(q => q.AttemptAnswers)
+            .WithOne(a => a.Question)
+            .HasForeignKey(a => a.QuestionId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.OwnsMany(q => q.Options, o =>
         {
             o.ToTable("QuestionOptions");

@@ -10,6 +10,7 @@ public class Quiz
     public string? Description { get; set; }
     public DateTime AvailableFrom { get; set; }
     public DateTime AvailableUntil { get; set; }
+    public int? AttemptTimeLimit { get; set; }
     public int MaximumAttempts { get; set; }
     public bool ShowResultOnClose { get; set; }
     public double TotalPoints => Questions.Sum(q => q.Mark);
@@ -26,6 +27,7 @@ public class Quiz
     // Navigation Properties
     public Course Course { get; set; }
     public List<Question> Questions { get; set; } = new();
+    public List<Attempt> Attempts { get; set; } = new();
     public List<AIQuestionGenerationJob> QuestionGenerationJobs { get; set; } = new();
     public List<QuestionGenerationFiles> QuestionGenerationFiles { get; set; } = new();
 }

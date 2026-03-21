@@ -6,14 +6,26 @@ using LMS.Application;
 using LMS.Infrastructure;
 using LMS.Infrastructure.Jobs;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
+using Serilog.Formatting.Compact;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+builder.Host.UseSerilog((context, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.FromLogContext();
+});
+
 builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
+
 builder.Services.AddAuthentication();
+
 builder.Services
     .ConfigureHttpClient()
     .AddCorsConfigurations()
@@ -46,6 +58,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.UseHangfireDashboard("/hangfire");
 }
+
+app.UseSerilogRequestLogging();
 
 app.UseHsts();
 

@@ -56,8 +56,15 @@ public class DbInitializer : IDbInitializer
     {
         if ((await _context.Database.GetPendingMigrationsAsync()).Any())
         {
-            await _context.Database.MigrateAsync();
-             _logger.LogInformation("Applied pending migrations to the database.");
+            try
+            {
+                await _context.Database.MigrateAsync();
+                 _logger.LogInformation("Applied pending migrations to the database.");
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Can't Run the Pending Migrations: {@Message}", ex.Message);
+            }
         }
     }
 

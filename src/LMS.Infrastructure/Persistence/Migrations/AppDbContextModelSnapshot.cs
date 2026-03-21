@@ -213,51 +213,7 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Enrollments", (string)null);
-                });
-
-            modelBuilder.Entity("LMS.Domain.Entities.Courses.MaterialFile", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(255)");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("BIGINT");
-
-                    b.Property<string>("FileType")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(50)");
-
-                    b.Property<int>("OrderIndex")
-                        .HasColumnType("INT");
-
-                    b.Property<Guid>("SectionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("StoragePath")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(500)");
-
-                    b.Property<DateTime>("UploadDate")
-                        .HasColumnType("DATETIME2");
-
-                    b.Property<string>("UploadStatus")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SectionId");
-
-                    b.HasIndex("SectionId", "OrderIndex")
-                        .IsUnique();
-
-                    b.ToTable("MaterialFiles", (string)null);
+                    b.ToTable("Enrollments");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Courses.Section", b =>
@@ -311,7 +267,77 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasIndex("QuizId");
 
-                    b.ToTable("QuestionGenerationJobs", (string)null);
+                    b.ToTable("QuestionGenerationJobs");
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Attempt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("AttemptEndTime")
+                        .HasColumnType("DATETIME2");
+
+                    b.Property<int>("AttemptNumber")
+                        .HasColumnType("INT");
+
+                    b.Property<Guid>("QuizId")
+                        .HasColumnType("UNIQUEIDENTIFIER");
+
+                    b.Property<DateTime?>("SavedAt")
+                        .HasColumnType("DATETIME2");
+
+                    b.Property<DateTime>("StartAt")
+                        .HasColumnType("DATETIME2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(10)");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("INT");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("DATETIME2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuizId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Attempts", (string)null);
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.AttemptAnswer", b =>
+                {
+                    b.Property<Guid>("AttemptId")
+                        .HasColumnType("UNIQUEIDENTIFIER");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("UNIQUEIDENTIFIER");
+
+                    b.Property<string>("BooleanAnswer")
+                        .HasColumnType("VARCHAR(5)");
+
+                    b.Property<string>("Feedback")
+                        .HasColumnType("NVARCHAR(MAX)");
+
+                    b.Property<double?>("Mark")
+                        .HasColumnType("FLOAT");
+
+                    b.Property<int?>("OptionNumber")
+                        .HasColumnType("INT");
+
+                    b.Property<string>("WrittenAnswer")
+                        .HasColumnType("NVARCHAR(MAX)");
+
+                    b.HasKey("AttemptId", "QuestionId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("AttemptAnswers", (string)null);
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Question", b =>
@@ -382,7 +408,7 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasIndex("QuizId");
 
-                    b.ToTable("QuestionGenerationFiles", (string)null);
+                    b.ToTable("QuestionGenerationFiles");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Quiz", b =>
@@ -390,6 +416,9 @@ namespace LMS.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("AttemptTimeLimit")
+                        .HasColumnType("INT");
 
                     b.Property<DateTime>("AvailableFrom")
                         .HasColumnType("DATETIME2");
@@ -795,17 +824,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("LMS.Domain.Entities.Courses.MaterialFile", b =>
-                {
-                    b.HasOne("LMS.Domain.Entities.Courses.Section", "Section")
-                        .WithMany("MaterialFiles")
-                        .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Section");
-                });
-
             modelBuilder.Entity("LMS.Domain.Entities.Courses.Section", b =>
                 {
                     b.HasOne("LMS.Domain.Entities.Courses.Course", "Course")
@@ -814,7 +832,58 @@ namespace LMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsMany("LMS.Domain.Entities.Courses.MaterialFile", "MaterialFiles", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("FileName")
+                                .IsRequired()
+                                .HasColumnType("NVARCHAR(255)");
+
+                            b1.Property<long>("FileSize")
+                                .HasColumnType("BIGINT");
+
+                            b1.Property<string>("FileType")
+                                .IsRequired()
+                                .HasColumnType("NVARCHAR(50)");
+
+                            b1.Property<int>("OrderIndex")
+                                .HasColumnType("INT");
+
+                            b1.Property<Guid>("SectionId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("StoragePath")
+                                .IsRequired()
+                                .HasColumnType("NVARCHAR(500)");
+
+                            b1.Property<DateTime>("UploadDate")
+                                .HasColumnType("DATETIME2");
+
+                            b1.Property<string>("UploadStatus")
+                                .IsRequired()
+                                .HasColumnType("NVARCHAR(50)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("SectionId");
+
+                            b1.HasIndex("SectionId", "OrderIndex")
+                                .IsUnique();
+
+                            b1.ToTable("MaterialFiles", (string)null);
+
+                            b1.WithOwner("Section")
+                                .HasForeignKey("SectionId");
+
+                            b1.Navigation("Section");
+                        });
+
                     b.Navigation("Course");
+
+                    b.Navigation("MaterialFiles");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.AIQuestionGenerationJob", b =>
@@ -826,6 +895,44 @@ namespace LMS.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Quiz");
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Attempt", b =>
+                {
+                    b.HasOne("LMS.Domain.Entities.Quizzes.Quiz", "Quiz")
+                        .WithMany("Attempts")
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LMS.Domain.Entities.Users.Student", "Student")
+                        .WithMany("Attempts")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Quiz");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.AttemptAnswer", b =>
+                {
+                    b.HasOne("LMS.Domain.Entities.Quizzes.Attempt", "Attempt")
+                        .WithMany("AttemptAnswers")
+                        .HasForeignKey("AttemptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LMS.Domain.Entities.Quizzes.Question", "Question")
+                        .WithMany("AttemptAnswers")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Attempt");
+
+                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Question", b =>
@@ -975,13 +1082,20 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Sections");
                 });
 
-            modelBuilder.Entity("LMS.Domain.Entities.Courses.Section", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Attempt", b =>
                 {
-                    b.Navigation("MaterialFiles");
+                    b.Navigation("AttemptAnswers");
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Question", b =>
+                {
+                    b.Navigation("AttemptAnswers");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Quiz", b =>
                 {
+                    b.Navigation("Attempts");
+
                     b.Navigation("QuestionGenerationFiles");
 
                     b.Navigation("QuestionGenerationJobs");
@@ -997,6 +1111,8 @@ namespace LMS.Infrastructure.Migrations
             modelBuilder.Entity("LMS.Domain.Entities.Users.Student", b =>
                 {
                     b.Navigation("AssignmentSubmissions");
+
+                    b.Navigation("Attempts");
 
                     b.Navigation("Enrollments");
                 });

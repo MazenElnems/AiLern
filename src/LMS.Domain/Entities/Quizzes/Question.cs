@@ -1,4 +1,4 @@
-﻿using LMS.Domain.Enums;
+using LMS.Domain.Enums;
 
 namespace LMS.Domain.Entities.Quizzes;
 
@@ -20,4 +20,5 @@ public class Question
     // Navigation Properties
     public Quiz Quiz { get; set; }
     public List<Option> Options { get; set; } = new();
+    public List<AttemptAnswer> AttemptAnswers { get; set; } = new();
 }

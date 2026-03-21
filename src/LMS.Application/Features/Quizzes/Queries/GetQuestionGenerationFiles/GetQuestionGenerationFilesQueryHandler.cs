@@ -35,9 +35,35 @@ public class GetQuestionGenerationFilesQueryHandler : IRequestHandler<GetQuestio
         if(quiz.Course.InstructorId != userId)
             return DomainErrors.Quiz.NotOwned;
 
+
+
         var questionGenerationFiles = quiz.QuestionGenerationFiles;
 
-        var dto = _mapper.Map<List<QuestionGenerationFilesDto>>(questionGenerationFiles);
+        var questionGenerationFilesIds = questionGenerationFiles.Select(x => x.Id);
+
+        var sections = await _unitOfWork.Sections.FilterAsync(s => s.MaterialFiles.Any(m=> questionGenerationFilesIds.Contains(m.Id)));
+
+        var materialFiles = sections.SelectMany(s => s.MaterialFiles).Where(m => questionGenerationFilesIds.Contains(m.Id));
+
+        var files = questionGenerationFiles.GroupJoin(materialFiles, qf => qf.Id, mf => mf.Id, 
+            (qf,mf) => new { File = qf , MFiles=mf })
+            .SelectMany(x => x.MFiles.DefaultIfEmpty(), 
+            (qf, mf) => new { qf.File.Id, qf.File.FileName, mf?.SectionId,SectionName = mf?.Section.Title })
+            .ToList();
+
+        var dto = files
+            .GroupBy(f => new { f.SectionId, f.SectionName })
+            .Select(g => new QuestionGenerationFilesDto
+            {
+                SectionId = g.Key.SectionId,
+                SectionName = g.Key.SectionName,
+                Files = g.Select(x => new FileDto
+                {
+                    Id = x.Id,
+                    FileName = x.FileName
+                }).ToList()
+            })
+            .ToList();
 
         return dto;
     }
