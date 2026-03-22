@@ -44,6 +44,7 @@ public class ApiBaseController : ControllerBase
             ErrorType.Unauthorized => ApiResponse.Unauthorized(error.Message),
             ErrorType.Forbidden => ApiResponse.Forbidden(error.Message),
             ErrorType.BusinessRule => ApiResponse.BadRequest(null, error.Message),
+            ErrorType.Conflict => ApiResponse.Conflict(error.Message),
             _ => ApiResponse.InternalError("Unknown error occurred.")
         };
 

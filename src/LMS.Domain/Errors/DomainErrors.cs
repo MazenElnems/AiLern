@@ -95,6 +95,9 @@ public static class DomainErrors
 
     public static class Attempt
     {
+        public static Error NotFound(Guid attemptId)
+            => Common.NotFound("Attempt", attemptId.ToString());
+
         public static Error MaximumAttemptsReaches =>
             Common.Forbidden("you exceed the maximum number of attempts.");
 
