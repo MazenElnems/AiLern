@@ -18,6 +18,9 @@ public static class DomainErrors
 
         public static Error BusinessRule(string title, string message) =>
             Error.BusinessRule(title, message);
+
+        public static Error Conflict(string title, string message) => 
+            Error.Conflict(title, message);
     }
 
     public static class Course
@@ -75,7 +78,7 @@ public static class DomainErrors
             Common.Forbidden("You do not have permission to access this quiz.");
 
         public static Error NotPublished =>
-            Common.BusinessRule("Quiz.NotPublished", "Quiz is not published.");
+            Common.Forbidden("Quiz is not published.");
 
         public static Error InValidDueDate =>
             Common.BusinessRule("Quiz.InValidDueDate", "Due date cannot be earlier than the current date.");
@@ -86,7 +89,22 @@ public static class DomainErrors
                 "Quiz.InvalidAvailabilityRange",
                 "AvailableUntil must be later than AvailableFrom."
             );
+        public static Error QuizNotAvailableAtThisTime =>
+            Common.BusinessRule("Quiz.NotAvailableAtThisTime", "The quiz is not available at the current time.");
     }
+
+    public static class Attempt
+    {
+        public static Error MaximumAttemptsReaches =>
+            Common.Forbidden("you exceed the maximum number of attempts.");
+
+        public static Error DuplicateAttempt =>
+            Common.Conflict("Attempt.Duplicate","You have already created this attempt.");
+
+        public static Error AnotherAttemptSessionStarted =>
+            Common.BusinessRule("Attempt.AnotherAttemptSessionStarted", "cannot start a new attempt, there is an In-Progress Attempt.");
+    }
+
     public static class QuestionGenerationJob
     {
         public static Error NotFound(Guid id) =>

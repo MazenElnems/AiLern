@@ -29,8 +29,5 @@ internal class EnrollmentRepository : BaseRepository<Enrollment>, IEnrollmentRep
     }
 
     public async Task<bool> IsEnrolledAsync(int courseId, int studentId)
-    {
-        var Isenrollment = await _context.Enrollments.AnyAsync(e => e.CourseId == courseId);
-        return Isenrollment;
-    }
+        => await _context.Enrollments.AnyAsync(e => e.CourseId == courseId && e.StudentId == studentId);
 }

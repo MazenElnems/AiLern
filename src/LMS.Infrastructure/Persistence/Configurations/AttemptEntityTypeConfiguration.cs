@@ -12,6 +12,9 @@ public class AttemptEntityTypeConfiguration : IEntityTypeConfiguration<Attempt>
 
         builder.HasKey(a => a.Id);
 
+        builder.Property(a => a.Id)
+            .ValueGeneratedNever();
+
         builder.Property(a => a.StudentId)
             .HasColumnType("INT")
             .IsRequired();
@@ -44,6 +47,12 @@ public class AttemptEntityTypeConfiguration : IEntityTypeConfiguration<Attempt>
             .HasConversion<string>()
             .HasColumnType("VARCHAR(10)")
             .IsRequired();
+
+        // to avoid race condition and avoid multiple start attempts
+        builder.HasIndex(a => new { a.QuizId, a.StudentId, a.AttemptNumber })
+            .IsUnique();
+
+        builder.HasIndex(a => a.QuizId);
 
         builder.HasOne(a => a.Student)
             .WithMany(s => s.Attempts)

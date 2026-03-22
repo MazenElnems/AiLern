@@ -1,4 +1,5 @@
 ﻿using LMS.Application.Common.Results;
+using LMS.Application.CurrentUser;
 using LMS.Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -10,10 +11,12 @@ internal class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
     where TRequest : IRequest<TResponse>
 {
     private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
+    private readonly IUserContext _userContext;
 
-    public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger)
+    public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger, IUserContext userContext)
     {
         _logger = logger;
+        _userContext = userContext;
     }
 
     public async Task<TResponse> Handle(
@@ -39,17 +42,19 @@ internal class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
                 if (result?.Error?.Type == ErrorType.Validation)
                 {
                     _logger.LogWarning(
-                        "Handled {RequestName} FAILED due to validation fauiler {@ValidationErrors}",
+                        "Handled {RequestName} FAILED due to validation fauiler {@ValidationErrors} {@CurrentUser}",
                         requestName,
-                        result.ValidationErrors
+                        result.ValidationErrors,
+                        _userContext.GetCurrentUser()
                     );
                 }
                 else
                 {
                     _logger.LogWarning(
-                            "Handled {RequestName} FAILED with error {@Error}",
+                            "Handled {RequestName} FAILED with error {@Error} {@CurrentUser}",
                             requestName,
-                            result?.Error
+                            result?.Error,
+                            _userContext.GetCurrentUser()
                     );
                 }
             }
