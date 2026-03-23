@@ -42,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IGenerateQuestionsJob, GenerateQuestionsJob>();
         services.AddScoped<IAutoSubmitAttemptJob, AutoSubmitAttemptJob>();
         services.AddScoped<IAIService, AIService>();
+        services.AddScoped<IAttemptRepository, AttemptRepository>();
 
         services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));

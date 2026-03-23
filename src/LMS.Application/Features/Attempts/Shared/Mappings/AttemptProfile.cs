@@ -8,6 +8,8 @@ public class AttemptProfile : Profile
 {
     public AttemptProfile()
     {
+        CreateMap<Attempt, GetAttemptByIdDto>();
+        CreateMap<AttemptAnswer, AttemptResultDto>();
         CreateMap<Option, AttemptOptionDto>()
             .ForMember(dto => dto.Option, opt => opt.MapFrom(src => src.OptionText));
 

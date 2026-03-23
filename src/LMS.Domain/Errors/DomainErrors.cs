@@ -1,3 +1,5 @@
+using System;
+
 namespace LMS.Domain.Errors;
 
 public static class DomainErrors
@@ -115,6 +117,19 @@ public static class DomainErrors
 
         public static Error InvalidQuestion(Guid questionId) =>
             Common.Validation("Attempt.InvalidQuestion", $"Question with ID {questionId} does not belong to this attempt.");
+    }
+    public static class Attempt
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Attempt", id.ToString());
+
+        public static Error NotOwned =>
+            Common.Forbidden("You do not have permission to access this attempt.");
+        public static Error NotPublished =>
+            Common.BusinessRule("Quiz.NotPublished", "Quiz is not published.");
+        public static Error StillInProgress =>
+            Common.BusinessRule("Attempt.StillInProgress", "The attempt is still in progress and cannot be graded.");
+
     }
 
     public static class QuestionGenerationJob
