@@ -19,7 +19,7 @@ using AutoMapper;
 namespace LMS.API.Controllers;
 
 [Route("api/[controller]")]
-//[ApiController]
+[ApiController]
 public class QuizzesController : ApiBaseController
 {
     private readonly IMediator _mediator;
