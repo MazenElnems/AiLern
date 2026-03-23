@@ -1,5 +1,4 @@
 using LMS.Domain.Entities.Courses;
-using LMS.Domain.Enums;
 using LMS.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
