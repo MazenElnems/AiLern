@@ -1,6 +1,7 @@
-﻿using LMS.API.Controllers.Common;
+using LMS.API.Controllers.Common;
 using LMS.API.Models;
 using LMS.Application.Features.Attempts.Commands.CreateAttempt;
+using LMS.Application.Features.Attempts.Commands.SaveAttempt;
 using LMS.Application.Features.Attempts.Commands.SubmitAttempt;
 using LMS.Domain.Constants;
 using MediatR;
@@ -36,6 +37,22 @@ namespace LMS.API.Controllers
             var command = new SubmitAttemptCommand(attemptId);
             var result = await _mediator.Send(command);
             return HandleResponse(this, result);
+        }
+
+        [HttpPost("{attemptId}/save")]
+        [Authorize(Roles = UserRoles.Student)]
+        public async Task<ActionResult<ApiResponse>> Save([FromRoute] Guid attemptId, [FromBody] SaveAttemptCommand command)
+        {
+            command.AttemptId = attemptId;
+            var result = await _mediator.Send(command);
+            return HandleResponse(this, result);
+        }
+
+        [HttpGet("{attemptId}/answers")]
+        [Authorize(Roles = UserRoles.Student)]
+        public async Task<ActionResult<ApiResponse>> GetStudentAnswers([FromRoute] Guid attemptId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

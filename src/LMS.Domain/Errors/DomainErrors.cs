@@ -106,6 +106,15 @@ public static class DomainErrors
 
         public static Error AnotherAttemptSessionStarted =>
             Common.BusinessRule("Attempt.AnotherAttemptSessionStarted", "cannot start a new attempt, there is an In-Progress Attempt.");
+
+        public static Error NotInProgress =>
+            Common.Forbidden("Attempt is not in progress.");
+
+        public static Error TimeExpired =>
+            Common.Forbidden("Attempt time has expired.");
+
+        public static Error InvalidQuestion(Guid questionId) =>
+            Common.Validation("Attempt.InvalidQuestion", $"Question with ID {questionId} does not belong to this attempt.");
     }
 
     public static class QuestionGenerationJob

@@ -23,7 +23,7 @@ internal class UnitOfWork : IUnitOfWork
     public IBaseRepository<AIQuestionGenerationJob> QuestionGenerationJobs { get; }
     public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
     public IBaseRepository<Attempt> Attempts { get; }
-    public IBaseRepository<AttemptAnswer> AttemptAnswers { get; }
+    public IAttemptAnswersRepository AttemptAnswers { get; }
 
     public UnitOfWork(AppDbContext context)
     {
@@ -41,7 +41,7 @@ internal class UnitOfWork : IUnitOfWork
         QuestionGenerationJobs = new BaseRepository<AIQuestionGenerationJob>(_context);
         QuestionGenerationFiles = new BaseRepository<QuestionGenerationFiles>(_context);
         Attempts = new BaseRepository<Attempt>(_context);
-        AttemptAnswers = new BaseRepository<AttemptAnswer>(_context);
+        AttemptAnswers = new AttemptAnswersRepository(_context);
     }
 
     public async Task<int> CommitAsync() => await _context.SaveChangesAsync();

@@ -27,8 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Attempts\Queries\" />
-    <Folder Include="Features\Attempts\Shared\" />
     <Folder Include="Features\Sections\Shared\Mappings\" />
   </ItemGroup>
 

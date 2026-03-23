@@ -20,7 +20,7 @@ public interface IUnitOfWork
     public IBaseRepository<AIQuestionGenerationJob> QuestionGenerationJobs { get; }
     public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
     public IBaseRepository<Attempt> Attempts { get; }
-    public IBaseRepository<AttemptAnswer> AttemptAnswers { get; }   
+    public IAttemptAnswersRepository AttemptAnswers { get; }   
 
     Task<int> CommitAsync();
 }
