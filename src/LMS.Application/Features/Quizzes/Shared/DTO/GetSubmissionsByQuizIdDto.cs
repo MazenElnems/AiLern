@@ -5,7 +5,6 @@ namespace LMS.Application.Features.Quizzes.Shared.DTO;
 public class GetSubmissionsByQuizIdDto
 {
     public Guid Id { get; set; }
-    public Guid QuizId { get; set; }
     public int StudentId { get; set; }
     public string StudentName { get; set; }
     public int? TimeSpent { get; set; }

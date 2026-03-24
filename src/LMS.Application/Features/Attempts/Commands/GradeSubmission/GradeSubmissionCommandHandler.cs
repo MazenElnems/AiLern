@@ -55,9 +55,9 @@ public class GradeSubmissionCommandHandler : IRequestHandler<GradeSubmissionComm
                 attemptAnswer.Mark = gradeDto.Score;
                 attemptAnswer.Feedback = gradeDto.Feedback;
             }
-            attempt.Status = AttemptStatus.Reviewed;
+            attempt.Status = request.Status;
             await _unitOfWork.CommitAsync();
-            return Result.Success();
+            return Result.Success("Attempt graded successfully.");
         }
         catch (Exception ex)
         {

@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace LMS.Application.Features.Quizzes.Queries.GetAttemptsByQuizId;
 
-public class GetAttemptsByQuizIdQueryHandler : IRequestHandler<GetAttemptsByQuizIdQuery, Result<List<GetAttemptsByQuizIdDto>>>
+public class GetAttemptsByQuizIdQueryHandler : IRequestHandler<GetAttemptsByQuizIdQuery, Result<GetAttemptsByQuizIdDto>>
 {
     private readonly IUserContext _userContext;
     private readonly IUnitOfWork _uintOfWork;
@@ -29,7 +29,7 @@ public class GetAttemptsByQuizIdQueryHandler : IRequestHandler<GetAttemptsByQuiz
         _logger = logger;
     }
 
-    public async Task<Result<List<GetAttemptsByQuizIdDto>>> Handle(GetAttemptsByQuizIdQuery request, CancellationToken cancellationToken)
+    public async Task<Result<GetAttemptsByQuizIdDto>> Handle(GetAttemptsByQuizIdQuery request, CancellationToken cancellationToken)
     {
         try
         {
@@ -47,25 +47,29 @@ public class GetAttemptsByQuizIdQueryHandler : IRequestHandler<GetAttemptsByQuiz
 
             var attempts = await _uintOfWork.Attempts.FilterAsync(a => a.StudentId == user.Id && a.QuizId == request.QuizId, includeProperties: [nameof(Attempt.AttemptAnswers)]);
 
-            var myAttempts = attempts.Select(a =>
+            var myAttempts =  new GetAttemptsByQuizIdDto
             {
-
-                var canShowScore = quiz.ShowResultOnClose && quiz.AvailableUntil < DateTime.UtcNow && a.Status == AttemptStatus.Reviewed;
-
-                return new GetAttemptsByQuizIdDto
+                QuizId = quiz.Id,
+                QuizTitle = quiz.Title,
+                attempts = attempts.Select(a =>
                 {
-                    Id = a.Id,
-                    QuizId = quiz.Id,
-                    QuizTitle = quiz.Title,
-                    AttemptNumber = a.AttemptNumber,
-                    Score = canShowScore ? a.Score : null,
-                    StartAt = a.StartAt,
-                    SubmittedAt = a.SubmittedAt,
-                    Status = a.Status,
-                    TimeSpent = a.TimeSpent
-                };
+                    var canShowScore =
+                        (a.Status == AttemptStatus.Reviewed ||
+                        (quiz.ShowResultOnClose && a.Status == AttemptStatus.Submitted))
+                        && quiz.AvailableUntil < DateTime.UtcNow;
 
-            }).ToList();
+                    return new AttemptMetaData
+                    {
+                        Id = a.Id,
+                        AttemptNumber = a.AttemptNumber,
+                        Score = canShowScore ? a.Score : null,
+                        StartAt = a.StartAt,
+                        SubmittedAt = a.SubmittedAt,
+                        Status = a.Status,
+                        TimeSpent = a.TimeSpent
+                    };
+                }).ToList()
+            };
 
             return myAttempts;
         }

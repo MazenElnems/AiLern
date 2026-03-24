@@ -33,11 +33,11 @@ public class AttemptsController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "quiz not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    [HttpGet("{id}/student")]
+    [HttpGet("{attemptId}/result")]
     [Authorize(Roles = UserRoles.Student)]
-    public async Task<ActionResult<ApiResponse>> GetAttemptByIdForStudent(Guid id, [FromQuery] GetAttemptByIdForStudentQuery query)
+    public async Task<ActionResult<ApiResponse>> GetAttemptByIdForStudent(Guid attemptId, [FromQuery] GetAttemptByIdForStudentQuery query)
     {
-        query.Id = id;
+        query.Id = attemptId;
         var result = await _mediator.Send(query);
         return HandleResponse(this, result);
     }
@@ -57,11 +57,11 @@ public class AttemptsController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "quiz not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    [HttpGet("{id}/instrudcor")]
+    [HttpGet("{attemptId}/instrudcor")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> GetAttemptByIdForInstructor(Guid id, [FromQuery] GetAttemptByIdForInstructorQuery query)
+    public async Task<ActionResult<ApiResponse>> GetAttemptByIdForInstructor(Guid attemptId, [FromQuery] GetAttemptByIdForInstructorQuery query)
     {
-        query.Id = id;
+        query.Id = attemptId;
         var result = await _mediator.Send(query);
         return HandleResponse(this, result);
     }
@@ -82,10 +82,11 @@ public class AttemptsController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "quiz not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    [HttpPut("{id}/grade")]
+    [HttpPut("{attemptId}/grade")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> GradeSubmission(Guid id, [FromBody] GradeSubmissionCommand command)
+    public async Task<ActionResult<ApiResponse>> GradeSubmission([FromRoute]Guid attemptId, [FromBody] GradeSubmissionCommand command)
     {
+        command.Id = attemptId;
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
