@@ -1,14 +1,10 @@
 using AutoMapper;
-using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Repositories;
-using LMS.Domain.Constants;
-using MediatR;
-using System.Linq.Expressions;
-using Microsoft.Extensions.Logging;
 using LMS.Application.Common.Models.Responses;
-using LMS.Domain.Entities.Courses;
-using LMS.Domain.Errors;
+using LMS.Application.Common.Results.Generic;
 using LMS.Application.Features.Courses.Shared.DTO;
+using LMS.Domain.Repositories;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Application.Features.Courses.Queries.GetAllCourses;
 
@@ -16,59 +12,38 @@ public class GetAllCoursesQueryHandler : IRequestHandler<GetAllCoursesQuery, Res
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private readonly ILogger<GetAllCoursesQueryHandler> _logger;
 
-    public GetAllCoursesQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<GetAllCoursesQueryHandler> logger)
+    public GetAllCoursesQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _logger = logger;
     }
 
     public async Task<Result<PaginationResult<GetAllCoursesDto>>> Handle(GetAllCoursesQuery request, CancellationToken cancellationToken)
     {
-        if (request.PageNumber < 1 || request.PageSize < 1)
-            return Result<PaginationResult<GetAllCoursesDto>>.Failure(DomainErrors.Pagination.InvalidParameters);
+        var query = _unitOfWork.Courses.Query
+            .AsNoTracking();
 
-        try
-        {
-            Expression<Func<Course, bool>> predicate = c => true;
+        var totalResult = await query.CountAsync(cancellationToken);
 
-            var sortBy = request.SortBy;
-            var order = request.Order?.ToLower();
-            var isDescending = order != SortOrderOptions.ASC;
-
-            Expression<Func<Course, object>> orderBy = sortBy?.ToLower() switch
+        var items = await query
+            .Skip(request.PageSize * (request.PageNo - 1))
+            .Take(request.PageSize)
+            .Select(c => new GetAllCoursesDto
             {
-                var s when s == CourseSortByOptions.Name => c => c.Name,
-                var s when s == CourseSortByOptions.CreatedAt => c => c.CreatedAt,
-                _ => c => c.CreatedAt
-            };
+                Id = c.Id,
+                Code = c.Code,
+                CreatedAt = c.CreatedAt,
+                Name = c.Name,
+                InstructorName = c.Instructor.FullName,
+                InstructorId = c.InstructorId,
+            }).ToListAsync();
 
-            var totalResult = await _unitOfWork.Courses.CountAsync(predicate);
-
-            if(totalResult == 0)
-            {
-                var emptyResult = new PaginationResult<GetAllCoursesDto>(request.PageNumber, request.PageSize, 0, new List<GetAllCoursesDto>());
-                return Result<PaginationResult<GetAllCoursesDto>>.Success(emptyResult);
-            }
-
-            var courses = await _unitOfWork.Courses.FilterAsync(
-                predicate,
-                orderBy,
-                isDescending,
-                (request.PageNumber - 1) * request.PageSize,
-                request.PageSize,
-                new[] { "Instructor" });
-
-            var dto = _mapper.Map<List<GetAllCoursesDto>>(courses);
-            return Result<PaginationResult<GetAllCoursesDto>>.Success(
-                new PaginationResult<GetAllCoursesDto>(request.PageNumber, request.PageSize, totalResult, dto));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while retrieving courses.");
-            throw;
-        }
+        return new PaginationResult<GetAllCoursesDto>(
+            request.PageNo,
+            request.PageSize,
+            totalResult,
+            items
+        );
     }
 }

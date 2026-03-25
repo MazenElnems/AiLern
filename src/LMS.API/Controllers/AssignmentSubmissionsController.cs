@@ -40,22 +40,6 @@ public class AssignmentSubmissionsController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    //[HttpPost("{id}/confirm-upload")]
-    //[Authorize(Roles = UserRoles.Student)]
-    //[SwaggerOperation(Summary = "Confirm submission upload", Description = "Confirms uploaded submission files.")]
-    //[SwaggerResponse(StatusCodes.Status200OK, "Submission upload confirmed.", typeof(ApiResponse))]
-    //[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
-    //[SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
-    //[SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
-    //[SwaggerResponse(StatusCodes.Status404NotFound, "Submission not found.", typeof(ApiResponse))]
-    //[SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    //public async Task<ActionResult<ApiResponse>> ConfirmSubmissionUploadAsync(int id)
-    //{
-    //    var result = await _mediator.Send(new ConfirmSubmissionUploadCommand { SubmissionId = id });
-    //    return HandleResponse(this, result);
-
-    //}
-
     [HttpDelete("{id}")]
     [Authorize(Roles = UserRoles.Student)]
     [SwaggerOperation(Summary = "Delete submission", Description = "Deletes a submission by ID.")]
@@ -80,11 +64,9 @@ public class AssignmentSubmissionsController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Assignment not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetAllSubmissionsForAssignment(int assignmentId,
-        [FromQuery] GetStudentSubmissionsForAssignmentQuery query)
+    public async Task<ActionResult<ApiResponse>> GetAllSubmissionsForAssignment(int assignmentId, string status, int pageNo = 1, int pageSize = 10)
     {
-        query.AssignmentId = assignmentId;
-        var result = await _mediator.Send(query);
+        var result = await _mediator.Send(new GetStudentSubmissionsForAssignmentQuery(assignmentId, status, pageNo, pageSize));
         return HandleResponse(this, result);
     }
 

@@ -1,5 +1,6 @@
 using LMS.Application.Common.Results;
 using LMS.Application.CurrentUser;
+using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
@@ -23,6 +24,7 @@ public class SaveAttemptCommandHandler : IRequestHandler<SaveAttemptCommand, Res
         var user = _userContext.GetCurrentUser();
 
         var attempt = await _unitOfWork.Attempts.GetByIdAsync(request.AttemptId);
+
         if (attempt == null)
             return DomainErrors.Attempt.NotFound(request.AttemptId);
 
@@ -39,40 +41,19 @@ public class SaveAttemptCommandHandler : IRequestHandler<SaveAttemptCommand, Res
         if (request.Answers is null || request.Answers.Count == 0)
             return Result.Success("No answer changes detected.");
 
-        var attemptAnswers = await _unitOfWork.AttemptAnswers.FilterAsync(a => a.AttemptId == request.AttemptId);
-
-        var hasChanges = false;
-        foreach (var answerPayload in request.Answers)
-        {
-            var attemptAnswer = attemptAnswers
-                .LastOrDefault(a => a.QuestionId == answerPayload.QuestionId);
-
-            if (attemptAnswer == null)
-                return DomainErrors.Attempt.InvalidQuestion(answerPayload.QuestionId);
-
-            if (attemptAnswer.BooleanAnswer != answerPayload.BooleanAnswer)
+        var attemptAnswers = request.Answers
+            .Select(a => new AttemptAnswer
             {
-                attemptAnswer.BooleanAnswer = answerPayload.BooleanAnswer;
-                hasChanges = true;
-            }
-
-            if (attemptAnswer.WrittenAnswer != answerPayload.WrittenAnswer)
-            {
-                attemptAnswer.WrittenAnswer = answerPayload.WrittenAnswer;
-                hasChanges = true;
-            }
-
-            if (attemptAnswer.OptionNumber != answerPayload.OptionNumber)
-            {
-                attemptAnswer.OptionNumber = answerPayload.OptionNumber;
-                hasChanges = true;
-            }
-        }
-
-        if (!hasChanges)
-            return Result.Success("No answer changes detected.");
+                AttemptId = request.AttemptId,
+                BooleanAnswer = a.BooleanAnswer,
+                OptionNumber = a.OptionNumber,
+                WrittenAnswer = a.WrittenAnswer,
+                QuestionId = a.QuestionId,
+            }).ToArray();
 
         attempt.SavedAt = now;
+        _unitOfWork.AttemptAnswers.UpdateRange(attemptAnswers);
+
         await _unitOfWork.CommitAsync();
 
         return Result.Success("Answers saved successfully.");

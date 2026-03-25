@@ -10,6 +10,7 @@ public interface IBaseRepository<T> where T : class
     Task InsertAsync(T entity);
 
     void Update(T entity);
+    void UpdateRange(T[] entities); 
 
     void Delete(T entity);
 

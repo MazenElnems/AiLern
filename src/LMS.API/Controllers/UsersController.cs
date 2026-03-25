@@ -7,6 +7,7 @@ using LMS.Application.Features.Users.Commands.DeleteUserRole;
 using LMS.Application.Features.Users.Queries.GetAllByRoleId;
 using LMS.Application.Features.Users.Queries.GetUserById;
 using LMS.Domain.Constants;
+using LMS.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,8 +27,7 @@ public class UsersController : ApiBaseController
         _mediator = mediator;
     }
 
-    [HttpGet]
-    [Route("{id}")]
+    [HttpGet("{id}")]
     [SwaggerOperation(Summary = "Get user by ID", Description = "Retrieves user details by ID.")]
     [SwaggerResponse(StatusCodes.Status200OK, "User retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -38,8 +38,7 @@ public class UsersController : ApiBaseController
         var result = await _mediator.Send(new GetUserByIdQuery(id));
         return HandleResponse(this, result);
     }
-    [HttpPut]
-    [Route("{id}/roles")]
+    [HttpPut("{id}/roles")]
     [SwaggerOperation(Summary = "Add user role", Description = "Adds a role to a user.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Role added successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -54,16 +53,15 @@ public class UsersController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpGet("roles/{roleid}")]
+    [HttpGet("roles")]
     [SwaggerOperation(Summary = "Get users by role", Description = "Retrieves users assigned to a role.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Users retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid query parameters.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Role not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetUsersByRoleId(int roleid, [FromQuery] GetAllByRoleIdQuery query)
+    public async Task<ActionResult<ApiResponse>> GetUsersByRole(Roles role, int pageNo = 1, int pageSize = 10)
     {
-        query.RoleId = roleid;
-        var result = await _mediator.Send(query);
+        var result = await _mediator.Send(new GetAllByRoleQuery(role, pageNo, pageSize));
         return HandleResponse(this, result);
     }
 
@@ -83,15 +81,16 @@ public class UsersController : ApiBaseController
     }
 
     [HttpGet("students/my-courses") ]
+    [Authorize(Roles = UserRoles.Student)]
     [SwaggerOperation(Summary = "Get my courses", Description = "Retrieves the current student's courses.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Courses retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid query parameters.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetCourses([FromQuery] GetStudentCoursesQuery query)
+    public async Task<ActionResult<ApiResponse>> GetCourses(int pageNo = 1, int pageSize = 10)
     {
-        var result = await _mediator.Send(query);
+        var result = await _mediator.Send(new GetStudentCoursesQuery(pageNo, pageSize));
         return HandleResponse(this, result);
     }
 

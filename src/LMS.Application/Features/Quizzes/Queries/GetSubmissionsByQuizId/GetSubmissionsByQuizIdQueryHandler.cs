@@ -1,9 +1,9 @@
-﻿using AutoMapper;
+using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
+using LMS.Application.Features.Courses.Shared.DTO;
 using LMS.Application.Features.Quizzes.Shared.DTO;
 using LMS.Domain.Entities.Quizzes;
-using LMS.Domain.Enums;
 using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
@@ -11,23 +11,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Application.Features.Quizzes.Queries.GetSubmissionsByQuizId;
 
-public class GetSubmissionsByQuizIdQueryHandler : IRequestHandler<GetSubmissionsByQuizIdQuery, Result<List<GetSubmissionsByQuizIdDto>>>
+public class GetSubmissionsByQuizIdQueryHandler : IRequestHandler<GetSubmissionsByQuizIdQuery, Result<PaginationResult<GetSubmissionsByQuizIdDto>>>
 {
     private readonly IUserContext _userContext;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
 
-    public GetSubmissionsByQuizIdQueryHandler(IUserContext userContext, IUnitOfWork unitOfWork, IMapper mapper)
+    public GetSubmissionsByQuizIdQueryHandler(IUserContext userContext, IUnitOfWork unitOfWork)
     {
         _userContext = userContext;
         _unitOfWork = unitOfWork;
-        _mapper = mapper;
     }
 
-    public async Task<Result<List<GetSubmissionsByQuizIdDto>>> Handle(GetSubmissionsByQuizIdQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PaginationResult<GetSubmissionsByQuizIdDto>>> Handle(GetSubmissionsByQuizIdQuery request, CancellationToken cancellationToken)
     {
         var user = _userContext.GetCurrentUser();
-        var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId, includeProperties: [nameof(Quiz.Course)]);
+        var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId,
+            includeProperties: [nameof(Quiz.Course)]);
 
         if (quiz == null)
             return DomainErrors.Quiz.NotFound(request.QuizId);
@@ -35,16 +34,20 @@ public class GetSubmissionsByQuizIdQueryHandler : IRequestHandler<GetSubmissions
         if (quiz.Course.InstructorId != user.Id)
             return DomainErrors.Quiz.NotOwned;
 
-        //var submissions = await _unitOfWork.Attempts
-        //    .FilterAsync(s => s.QuizId == request.QuizId && s.Status == AttemptStatus.Submitted, includeProperties: [nameof(Attempt.Student), nameof(Attempt.AttemptAnswers)]);
+        var query = _unitOfWork.Attempts.Query
+            .AsNoTracking()
+            .Where(a => a.QuizId == request.QuizId && a.Status == request.Status);
 
-        var submissions = await _unitOfWork.Attempts.Query
-            .Where(a => a.QuizId == request.QuizId && a.Status != AttemptStatus.InProgress)
+        var totalResult = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .Skip(request.PageSize * (request.PageNo - 1))
+            .Take(request.PageSize)
             .Select(a => new GetSubmissionsByQuizIdDto
             {
                 Id = a.Id,
                 AttemptNumber = a.AttemptNumber,
-                Score = a.AttemptAnswers.Sum(a=>a.Mark),
+                Score = a.AttemptAnswers.Sum(aa => aa.Mark),
                 StartAt = a.StartAt,
                 Status = a.Status,
                 StudentId = a.StudentId,
@@ -53,7 +56,11 @@ public class GetSubmissionsByQuizIdQueryHandler : IRequestHandler<GetSubmissions
                 TimeSpent = a.TimeSpent
             }).ToListAsync();
 
-        //var dto = _mapper.Map<List<GetSubmissionsByQuizIdDto>>(submissions);
-        return submissions;
+        return new PaginationResult<GetSubmissionsByQuizIdDto>(
+            request.PageNo,
+            request.PageSize,
+            totalResult,
+            items
+        );
     }
 }

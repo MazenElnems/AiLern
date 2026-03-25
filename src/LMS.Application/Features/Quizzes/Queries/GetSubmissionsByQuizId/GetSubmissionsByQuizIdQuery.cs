@@ -1,10 +1,11 @@
-﻿using LMS.Application.Common.Results.Generic;
+using LMS.Application.Common.Models.Responses;
+using LMS.Application.Common.Results.Generic;
 using LMS.Application.Features.Quizzes.Shared.DTO;
+using LMS.Domain.Enums;
 using MediatR;
 
 namespace LMS.Application.Features.Quizzes.Queries.GetSubmissionsByQuizId;
 
-public class GetSubmissionsByQuizIdQuery(Guid quizId) : IRequest<Result<List<GetSubmissionsByQuizIdDto>>>
-{
-    public Guid QuizId { get; } = quizId;
-}
+public record GetSubmissionsByQuizIdQuery(Guid QuizId, int PageNo, int PageSize, AttemptStatus Status)
+    : IRequest<Result<PaginationResult<GetSubmissionsByQuizIdDto>>>
+{ }

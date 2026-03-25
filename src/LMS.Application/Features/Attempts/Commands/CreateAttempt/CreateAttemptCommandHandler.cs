@@ -1,5 +1,6 @@
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
+using LMS.Application.Features.Attempts.Shared.DTO;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
@@ -11,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace LMS.Application.Features.Attempts.Commands.CreateAttempt;
 
-public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand, Result<Guid>>
+public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand, Result<AttemptDto>>
 {
     private readonly IUserContext _userContext;
     private readonly IUnitOfWork _unitOfWork;
@@ -28,7 +29,7 @@ public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand,
         _autoSubmitAttemptJob = autoSubmitAttemptJob;
     }
 
-    public async Task<Result<Guid>> Handle(CreateAttemptCommand request, CancellationToken cancellationToken)
+    public async Task<Result<AttemptDto>> Handle(CreateAttemptCommand request, CancellationToken cancellationToken)
     {
         var jobId = string.Empty;
         try
@@ -87,7 +88,7 @@ public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand,
             quiz.Attempts.Add(attempt);
             await _unitOfWork.CommitAsync();
 
-            return attempt.Id;
+            return new AttemptDto { AttemptId = attempt.Id, AttemptEndDate = attempt.AttemptEndTime};
         }
         catch(DbUpdateException ex)
         {

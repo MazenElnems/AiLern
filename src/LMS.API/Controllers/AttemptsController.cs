@@ -11,6 +11,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using LMS.Application.Features.Attempts.Queries;
 
 namespace LMS.API.Controllers;
 
@@ -22,8 +23,43 @@ public class AttemptsController : ApiBaseController
 
     public AttemptsController(IMediator mediator)
     {
-        this._mediator = mediator;
-            _mediator = mediator;
+        _mediator = mediator;
+    }
+
+    [Authorize(Roles = UserRoles.Student)]
+    [HttpPost("/api/quizzes/{quizId}/[controller]")]
+    public async Task<ActionResult<ApiResponse>> Create([FromRoute] Guid quizId)
+    {
+        var command = new CreateAttemptCommand(quizId);
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("{attemptId}/questions")]
+    [Authorize(Roles = UserRoles.Student)]
+    public async Task<ActionResult<ApiResponse>> GetAttemptQuestions([FromRoute] Guid attemptId)
+    {
+        var query = new GetAttemptQuestionsQuery(attemptId);
+        var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
+    }
+
+    [HttpPost("{attemptId}/save")]
+    [Authorize(Roles = UserRoles.Student)]
+    public async Task<ActionResult<ApiResponse>> Save([FromRoute] Guid attemptId, [FromBody] SaveAttemptCommand command)
+    {
+        command.AttemptId = attemptId;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("{attemptId}/submit")]
+    [Authorize(UserRoles.Student)]
+    public async Task<ActionResult<ApiResponse>> Submit([FromRoute] Guid attemptId)
+    {
+        var command = new SubmitAttemptCommand(attemptId);
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
     }
 
     [SwaggerOperation(Summary = "Get attempt", Description = "Get an attempt by id.")]
@@ -42,14 +78,6 @@ public class AttemptsController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [Authorize(Roles = UserRoles.Student)]
-    [HttpPost("/api/quizzes/{quizId}/[controller]")]
-    public async Task<ActionResult<ApiResponse>> Create([FromRoute] Guid quizId)
-    {
-        var command = new CreateAttemptCommand(quizId);
-        var result = await _mediator.Send(command);
-        return HandleResponse(this, result);
-    }
     [SwaggerOperation(Summary = "Get attempt", Description = "Get an attempt by id.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Attempt retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -57,21 +85,12 @@ public class AttemptsController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "quiz not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    [HttpGet("{attemptId}/instrudcor")]
+    [HttpGet("{attemptId}/student-answers")]
     [Authorize(Roles = UserRoles.Instructor)]
     public async Task<ActionResult<ApiResponse>> GetAttemptByIdForInstructor(Guid attemptId, [FromQuery] GetAttemptByIdForInstructorQuery query)
     {
         query.Id = attemptId;
         var result = await _mediator.Send(query);
-        return HandleResponse(this, result);
-    }
-
-    [HttpPut("{attemptId}")]
-    [Authorize(UserRoles.Student)]
-    public async Task<ActionResult<ApiResponse>> Submit([FromRoute] Guid attemptId)
-    {
-        var command = new SubmitAttemptCommand(attemptId);
-        var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
 
@@ -87,15 +106,6 @@ public class AttemptsController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GradeSubmission([FromRoute]Guid attemptId, [FromBody] GradeSubmissionCommand command)
     {
         command.Id = attemptId;
-        var result = await _mediator.Send(command);
-        return HandleResponse(this, result);
-    }
-
-    [HttpPost("{attemptId}/save")]
-    [Authorize(Roles = UserRoles.Student)]
-    public async Task<ActionResult<ApiResponse>> Save([FromRoute] Guid attemptId, [FromBody] SaveAttemptCommand command)
-    {
-        command.AttemptId = attemptId;
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }

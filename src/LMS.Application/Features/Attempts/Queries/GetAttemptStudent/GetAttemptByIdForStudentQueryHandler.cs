@@ -1,6 +1,7 @@
 ﻿using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Attempts.Shared.DTO;
+using LMS.Application.Features.Quizzes.Shared.Requests;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
@@ -30,8 +31,8 @@ public class GetAttemptByIdForStudentQueryHandler : IRequestHandler<GetAttemptBy
             var userId = _user.GetCurrentUser().Id;
             var attempt = await _unitOfWork.Attempts.Query
                 .AsNoTracking()
-                .Where(a => a.Id == request.Id && a.StudentId == userId && a.Status != AttemptStatus.InProgress) /* a.Status != AttemptStatus.InProgress هنا انا عامل كدا علشان اجيب برضوا حاله ال Submitted الي مش معمل انك تشوف الاجابه علطول بعد الاؤسال ف هيجيب الاجابات بتاعت الطالب */
-                .Select(a => new GetAttemptByIdDto /* ابقي رن عليا لو مفهمتش قبل م تمسح */
+                .Where(a => a.Id == request.Id && a.StudentId == userId && a.Status != AttemptStatus.InProgress)
+                .Select(a => new GetAttemptByIdDto 
                 {
                     QuizId = a.QuizId,
                     StudentId = a.StudentId,
@@ -39,33 +40,36 @@ public class GetAttemptByIdForStudentQueryHandler : IRequestHandler<GetAttemptBy
                     QuizName = a.Quiz.Title,
                     TotalScore = a.Quiz.Questions.Sum(q => q.Mark),
                     AchievedScore = (a.Status == AttemptStatus.Reviewed || 
-                                    (a.Status == AttemptStatus.Submitted && a.Quiz.ShowResultOnClose == true)) 
+                                    (a.Status == AttemptStatus.Submitted && a.Quiz.ShowResultOnClose && DateTime.UtcNow >= a.Quiz.AvailableUntil)) 
                                     ? a.AttemptAnswers.Sum(aa => aa.Mark) : 0,
                     AttemptResult = a.AttemptAnswers.Select(aa => new AttemptResultDto
                     {
                         QuestionId = aa.QuestionId,
                         QuestionText = aa.Question.QuestionText,
+                        Type = aa.Question.Type.ToString(),
                         MaxScore = aa.Question.Mark,
                         StudentAnswer = aa.WrittenAnswer
                                      ?? aa.BooleanAnswer
                                      ?? aa.OptionNumber.ToString()!,
-                        Feedback = (a.Status == AttemptStatus.Reviewed || 
-                                   (a.Status == AttemptStatus.Submitted && a.Quiz.ShowResultOnClose == true)) 
+                        Feedback = (a.Status == AttemptStatus.Reviewed ||
+                                   (a.Status == AttemptStatus.Submitted && a.Quiz.ShowResultOnClose && DateTime.UtcNow >= a.Quiz.AvailableUntil))
                                    ? aa.Feedback! : null!,
+                        Options = aa.Question.Options
+                            .Select(o => new OptionDto 
+                            { 
+                                IsCorrect = (a.Status == AttemptStatus.Reviewed || (a.Status == AttemptStatus.Submitted && a.Quiz.ShowResultOnClose && DateTime.UtcNow >= a.Quiz.AvailableUntil)) 
+                                    ? o.IsCorrect
+                                    :false,
+                                OptionText = o.OptionText 
+                            }).ToList(),
+                        Instructions = aa.Question.Instructions,
+                        Explanation = aa.Question.Explanation,
                         Score =  (a.Status == AttemptStatus.Reviewed ||
-                                 (a.Status == AttemptStatus.Submitted && a.Quiz.ShowResultOnClose == true))
-                                 ? aa.Mark : 0,
-                        CorrectAnswer = (a.Status == AttemptStatus.Reviewed ||
-                                        (a.Status == AttemptStatus.Submitted && a.Quiz.ShowResultOnClose == true)) 
-                                        ? aa.Question.Options
-                                            .Where(qo => qo.IsCorrect)
-                                            .Select(qo => qo.OptionText)
-                                            .FirstOrDefault()! : null!,
+                                 (a.Status == AttemptStatus.Submitted && a.Quiz.ShowResultOnClose && DateTime.UtcNow >= a.Quiz.AvailableUntil))
+                                 ? aa.Mark : 0
                     }).ToList()
                 }).FirstOrDefaultAsync(cancellationToken);
             
-
-
             if (attempt == null)
                 return DomainErrors.Attempt.NotFound(request.Id);
 
@@ -76,10 +80,5 @@ public class GetAttemptByIdForStudentQueryHandler : IRequestHandler<GetAttemptBy
             _logger.LogError(ex, "An error occurred while retrieving attempt.");
             throw;
         }
-
-
-
-
-
     }
 }

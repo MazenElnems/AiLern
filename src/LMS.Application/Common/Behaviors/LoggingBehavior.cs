@@ -11,12 +11,10 @@ internal class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
     where TRequest : IRequest<TResponse>
 {
     private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
-    private readonly IUserContext _userContext;
 
-    public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger, IUserContext userContext)
+    public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger)
     {
         _logger = logger;
-        _userContext = userContext;
     }
 
     public async Task<TResponse> Handle(
@@ -42,19 +40,17 @@ internal class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
                 if (result?.Error?.Type == ErrorType.Validation)
                 {
                     _logger.LogWarning(
-                        "Handled {RequestName} FAILED due to validation fauiler {@ValidationErrors} {@CurrentUser}",
+                        "Handled {RequestName} FAILED due to validation fauiler {@ValidationErrors}",
                         requestName,
-                        result.ValidationErrors,
-                        _userContext.GetCurrentUser()
+                        result.ValidationErrors
                     );
                 }
                 else
                 {
                     _logger.LogWarning(
-                            "Handled {RequestName} FAILED with error {@Error} {@CurrentUser}",
+                            "Handled {RequestName} FAILED with error {@Error}",
                             requestName,
-                            result?.Error,
-                            _userContext.GetCurrentUser()
+                            result?.Error
                     );
                 }
             }

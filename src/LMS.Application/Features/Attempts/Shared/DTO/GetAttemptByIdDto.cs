@@ -1,4 +1,5 @@
-﻿using LMS.Domain.Enums;
+﻿using LMS.Application.Features.Quizzes.Shared.Requests;
+using LMS.Domain.Enums;
 
 namespace LMS.Application.Features.Attempts.Shared.DTO;
 
@@ -11,6 +12,5 @@ public class GetAttemptByIdDto
     public List<AttemptResultDto> AttemptResult { get; set; }
     public double TotalScore { get; set; }
     public double? AchievedScore { get; set; }
-
 
 }

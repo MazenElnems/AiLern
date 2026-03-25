@@ -1,6 +1,7 @@
 ﻿using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Attempts.Shared.DTO;
+using LMS.Application.Features.Quizzes.Shared.Requests;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
@@ -43,16 +44,16 @@ public class GetAttemptByIdForInstructorQueryHandler : IRequestHandler<GetAttemp
                     {
                         QuestionId = aa.QuestionId,
                         QuestionText = aa.Question.QuestionText,
+                        Type = aa.Question.Type.ToString(),
                         MaxScore = aa.Question.Mark,
                         StudentAnswer = aa.WrittenAnswer
                                          ?? aa.BooleanAnswer
                                          ?? aa.OptionNumber.ToString()!,
+                        Options = aa.Question.Options.Select(o => new OptionDto { IsCorrect = o.IsCorrect, OptionText = o.OptionText }).ToList(),
+                        Instructions = aa.Question.Instructions,
+                        Explanation = aa.Question.Explanation,
                         Feedback = aa.Feedback!,
-                        Score = aa.Mark,
-                        CorrectAnswer = aa.Question.Options
-                                        .Where(qo => qo.IsCorrect)
-                                        .Select(qo => qo.OptionText)
-                                        .FirstOrDefault()!,
+                        Score = aa.Mark
                     }).ToList()
 
                 }).FirstOrDefaultAsync(cancellationToken);

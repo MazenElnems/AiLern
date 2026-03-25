@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using LMS.API.Controllers.Common;
 using LMS.API.Models;
-using LMS.Application.Features.Assignments.Shared.DTO;
 using LMS.Application.Features.Quizzes.Commands.CreateQuiz;
 using LMS.Application.Features.Quizzes.Commands.DeleteQuiz;
 using LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
@@ -14,6 +13,7 @@ using LMS.Application.Features.Quizzes.Queries.GetQuiz;
 using LMS.Application.Features.Quizzes.Queries.GetSubmissionsByQuizId;
 using LMS.Application.Features.Quizzes.Shared.Requests;
 using LMS.Domain.Constants;
+using LMS.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -142,9 +142,9 @@ public class QuizzesController : ApiBaseController
 
     [HttpGet("{id}/submissions")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> GetSubmissionsByQuizId(Guid id)
+    public async Task<ActionResult<ApiResponse>> GetSubmissionsByQuizId(Guid id, AttemptStatus status, int pageNo = 1, int pageSize = 10)
     {
-        var result = await _mediator.Send(new GetSubmissionsByQuizIdQuery(id));
+        var result = await _mediator.Send(new GetSubmissionsByQuizIdQuery(id, pageNo, pageSize, status));
         return HandleResponse(this, result);
     }
 }
