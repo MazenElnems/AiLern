@@ -32,6 +32,9 @@ public class ApiResponse
     public static ApiResponse Forbidden(string? message = "Forbidden")
         => new(false, StatusCodes.Status403Forbidden, message, null, null);
 
+    public static ApiResponse Conflict(string message)
+        => new(false, StatusCodes.Status409Conflict, message, null, null);
+
     public static ApiResponse InternalError(string? message)
         => new(false, StatusCodes.Status500InternalServerError, message, null, null);
 }

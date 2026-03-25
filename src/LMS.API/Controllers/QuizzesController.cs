@@ -1,20 +1,23 @@
-﻿using LMS.API.Controllers.Common;
+﻿using AutoMapper;
+using LMS.API.Controllers.Common;
 using LMS.API.Models;
 using LMS.Application.Features.Quizzes.Commands.CreateQuiz;
 using LMS.Application.Features.Quizzes.Commands.DeleteQuiz;
 using LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
 using LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
 using LMS.Application.Features.Quizzes.Queries.GetAllQuizzes;
+using LMS.Application.Features.Quizzes.Queries.GetAttemptsByQuizId;
+using LMS.Application.Features.Quizzes.Queries.GetJob;
+using LMS.Application.Features.Quizzes.Queries.GetQuestionGenerationFiles;
 using LMS.Application.Features.Quizzes.Queries.GetQuiz;
+using LMS.Application.Features.Quizzes.Queries.GetSubmissionsByQuizId;
+using LMS.Application.Features.Quizzes.Shared.Requests;
 using LMS.Domain.Constants;
+using LMS.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using LMS.Application.Features.Quizzes.Queries.GetJob;
-using LMS.Application.Features.Quizzes.Queries.GetQuestionGenerationFiles;
-using LMS.Application.Features.Quizzes.Shared.Requests;
-using AutoMapper;
 
 namespace LMS.API.Controllers;
 
@@ -126,6 +129,22 @@ public class QuizzesController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetQuestionGenerationFiles(Guid id)
     {
         var result = await _mediator.Send(new GetQuestionGenerationFilesQuery(id));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("{id}/attempts")]
+    [Authorize(Roles = UserRoles.Student)]
+    public async Task<ActionResult<ApiResponse>> GetAttemptsByQuizId(Guid id)
+    {
+        var result = await _mediator.Send(new GetAttemptsByQuizIdQuery(id));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("{id}/submissions")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> GetSubmissionsByQuizId(Guid id, AttemptStatus status, int pageNo = 1, int pageSize = 10)
+    {
+        var result = await _mediator.Send(new GetSubmissionsByQuizIdQuery(id, pageNo, pageSize, status));
         return HandleResponse(this, result);
     }
 }

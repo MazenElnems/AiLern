@@ -20,4 +20,7 @@ public sealed record Error(ErrorType Type, string Title, string Message)
 
     public static Error BusinessRule(string title, string message) =>
         new(ErrorType.BusinessRule, title, message);
+
+    public static Error Conflict(string title, string message) =>
+        new(ErrorType.Conflict, title, message);
 }

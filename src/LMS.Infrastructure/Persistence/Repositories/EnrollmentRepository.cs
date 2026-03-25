@@ -1,5 +1,4 @@
 using LMS.Domain.Entities.Courses;
-using LMS.Domain.Enums;
 using LMS.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,8 +28,5 @@ internal class EnrollmentRepository : BaseRepository<Enrollment>, IEnrollmentRep
     }
 
     public async Task<bool> IsEnrolledAsync(int courseId, int studentId)
-    {
-        var Isenrollment = await _context.Enrollments.AnyAsync(e => e.CourseId == courseId);
-        return Isenrollment;
-    }
+        => await _context.Enrollments.AnyAsync(e => e.CourseId == courseId && e.StudentId == studentId);
 }

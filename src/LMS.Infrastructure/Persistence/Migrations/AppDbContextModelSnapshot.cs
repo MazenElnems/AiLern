@@ -213,7 +213,7 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Enrollments");
+                    b.ToTable("Enrollments", (string)null);
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Courses.Section", b =>
@@ -267,7 +267,7 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasIndex("QuizId");
 
-                    b.ToTable("QuestionGenerationJobs");
+                    b.ToTable("QuestionGenerationJobs", (string)null);
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Attempt", b =>
@@ -281,6 +281,10 @@ namespace LMS.Infrastructure.Migrations
 
                     b.Property<int>("AttemptNumber")
                         .HasColumnType("INT");
+
+                    b.Property<string>("AutoSubmitJobId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("QuizId")
                         .HasColumnType("UNIQUEIDENTIFIER");
@@ -306,6 +310,9 @@ namespace LMS.Infrastructure.Migrations
                     b.HasIndex("QuizId");
 
                     b.HasIndex("StudentId");
+
+                    b.HasIndex("QuizId", "StudentId", "AttemptNumber")
+                        .IsUnique();
 
                     b.ToTable("Attempts", (string)null);
                 });
@@ -408,7 +415,7 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasIndex("QuizId");
 
-                    b.ToTable("QuestionGenerationFiles");
+                    b.ToTable("QuestionGenerationFiles", (string)null);
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Quiz", b =>

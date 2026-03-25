@@ -1,5 +1,6 @@
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Enums;
+using LMS.Domain.Errors;
 
 namespace LMS.Domain.Entities.Quizzes;
 
@@ -30,4 +31,12 @@ public class Quiz
     public List<Attempt> Attempts { get; set; } = new();
     public List<AIQuestionGenerationJob> QuestionGenerationJobs { get; set; } = new();
     public List<QuestionGenerationFiles> QuestionGenerationFiles { get; set; } = new();
+
+    public DateTime CalculateAttemptEndTime(DateTime now)
+    {
+        var remainingWindowMinutes = (AvailableUntil - now).TotalMinutes;
+        var configuredLimitMinutes = AttemptTimeLimit ?? remainingWindowMinutes;
+        var attemptDurationMinutes = Math.Min(remainingWindowMinutes, configuredLimitMinutes);
+        return now.AddMinutes(attemptDurationMinutes);
+    }
 }

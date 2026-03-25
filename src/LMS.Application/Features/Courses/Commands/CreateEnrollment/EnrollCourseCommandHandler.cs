@@ -24,8 +24,6 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand, R
 
     public async Task<Result> Handle(EnrollCourseCommand request, CancellationToken cancellationToken)
     {
-        //var user = _userContext.GetCurrentUser();
-
         var user = await _unitOfWork.Users.GetByIdAsync(request.StudentId);
         if (user == null || user.Role != UserRoles.Student)
             return DomainErrors.User.NotFound(request.StudentId.ToString());

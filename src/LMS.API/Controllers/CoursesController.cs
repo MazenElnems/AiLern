@@ -6,7 +6,6 @@ using LMS.Application.Features.Courses.Commands.DeleteCourse;
 using LMS.Application.Features.Courses.Commands.DeleteEnrollment;
 using LMS.Application.Features.Courses.Commands.UpdateCourse;
 using LMS.Application.Features.Courses.Queries.GetAllCourses;
-using LMS.Application.Features.Courses.Queries.GetAvailableCourses;
 using LMS.Application.Features.Courses.Queries.GetById;
 using LMS.Application.Features.Courses.Queries.GetCoursesByInstructorId;
 using LMS.Application.Features.Courses.Queries.GetEnrolledStudents;
@@ -50,9 +49,9 @@ public class CoursesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status200OK, "Courses retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid query parameters.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetAll([FromQuery] GetAllCoursesQuery query)
+    public async Task<ActionResult<ApiResponse>> GetAll(int pageNo = 1, int pageSize = 10)
     {
-        var result = await _mediator.Send(query);
+        var result = await _mediator.Send(new GetAllCoursesQuery(pageNo, pageSize));
         return HandleResponse(this, result);
     }
 
@@ -98,10 +97,6 @@ public class CoursesController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    
-
-
-
     [HttpDelete("{id}/enrollments/{studentId}")]
     [Authorize(Roles = UserRoles.Admin)]
     [SwaggerOperation(Summary = "Delete enrollment", Description = "Removes a student enrollment from a course.")]
@@ -116,8 +111,6 @@ public class CoursesController : ApiBaseController
         var result = await _mediator.Send(new DeleteEnrollmentCommand(id, studentId));
         return HandleResponse(this, result);
     }
-
-
 
     [HttpGet("{id}/students")]
     [SwaggerOperation(Summary = "Get enrolled students", Description = "Lists students enrolled in a course.")]
@@ -141,20 +134,9 @@ public class CoursesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> EnrollCourse(int studentId,int courseId)
+    public async Task<ActionResult<ApiResponse>> EnrollStudent(int studentId,int courseId)
     {
         var result = await _mediator.Send(new EnrollCourseCommand(studentId, courseId));
-        return HandleResponse(this, result);
-    }
-
-    [HttpGet("available-courses")]
-    [SwaggerOperation(Summary = "Get available courses", Description = "Retrieves courses available for enrollment.")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Courses retrieved successfully.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid query parameters.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetAvailableCourses([FromQuery] GetAvailableCoursesQuery query)
-    {
-        var result = await _mediator.Send(query);
         return HandleResponse(this, result);
     }
 

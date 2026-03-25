@@ -166,4 +166,7 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
 
     public virtual void Update(T entity) 
         => _dbSet.Update(entity);
+
+    public void UpdateRange(T[] entities)
+        => _dbSet.UpdateRange(entities);
 }
