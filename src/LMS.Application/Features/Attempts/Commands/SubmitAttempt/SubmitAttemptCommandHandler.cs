@@ -31,29 +31,6 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
         if (attempt == null)
             return DomainErrors.Attempt.NotFound(request.AttemptId);
 
-        //var attemptAnswers = await _unitOfWork.AttemptAnswers.FilterAsync(a => a.AttemptId == request.AttemptId && a.Question.Type == QuestionType.Written,
-        //    includeProperties: [nameof(AttemptAnswer.Question)]);
-
-        //foreach (var answer in attemptAnswers)
-        //{
-        //    var question = answer.Question;
-        //    if (question.Type == QuestionType.MCQ)
-        //    {
-        //        if(answer.OptionNumber == question.Options.First(q => q.IsCorrect).OptionNumber)
-        //        {
-        //            answer.Mark = question.Mark;
-        //        }
-        //    }
-
-        //    else if(question.Type == QuestionType.TrueFalse)
-        //    {
-        //        if (answer.BooleanAnswer?.ToLower() == question.Options.First(q => q.IsCorrect).OptionText.ToLower())
-        //        {
-        //            answer.Mark = question.Mark;
-        //        }
-        //    }
-        //}
-
         attempt.Submit();
         await _unitOfWork.CommitAsync();
 

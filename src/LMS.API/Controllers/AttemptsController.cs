@@ -54,7 +54,7 @@ public class AttemptsController : ApiBaseController
     }
 
     [HttpPut("{attemptId}/submit")]
-    [Authorize(UserRoles.Student)]
+    [Authorize(Roles = UserRoles.Student)]
     public async Task<ActionResult<ApiResponse>> Submit([FromRoute] Guid attemptId)
     {
         var command = new SubmitAttemptCommand(attemptId);
