@@ -2,12 +2,12 @@ using Hangfire;
 using Hangfire.Common;
 using LMS.API.Extensions;
 using LMS.API.Middleware;
+using LMS.API.Models;
 using LMS.Application;
 using LMS.Infrastructure;
 using LMS.Infrastructure.Jobs;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using Serilog.Formatting.Compact;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,9 +22,23 @@ builder.Host.UseSerilog((context, configuration) =>
         .Enrich.FromLogContext();
 });
 
-builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
-
 builder.Services.AddAuthentication();
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Where(e => e.Value?.Errors.Count > 0)
+            .ToDictionary(
+                modelState => modelState.Key,
+                modelState => modelState.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+            );
+
+        var response = ApiResponse.BadRequest(errors, "Invalid request format.");
+        return new BadRequestObjectResult(response);
+    };
+});
 
 builder.Services
     .ConfigureHttpClient()
