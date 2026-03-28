@@ -1,3 +1,4 @@
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Attempts.Shared.DTO;
@@ -16,14 +17,16 @@ public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand,
 {
     private readonly IUserContext _userContext;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPermissionService _permissionService;
     private readonly IBackgroundJobService _backgroundJobService;
     private readonly IAutoSubmitAttemptJob _autoSubmitAttemptJob;
     private readonly ILogger<CreateAttemptCommandHandler> _logger;
 
-    public CreateAttemptCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, ILogger<CreateAttemptCommandHandler> logger, IBackgroundJobService backgroundJobService, IAutoSubmitAttemptJob autoSubmitAttemptJob)
+    public CreateAttemptCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IPermissionService permissionService, ILogger<CreateAttemptCommandHandler> logger, IBackgroundJobService backgroundJobService, IAutoSubmitAttemptJob autoSubmitAttemptJob)
     {
         _userContext = userContext;
         _unitOfWork = unitOfWork;
+        _permissionService = permissionService;
         _logger = logger;
         _backgroundJobService = backgroundJobService;
         _autoSubmitAttemptJob = autoSubmitAttemptJob;
@@ -42,10 +45,8 @@ public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand,
             if (quiz == null)
                 return DomainErrors.Quiz.NotFound(request.QuizId);
 
-            var course = quiz.Course;
-
-            if (!await _unitOfWork.Enrollments.IsEnrolledAsync(course.Id, user.Id))
-                return DomainErrors.Course.NotEnrolled;
+            var enrollmentResult = await _permissionService.AuthorizeStudentEnrollmentAsync(quiz.CourseId);
+            if (!enrollmentResult.IsSuccess) return Result<AttemptDto>.Failure(enrollmentResult.Error!);
 
             if (quiz.Status != QuizStatus.Published)
                 return DomainErrors.Quiz.NotPublished;
@@ -71,7 +72,7 @@ public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand,
                 return DomainErrors.Attempt.MaximumAttemptsReaches;
 
             var quizQuestionIds = await _unitOfWork.Questions.GetQuestionIdsByQuizIdAsync(quiz.Id);
-            
+
             var attempt = Attempt.StartNew(
                 studentId: user.Id,
                 attemptNumber: studentAttemptsCount + 1,
@@ -88,9 +89,9 @@ public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand,
             quiz.Attempts.Add(attempt);
             await _unitOfWork.CommitAsync();
 
-            return new AttemptDto { AttemptId = attempt.Id, AttemptEndDate = attempt.AttemptEndTime};
+            return new AttemptDto { AttemptId = attempt.Id, AttemptEndDate = attempt.AttemptEndTime };
         }
-        catch(DbUpdateException ex)
+        catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Cannot Add new Attempt for {@Student} due to Concurrency Conflict.",
                 _userContext.GetCurrentUser());

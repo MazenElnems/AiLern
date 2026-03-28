@@ -1,9 +1,6 @@
-﻿using AutoMapper;
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.CurrentUser;
 using LMS.Application.Features.Quizzes.Shared.DTO;
-using LMS.Domain.Entities.Quizzes;
-using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 
@@ -11,44 +8,33 @@ namespace LMS.Application.Features.Quizzes.Queries.GetQuestionGenerationFiles;
 
 public class GetQuestionGenerationFilesQueryHandler : IRequestHandler<GetQuestionGenerationFilesQuery, Result<List<QuestionGenerationFilesDto>>>
 {
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
 
-    public GetQuestionGenerationFilesQueryHandler(IUserContext userContext, IUnitOfWork unitOfWork, IMapper mapper)
+    public GetQuestionGenerationFilesQueryHandler(IPermissionService permissionService, IUnitOfWork unitOfWork)
     {
-        _userContext = userContext;
+        _permissionService = permissionService;
         _unitOfWork = unitOfWork;
-        _mapper = mapper;
     }
 
     public async Task<Result<List<QuestionGenerationFilesDto>>> Handle(GetQuestionGenerationFilesQuery request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.GetCurrentUser().Id;
+        var quizResult = await _permissionService.AuthorizeInstructorAccessToQuizAsync(request.QuizId);
+        if (!quizResult.IsSuccess) return Result<List<QuestionGenerationFilesDto>>.Failure(quizResult.Error!);
 
-        var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId, 
-            includeProperties: [nameof(Quiz.Course), nameof(Quiz.QuestionGenerationFiles)]);
-
-        if (quiz == null)
-            return DomainErrors.Quiz.NotFound(request.QuizId);
-
-        if(quiz.Course.InstructorId != userId)
-            return DomainErrors.Quiz.NotOwned;
-
-
-
-        var questionGenerationFiles = quiz.QuestionGenerationFiles;
+        var questionGenerationFiles = (await _unitOfWork.QuestionGenerationFiles
+            .FilterAsync(f => f.QuizId == request.QuizId)).ToList();
 
         var questionGenerationFilesIds = questionGenerationFiles.Select(x => x.Id);
 
-        var sections = await _unitOfWork.Sections.FilterAsync(s => s.MaterialFiles.Any(m=> questionGenerationFilesIds.Contains(m.Id)));
+        var sections = await _unitOfWork.Sections.FilterAsync(s => s.MaterialFiles.Any(m => questionGenerationFilesIds.Contains(m.Id)));
 
         var materialFiles = sections.SelectMany(s => s.MaterialFiles).Where(m => questionGenerationFilesIds.Contains(m.Id));
 
-        var files = questionGenerationFiles.GroupJoin(materialFiles, qf => qf.Id, mf => mf.Id, 
-            (qf,mf) => new { File = qf , MFiles=mf })
-            .SelectMany(x => x.MFiles.DefaultIfEmpty(), 
-            (qf, mf) => new { qf.File.Id, qf.File.FileName, mf?.SectionId,SectionName = mf?.Section.Title })
+        var files = questionGenerationFiles.GroupJoin(materialFiles, qf => qf.Id, mf => mf.Id,
+            (qf, mf) => new { File = qf, MFiles = mf })
+            .SelectMany(x => x.MFiles.DefaultIfEmpty(),
+            (qf, mf) => new { qf.File.Id, qf.File.FileName, mf?.SectionId, SectionName = mf?.Section.Title })
             .ToList();
 
         var dto = files

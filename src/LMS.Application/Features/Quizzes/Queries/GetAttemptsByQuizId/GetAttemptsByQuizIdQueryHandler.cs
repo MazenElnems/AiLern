@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using LMS.Application.Common.Results;
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Quizzes.Shared.DTO;
@@ -8,7 +7,6 @@ using LMS.Domain.Enums;
 using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Application.Features.Quizzes.Queries.GetAttemptsByQuizId;
@@ -16,16 +14,15 @@ namespace LMS.Application.Features.Quizzes.Queries.GetAttemptsByQuizId;
 public class GetAttemptsByQuizIdQueryHandler : IRequestHandler<GetAttemptsByQuizIdQuery, Result<GetAttemptsByQuizIdDto>>
 {
     private readonly IUserContext _userContext;
-    private readonly IUnitOfWork _uintOfWork;
-    private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IPermissionService _permissionService;
     private readonly ILogger<GetAttemptsByQuizIdQueryHandler> _logger;
 
-
-    public GetAttemptsByQuizIdQueryHandler(IUserContext userContext, IUnitOfWork uintOfWork, IMapper mapper, ILogger<GetAttemptsByQuizIdQueryHandler> logger)
+    public GetAttemptsByQuizIdQueryHandler(IUserContext userContext, IUnitOfWork unitOfWork, IPermissionService permissionService, ILogger<GetAttemptsByQuizIdQueryHandler> logger)
     {
         _userContext = userContext;
-        _uintOfWork = uintOfWork;
-        _mapper = mapper;
+        _unitOfWork = unitOfWork;
+        _permissionService = permissionService;
         _logger = logger;
     }
 
@@ -35,19 +32,19 @@ public class GetAttemptsByQuizIdQueryHandler : IRequestHandler<GetAttemptsByQuiz
         {
             var user = _userContext.GetCurrentUser();
 
-            var quiz = await _uintOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId);
+            var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId);
 
             if (quiz == null)
                 return DomainErrors.Quiz.NotFound(request.QuizId);
 
-            var isEnrolled = await _uintOfWork.Enrollments.IsEnrolledAsync(quiz.CourseId, user.Id);
+            var enrollmentResult = await _permissionService.AuthorizeStudentEnrollmentAsync(quiz.CourseId);
+            if (!enrollmentResult.IsSuccess) return Result<GetAttemptsByQuizIdDto>.Failure(enrollmentResult.Error!);
 
-            if (!isEnrolled)
-                return DomainErrors.Course.NotEnrolled;
+            var attempts = await _unitOfWork.Attempts.FilterAsync(
+                a => a.StudentId == user.Id && a.QuizId == request.QuizId,
+                includeProperties: [nameof(Attempt.AttemptAnswers)]);
 
-            var attempts = await _uintOfWork.Attempts.FilterAsync(a => a.StudentId == user.Id && a.QuizId == request.QuizId, includeProperties: [nameof(Attempt.AttemptAnswers)]);
-
-            var myAttempts =  new GetAttemptsByQuizIdDto
+            var myAttempts = new GetAttemptsByQuizIdDto
             {
                 QuizId = quiz.Id,
                 QuizTitle = quiz.Title,
@@ -76,7 +73,6 @@ public class GetAttemptsByQuizIdQueryHandler : IRequestHandler<GetAttemptsByQuiz
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching attempts for quiz {QuizId}", request.QuizId);
-
             throw;
         }
     }

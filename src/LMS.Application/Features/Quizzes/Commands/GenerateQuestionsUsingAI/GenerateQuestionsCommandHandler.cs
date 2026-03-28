@@ -1,8 +1,7 @@
-﻿using LMS.Application.Common.Results.Generic;
-using LMS.Application.CurrentUser;
+using LMS.Application.Common.Interfaces;
+using LMS.Application.Common.Results.Generic;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
-using LMS.Domain.Errors;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
@@ -11,14 +10,14 @@ namespace LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
 
 public class GenerateQuestionsCommandHandler : IRequestHandler<GenerateQuestionsCommand, Result<Guid>>
 {
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWasabiService _wasabiService;
     private readonly IBackgroundJobService _backgroundService;
 
-    public GenerateQuestionsCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IBackgroundJobService backgroundService, IWasabiService wasabiService)
+    public GenerateQuestionsCommandHandler(IPermissionService permissionService, IUnitOfWork unitOfWork, IBackgroundJobService backgroundService, IWasabiService wasabiService)
     {
-        _userContext = userContext;
+        _permissionService = permissionService;
         _unitOfWork = unitOfWork;
         _backgroundService = backgroundService;
         _wasabiService = wasabiService;
@@ -26,20 +25,13 @@ public class GenerateQuestionsCommandHandler : IRequestHandler<GenerateQuestions
 
     public async Task<Result<Guid>> Handle(GenerateQuestionsCommand request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.GetCurrentUser().Id;
-
-        var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId,
-            includeProperties: [nameof(Quiz.Course), nameof(Quiz.QuestionGenerationFiles)]);
-
-        if (quiz == null)
-            return DomainErrors.Quiz.NotFound(request.QuizId);
-
+        var quizResult = await _permissionService.AuthorizeInstructorAccessToQuizAsync(request.QuizId);
+        if (!quizResult.IsSuccess) return Result<Guid>.Failure(quizResult.Error!);
+        var quiz = quizResult.Value!;
         var course = quiz.Course;
 
-        if (course.InstructorId != userId)
-            return DomainErrors.Quiz.NotOwned;
-
-        var questionGenerationFiles = quiz.QuestionGenerationFiles;
+        var questionGenerationFiles = (await _unitOfWork.QuestionGenerationFiles
+            .FilterAsync(f => f.QuizId == request.QuizId)).ToList();
 
         var addedFileIds = request.FileIds.Except(questionGenerationFiles.Select(f => f.Id)).ToList();
         var removedFileIds = questionGenerationFiles.Select(f => f.Id).Except(request.FileIds).ToList();
@@ -47,7 +39,7 @@ public class GenerateQuestionsCommandHandler : IRequestHandler<GenerateQuestions
         var sections = await _unitOfWork.Sections.FilterAsync(s => s.CourseId == course.Id && s.MaterialFiles.Any(f => addedFileIds.Contains(f.Id)));
         var newAddedMaterialFiles = sections.SelectMany(s => s.MaterialFiles);
 
-        questionGenerationFiles.RemoveAll(f => removedFileIds.Contains(f.Id));  
+        questionGenerationFiles.RemoveAll(f => removedFileIds.Contains(f.Id));
         questionGenerationFiles.AddRange(newAddedMaterialFiles.Select(f => new QuestionGenerationFiles { Id = f.Id, QuizId = request.QuizId, IsCourseMaterial = true, StoragePath = f.StoragePath, FileName = f.FileName, HasUploadedToAIService = false }));
 
         if (request.NewUploadedFiles.Any())

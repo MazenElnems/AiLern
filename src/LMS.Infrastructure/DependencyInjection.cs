@@ -1,5 +1,6 @@
-﻿using Amazon.S3;
+using Amazon.S3;
 using Hangfire;
+using LMS.Application.Common.Interfaces;
 using LMS.Application.ConfigurationOptions;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Interfaces;
@@ -43,6 +44,7 @@ public static class DependencyInjection
         services.AddScoped<IAutoSubmitAttemptJob, AutoSubmitAttemptJob>();
         services.AddScoped<IAIService, AIService>();
         services.AddScoped<IAttemptAnswersRepository, AttemptAnswersRepository>();
+        services.AddScoped<IPermissionService, PermissionService>();
 
         services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));

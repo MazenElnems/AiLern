@@ -1,4 +1,5 @@
 using AutoMapper;
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
@@ -9,7 +10,6 @@ using LMS.Domain.Errors;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
-using Microsoft.Extensions.Hosting;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Commands.Submit;
 
@@ -18,13 +18,15 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IWasabiService _wasabiService;
     private readonly IBackgroundJobService _backgroundService;
 
-    public AssignmentSubmissionCreateCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IMapper mapper, IWasabiService wasabiService, IBackgroundJobService backgroundService)
+    public AssignmentSubmissionCreateCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IPermissionService permissionService, IMapper mapper, IWasabiService wasabiService, IBackgroundJobService backgroundService)
     {
         _userContext = userContext;
         _unitOfWork = unitOfWork;
+        _permissionService = permissionService;
         _mapper = mapper;
         _wasabiService = wasabiService;
         _backgroundService = backgroundService;
@@ -37,16 +39,16 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
         var assignment = await _unitOfWork.Assignments.GetAsync(a => a.Id == request.AssignmentId,
             includeProperties: [nameof(Course)]);
 
-        if (assignment == null) 
+        if (assignment == null)
             return DomainErrors.Assignment.NotFound(request.AssignmentId);
 
-        if(await _unitOfWork.AssignmentSubmissions.AnyAsync(s => s.StudentId == user.Id && s.AssignmentId == assignment.Id))
+        if (await _unitOfWork.AssignmentSubmissions.AnyAsync(s => s.StudentId == user.Id && s.AssignmentId == assignment.Id))
             return DomainErrors.AssignmentSubmission.AlreadySubmitted;
 
         var course = assignment.Course;
 
-        if(!await _unitOfWork.Enrollments.IsEnrolledAsync(course.Id, user.Id))
-            return DomainErrors.Course.NotEnrolled;
+        var enrollmentResult = await _permissionService.AuthorizeStudentEnrollmentAsync(course.Id);
+        if (!enrollmentResult.IsSuccess) return Result<AssignmentSubmissionDto>.Failure(enrollmentResult.Error!);
 
         var submission = new AssignmentSubmission
         {
@@ -55,15 +57,14 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
 
         var isLate = submission.SubmissionDate > assignment.DueDate;
 
-        if(isLate)
+        if (isLate)
             submission.IsLate = true;
 
-        if(submission.IsLate && !assignment.AllowLateSubmission)
+        if (submission.IsLate && !assignment.AllowLateSubmission)
             return DomainErrors.AssignmentSubmission.LateNotAllowed;
 
         submission.StudentId = user.Id;
         assignment.Submissions.Add(submission);
-
 
         List<string> fileUrls = new();
         List<string> keys = new();
@@ -84,10 +85,9 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
         }
 
         await _unitOfWork.CommitAsync();
-                _backgroundService.Schedule<IConfirmUploadedFilesJob>(
+        _backgroundService.Schedule<IConfirmUploadedFilesJob>(
             job => job.ExecuteAsync(keys),
-            TimeSpan.FromMinutes(2)
-            );
+            TimeSpan.FromMinutes(2));
 
         var dto = _mapper.Map<AssignmentSubmissionDto>(submission);
         dto.UploadFilesUrls = fileUrls;

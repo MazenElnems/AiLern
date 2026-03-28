@@ -1,9 +1,6 @@
-﻿using LMS.Application.Common.Results.Generic;
+using LMS.Application.Common.Interfaces;
+using LMS.Application.Common.Results.Generic;
 using LMS.Application.ConfigurationOptions;
-using LMS.Application.CurrentUser;
-using LMS.Domain.Constants;
-using LMS.Domain.Entities.Assignments;
-using LMS.Domain.Errors;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
@@ -14,35 +11,22 @@ namespace LMS.Application.Features.AssignmentSubmissions.Queries.GetSubmissionFi
 public class GetAssignmentSubmissionFilesQueryHandler : IRequestHandler<GetAssignmentSubmissionFilesQuery, Result<List<string>>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IBunnyUrlSigner _bunnyUrlSigner;
     private readonly BunnyOptions _bunnyOptions;
 
-    public GetAssignmentSubmissionFilesQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext, IBunnyUrlSigner bunnyUrlSigner, IOptions<BunnyOptions> bunnyOptions)
+    public GetAssignmentSubmissionFilesQueryHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IBunnyUrlSigner bunnyUrlSigner, IOptions<BunnyOptions> bunnyOptions)
     {
         _unitOfWork = unitOfWork;
-        _userContext = userContext;
+        _permissionService = permissionService;
         _bunnyUrlSigner = bunnyUrlSigner;
         _bunnyOptions = bunnyOptions.Value;
     }
 
     public async Task<Result<List<string>>> Handle(GetAssignmentSubmissionFilesQuery request, CancellationToken cancellationToken)
     {
-        var user = _userContext.GetCurrentUser();
-
-        var assignment = await _unitOfWork.Assignments.GetAsync(a => a.Id == request.AssignmentId,
-            includeProperties: [nameof(Assignment.Course)]);
-
-        if(assignment == null)
-            return DomainErrors.Assignment.NotFound(request.AssignmentId);
-
-        var course = assignment.Course;
-
-        if (user.IsInRole(UserRoles.Instructor) && course.InstructorId != user.Id)
-            return DomainErrors.Assignment.NotOwned;
-
-        if(user.IsInRole(UserRoles.Student) && !await _unitOfWork.Enrollments.IsEnrolledAsync(course.Id, user.Id))
-            return DomainErrors.Course.NotEnrolled;
+        var assignmentResult = await _permissionService.AuthorizeAssignmentAccessAsync(request.AssignmentId);
+        if (!assignmentResult.IsSuccess) return Result<List<string>>.Failure(assignmentResult.Error!);
 
         var submissionFiles = await _unitOfWork.SubmissionFiles.FilterAsync(f => f.AssignmentSubmissionId == request.SubmissionId);
 

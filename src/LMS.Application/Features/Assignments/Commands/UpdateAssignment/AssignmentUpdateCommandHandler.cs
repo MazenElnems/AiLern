@@ -1,6 +1,6 @@
 using AutoMapper;
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.CurrentUser;
 using LMS.Application.Features.Assignments.Shared.DTO;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Enums;
@@ -13,30 +13,24 @@ namespace LMS.Application.Features.Assignments.Commands.UpdateAssignment;
 public class AssignmentUpdateCommandHandler : IRequestHandler<AssignmentUpdateCommand, Result<AssignmentDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IMapper _mapper;
     private readonly IWasabiService _wasabiService;
 
-    public AssignmentUpdateCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, IWasabiService wasabiService)
+    public AssignmentUpdateCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IMapper mapper, IWasabiService wasabiService)
     {
         _unitOfWork = unitOfWork;
-        _userContext = userContext;
+        _permissionService = permissionService;
         _mapper = mapper;
         _wasabiService = wasabiService;
     }
 
     public async Task<Result<AssignmentDto>> Handle(AssignmentUpdateCommand request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.GetCurrentUser().Id;
-
-        var assignment = await _unitOfWork.Assignments.GetAsync(a => a.Id == request.Id,
-            includeProperties: [nameof(Assignment.Course), nameof(Assignment.Submissions)]);
-
-        if (assignment == null)
-            return DomainErrors.Assignment.NotFound(request.Id);
-
-        if (assignment.Course.InstructorId != userId)
-            return DomainErrors.Course.NotOwned;
+        var assignmentResult = await _permissionService.AuthorizeInstructorAccessToAssignmentAsync(request.Id);
+        if (!assignmentResult.IsSuccess) return Result<AssignmentDto>.Failure(assignmentResult.Error!);
+        var assignment = assignmentResult.Value!;
+        var course = assignment.Course;
 
         if (assignment.DueDate > request.DueDate)
             return DomainErrors.Assignment.InValidDueDate;
@@ -51,7 +45,9 @@ public class AssignmentUpdateCommandHandler : IRequestHandler<AssignmentUpdateCo
 
         if (assignment.IsPublished && request.DueDate > previousDueDate)
         {
-            foreach (var submission in assignment.Submissions)
+            var submissions = await _unitOfWork.AssignmentSubmissions
+                .FilterAsync(s => s.AssignmentId == request.Id);
+            foreach (var submission in submissions)
             {
                 if (submission.IsLate && submission.SubmissionDate <= request.DueDate)
                     submission.IsLate = false;
@@ -60,11 +56,11 @@ public class AssignmentUpdateCommandHandler : IRequestHandler<AssignmentUpdateCo
 
         var dto = _mapper.Map<AssignmentDto>(assignment);
 
-        if(request.UploadedFileMetaData is not null)
+        if (request.UploadedFileMetaData is not null)
         {
             foreach (var file in request.UploadedFileMetaData)
             {
-                var key = $"courses/{assignment.Course.Name}/assignments/{assignment.Id}/{Guid.NewGuid()}_{file.FileName}";
+                var key = $"courses/{course.Name}/assignments/{assignment.Id}/{Guid.NewGuid()}_{file.FileName}";
                 var url = await _wasabiService.GeneratePresignedUploadUrlAsync(key, file.ContentType, 2);
                 dto.PresingedFileUrls.Add(url);
 

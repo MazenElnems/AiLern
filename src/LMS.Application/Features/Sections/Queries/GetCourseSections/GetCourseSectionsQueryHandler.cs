@@ -1,11 +1,9 @@
-﻿using AutoMapper;
+using AutoMapper;
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.ConfigurationOptions;
-using LMS.Application.CurrentUser;
 using LMS.Application.Features.Sections.Shared.DTO;
-using LMS.Domain.Constants;
 using LMS.Domain.Entities.Courses;
-using LMS.Domain.Errors;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
@@ -17,38 +15,29 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly BunnyOptions _bunnyOptions;
     private readonly IBunnyUrlSigner _bunnyUrl;
 
-    public GetCourseSectionsQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IUserContext userContext, IOptions<BunnyOptions> bunnyOptions, IBunnyUrlSigner bunnyUrl)
+    public GetCourseSectionsQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IPermissionService permissionService, IOptions<BunnyOptions> bunnyOptions, IBunnyUrlSigner bunnyUrl)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _userContext = userContext;
+        _permissionService = permissionService;
         _bunnyOptions = bunnyOptions.Value;
         _bunnyUrl = bunnyUrl;
     }
 
     public async Task<Result<List<CourseSectionsDto>>> Handle(GetCourseSectionsQuery request, CancellationToken cancellationToken)
     {
-        var user = _userContext.GetCurrentUser();
+        var courseResult = await _permissionService.AuthorizeCourseAccessAsync(request.CourseId);
+        if (!courseResult.IsSuccess) return Result<List<CourseSectionsDto>>.Failure(courseResult.Error!);
 
-        var course = await _unitOfWork.Courses.GetAsync(c => c.Id == request.CourseId,
-            includeProperties: [nameof(Course.Sections)]);
+        var sections = await _unitOfWork.Sections.FilterAsync(
+            s => s.CourseId == request.CourseId,
+            includeProperties: [nameof(Section.MaterialFiles)]);
 
-        if(course == null)
-            return DomainErrors.Course.NotFound(request.CourseId);
-
-        if (user.IsInRole(UserRoles.Instructor) && course.InstructorId != user.Id)
-            return DomainErrors.Course.NotOwned;
-
-        if (user.IsInRole(UserRoles.Student) && !await _unitOfWork.Enrollments.IsEnrolledAsync(request.CourseId, user.Id))
-            return DomainErrors.Course.NotEnrolled;
-
-        var result = new List<CourseSectionsDto>();
-
-        var dto = course.Sections.Select(s =>
+        var dto = sections.Select(s =>
         {
             var sectionDto = _mapper.Map<CourseSectionsDto>(s);
 

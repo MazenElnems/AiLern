@@ -1,8 +1,7 @@
-﻿using LMS.Application.Common.Results.Generic;
-using LMS.Application.CurrentUser;
+using LMS.Application.Common.Interfaces;
+using LMS.Application.Common.Results.Generic;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Enums;
-using LMS.Domain.Errors;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
@@ -14,15 +13,15 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
 {
     private readonly ILogger<RequestMaterialPresignedUrlCommandHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IWasabiService _wasabiService;
     private readonly IBackgroundJobService _backgroundService;
 
-    public RequestMaterialPresignedUrlCommandHandler(ILogger<RequestMaterialPresignedUrlCommandHandler> logger, IUnitOfWork unitOfWork, IUserContext userContext, IWasabiService wasabiService, IBackgroundJobService backgroundService)
+    public RequestMaterialPresignedUrlCommandHandler(ILogger<RequestMaterialPresignedUrlCommandHandler> logger, IUnitOfWork unitOfWork, IPermissionService permissionService, IWasabiService wasabiService, IBackgroundJobService backgroundService)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
-        _userContext = userContext;
+        _permissionService = permissionService;
         _wasabiService = wasabiService;
         _backgroundService = backgroundService;
     }
@@ -31,25 +30,17 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
     {
         try
         {
-            var user = _userContext.GetCurrentUser();
-
-            var section = await _unitOfWork.Sections.GetAsync(s => s.Id == request.SectionId,
-                includeProperties: [nameof(Section.Course)]);
-
-            if (section == null)
-                return DomainErrors.Section.NotFound(request.SectionId);
-
+            var sectionResult = await _permissionService.AuthorizeInstructorAccessToSectionAsync(request.SectionId);
+            if (!sectionResult.IsSuccess) return Result<List<string>>.Failure(sectionResult.Error!);
+            var section = sectionResult.Value!;
             var course = section.Course;
-
-            if (user.Id != course.InstructorId)
-                return DomainErrors.Common.Forbidden("You do not have permission to request pre-signed URLs for this assignment.");
 
             List<string> response = new();
             List<string> keys = new();
 
             var orderIndex = section.GetMaxFileOrderIndexAsync();
 
-            foreach(var file in request.Files)
+            foreach (var file in request.Files)
             {
                 var key = $"courses/{course.Name}/Materials/{Guid.NewGuid()}_{file.FileName}";
                 var preSignedUrl = await _wasabiService.GeneratePresignedUploadUrlAsync(key, file.ContentType, 2);
@@ -77,7 +68,6 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
                 TimeSpan.FromMinutes(2)
             );
             return response;
-            
         }
         catch (Exception ex)
         {

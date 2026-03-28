@@ -1,40 +1,37 @@
-using LMS.Application.CurrentUser;
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results;
-using LMS.Domain.Repositories;
-using MediatR;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
+using LMS.Domain.Repositories;
+using MediatR;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Commands.ConfirmUpload;
 
 public class ConfirmSubmissionUploadCommandHandler : IRequestHandler<ConfirmSubmissionUploadCommand, Result>
 {
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWasabiService _wasabiService;
 
-
-    public ConfirmSubmissionUploadCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IWasabiService wasabiService)
+    public ConfirmSubmissionUploadCommandHandler(IPermissionService permissionService, IUnitOfWork unitOfWork, IWasabiService wasabiService)
     {
-        _userContext = userContext;
+        _permissionService = permissionService;
         _unitOfWork = unitOfWork;
         _wasabiService = wasabiService;
     }
 
     public async Task<Result> Handle(ConfirmSubmissionUploadCommand request, CancellationToken cancellationToken)
     {
-        var user = _userContext.GetCurrentUser();
+        var submissionResult = await _permissionService.AuthorizeStudentAccessToSubmissionAsync(request.SubmissionId);
+        if (!submissionResult.IsSuccess) return Result.Failure(submissionResult.Error!);
+        var submission = submissionResult.Value!;
 
-        var submission = await _unitOfWork.AssignmentSubmissions.GetAsync(s => s.Id == request.SubmissionId, [nameof(AssignmentSubmission.Files)]);
+        var submissionWithFiles = await _unitOfWork.AssignmentSubmissions.GetAsync(
+            s => s.Id == request.SubmissionId,
+            [nameof(AssignmentSubmission.Files)]);
 
-        if (submission == null)
-            return Result.Failure(DomainErrors.AssignmentSubmission.NotFound(request.SubmissionId.ToString()));
-
-        if(submission.StudentId != user.Id)
-            return Result.Failure(DomainErrors.Common.Forbidden("You do not have permission to confirm files in this submission."));
-
-        foreach(var file in submission.Files)
+        foreach (var file in submissionWithFiles!.Files)
         {
             var exists = await _wasabiService.FileExists(file.StoragePath);
 

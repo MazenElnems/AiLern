@@ -1,42 +1,34 @@
-using LMS.Application.CurrentUser;
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using LMS.Domain.Entities.Assignments;
-using LMS.Domain.Errors;
 
 namespace LMS.Application.Features.Assignments.Commands.DeleteAssignment;
 
 public class AssignmentDeleteCommandHandler : IRequestHandler<AssignmentDeleteCommand, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IWasabiService _wasabiService;
     private readonly ILogger<AssignmentDeleteCommandHandler> _logger;
 
-    public AssignmentDeleteCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IWasabiService wasabiService, ILogger<AssignmentDeleteCommandHandler> logger)
+    public AssignmentDeleteCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IWasabiService wasabiService, ILogger<AssignmentDeleteCommandHandler> logger)
     {
         _unitOfWork = unitOfWork;
-        _userContext = userContext;
+        _permissionService = permissionService;
         _wasabiService = wasabiService;
         _logger = logger;
     }
 
     public async Task<Result> Handle(AssignmentDeleteCommand request, CancellationToken cancellationToken)
     {
-        var assignment = await _unitOfWork.Assignments.GetAsync(
-            a => a.Id == request.Id,
-            [nameof(Assignment.Course), nameof(Assignment.Files)]);
+        var assignmentResult = await _permissionService.AuthorizeInstructorAccessToAssignmentAsync(request.Id);
+        if (!assignmentResult.IsSuccess) return Result.Failure(assignmentResult.Error!);
+        var assignment = assignmentResult.Value!;
 
-        if (assignment == null)
-            return Result.Failure(DomainErrors.Assignment.NotFound(request.Id));
-
-        var userId = _userContext.GetCurrentUser().Id;
-        if (assignment.Course.InstructorId != userId)   
-            return Result.Failure(DomainErrors.Common.Forbidden("You do not have permission to delete this assignment."));
-
-        var filePaths = assignment.Files.Select(f => f.StoragePath);
+        var filePaths = _unitOfWork.Assignments.GetFilesByAssignmentId(request.Id)
+            .Select(f => f.StoragePath);
 
         _unitOfWork.Assignments.Delete(assignment);
         await _unitOfWork.CommitAsync();

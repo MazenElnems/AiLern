@@ -1,9 +1,8 @@
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.CurrentUser;
 using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
 using LMS.Domain.Constants;
-using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -13,24 +12,20 @@ namespace LMS.Application.Features.AssignmentSubmissions.Queries.GetStudentSubmi
 public class GetStudentSubmissionsForAssignmentQueryHandler
     : IRequestHandler<GetStudentSubmissionsForAssignmentQuery, Result<PaginationResult<StudentsAssignmentSubmissionsDto>>>
 {
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public GetStudentSubmissionsForAssignmentQueryHandler(IUserContext userContext, IUnitOfWork unitOfWork)
+    public GetStudentSubmissionsForAssignmentQueryHandler(IPermissionService permissionService, IUnitOfWork unitOfWork)
     {
-        _userContext = userContext;
+        _permissionService = permissionService;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<PaginationResult<StudentsAssignmentSubmissionsDto>>> Handle(GetStudentSubmissionsForAssignmentQuery request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.GetCurrentUser().Id;
-
-        if (!await _unitOfWork.Assignments.AnyAsync(a => a.Id == request.AssignmentId))
-            return DomainErrors.Assignment.NotFound(request.AssignmentId);
-
-        if (!await _unitOfWork.Assignments.AnyAsync(a => a.Id == request.AssignmentId && a.Course.InstructorId == userId))
-            return DomainErrors.Common.Forbidden("You do not have permission to view submissions for this assignment.");
+        var assignmentResult = await _permissionService.AuthorizeInstructorAccessToAssignmentAsync(request.AssignmentId);
+        if (!assignmentResult.IsSuccess)
+            return Result<PaginationResult<StudentsAssignmentSubmissionsDto>>.Failure(assignmentResult.Error!);
 
         var query = _unitOfWork.AssignmentSubmissions.Query
             .AsNoTracking()

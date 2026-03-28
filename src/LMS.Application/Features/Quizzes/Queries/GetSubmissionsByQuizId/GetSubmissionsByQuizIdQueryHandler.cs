@@ -1,10 +1,7 @@
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.CurrentUser;
-using LMS.Application.Features.Courses.Shared.DTO;
 using LMS.Application.Features.Quizzes.Shared.DTO;
-using LMS.Domain.Entities.Quizzes;
-using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -13,26 +10,19 @@ namespace LMS.Application.Features.Quizzes.Queries.GetSubmissionsByQuizId;
 
 public class GetSubmissionsByQuizIdQueryHandler : IRequestHandler<GetSubmissionsByQuizIdQuery, Result<PaginationResult<GetSubmissionsByQuizIdDto>>>
 {
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public GetSubmissionsByQuizIdQueryHandler(IUserContext userContext, IUnitOfWork unitOfWork)
+    public GetSubmissionsByQuizIdQueryHandler(IPermissionService permissionService, IUnitOfWork unitOfWork)
     {
-        _userContext = userContext;
+        _permissionService = permissionService;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<PaginationResult<GetSubmissionsByQuizIdDto>>> Handle(GetSubmissionsByQuizIdQuery request, CancellationToken cancellationToken)
     {
-        var user = _userContext.GetCurrentUser();
-        var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId,
-            includeProperties: [nameof(Quiz.Course)]);
-
-        if (quiz == null)
-            return DomainErrors.Quiz.NotFound(request.QuizId);
-
-        if (quiz.Course.InstructorId != user.Id)
-            return DomainErrors.Quiz.NotOwned;
+        var quizResult = await _permissionService.AuthorizeInstructorAccessToQuizAsync(request.QuizId);
+        if (!quizResult.IsSuccess) return Result<PaginationResult<GetSubmissionsByQuizIdDto>>.Failure(quizResult.Error!);
 
         var query = _unitOfWork.Attempts.Query
             .AsNoTracking()

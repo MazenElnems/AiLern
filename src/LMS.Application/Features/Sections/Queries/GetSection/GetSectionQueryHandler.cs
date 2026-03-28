@@ -1,11 +1,9 @@
-﻿using AutoMapper;
+using AutoMapper;
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.ConfigurationOptions;
-using LMS.Application.CurrentUser;
 using LMS.Application.Features.Sections.Shared.DTO;
-using LMS.Domain.Constants;
 using LMS.Domain.Entities.Courses;
-using LMS.Domain.Errors;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
@@ -17,46 +15,31 @@ public class GetSectionQueryHandler : IRequestHandler<GetSectionQuery, Result<Co
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly BunnyOptions _bunnyOptions;
     private readonly IBunnyUrlSigner _bunnyUrl;
 
-    public GetSectionQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IUserContext userContext, IOptions<BunnyOptions> bunnyOptions, IBunnyUrlSigner bunnyUrl)
+    public GetSectionQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IPermissionService permissionService, IOptions<BunnyOptions> bunnyOptions, IBunnyUrlSigner bunnyUrl)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _userContext = userContext;
+        _permissionService = permissionService;
         _bunnyOptions = bunnyOptions.Value;
         _bunnyUrl = bunnyUrl;
     }
 
     public async Task<Result<CourseSectionsDto>> Handle(GetSectionQuery request, CancellationToken cancellationToken)
     {
-        var user = _userContext.GetCurrentUser();
-        var section = await _unitOfWork.Sections.GetAsync(a => a.Id == request.sectionId, [nameof(Section.Course),nameof(Section.MaterialFiles)]);
-        if (section == null)
-        {
-            return DomainErrors.Section.NotFound(request.sectionId);
-        }
-        if (user.IsInRole(UserRoles.Instructor))
-        {
-            if (section.Course.InstructorId != user.Id)
-            {
-                return DomainErrors.Common.Forbidden("You are not the instructor of this course.");
-            }
-        }
-        if (user.IsInRole(UserRoles.Student))
-        {
-            var isnrolled = await _unitOfWork.Enrollments.IsEnrolledAsync(section.CourseId, user.Id);
-            if (!isnrolled)
-            {
-                return DomainErrors.Common.Forbidden("You are not student in this course.");
-            }
-        }
+        var sectionResult = await _permissionService.AuthorizeSectionAccessAsync(request.sectionId);
+        if (!sectionResult.IsSuccess) return Result<CourseSectionsDto>.Failure(sectionResult.Error!);
+        var section = sectionResult.Value!;
+
+        var sectionWithFiles = await _unitOfWork.Sections.GetAsync(s => s.Id == request.sectionId,
+            [nameof(Section.MaterialFiles)]);
 
         var sectiondto = _mapper.Map<CourseSectionsDto>(section);
 
-        var materialFiles = section.MaterialFiles
+        var materialFiles = sectionWithFiles!.MaterialFiles
             .OrderBy(f => f.OrderIndex)
             .Select(file => new SectionFileDto
             {

@@ -1,5 +1,5 @@
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results;
-using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
@@ -10,26 +10,20 @@ namespace LMS.Application.Features.Attempts.Commands.SaveAttempt;
 
 public class SaveAttemptCommandHandler : IRequestHandler<SaveAttemptCommand, Result>
 {
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public SaveAttemptCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork)
+    public SaveAttemptCommandHandler(IPermissionService permissionService, IUnitOfWork unitOfWork)
     {
-        _userContext = userContext;
+        _permissionService = permissionService;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(SaveAttemptCommand request, CancellationToken cancellationToken)
     {
-        var user = _userContext.GetCurrentUser();
-
-        var attempt = await _unitOfWork.Attempts.GetByIdAsync(request.AttemptId);
-
-        if (attempt == null)
-            return DomainErrors.Attempt.NotFound(request.AttemptId);
-
-        if (attempt.StudentId != user.Id)
-            return DomainErrors.Common.Forbidden("You are not allowed to access this attempt.");
+        var attemptResult = await _permissionService.AuthorizeStudentAccessToAttemptAsync(request.AttemptId);
+        if (!attemptResult.IsSuccess) return Result.Failure(attemptResult.Error!);
+        var attempt = attemptResult.Value!;
 
         if (attempt.Status != AttemptStatus.InProgress)
             return DomainErrors.Attempt.NotInProgress;

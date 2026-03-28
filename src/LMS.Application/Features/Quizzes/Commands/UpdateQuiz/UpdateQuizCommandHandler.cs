@@ -1,10 +1,8 @@
-﻿using AutoMapper;
+using AutoMapper;
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.CurrentUser;
-using LMS.Application.Features.Quizzes.Shared.DTO;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
-using LMS.Domain.Errors;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
@@ -14,30 +12,23 @@ namespace LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
 public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Result<Guid>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IMapper _mapper;
     private readonly IBackgroundJobService _backgroundJobService;
 
-    public UpdateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, IBackgroundJobService backgroundJobService)
+    public UpdateQuizCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IMapper mapper, IBackgroundJobService backgroundJobService)
     {
         _unitOfWork = unitOfWork;
-        _userContext = userContext;
+        _permissionService = permissionService;
         _mapper = mapper;
         _backgroundJobService = backgroundJobService;
     }
 
     public async Task<Result<Guid>> Handle(UpdateQuizCommand request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.GetCurrentUser().Id;
-
-        var quiz = await _unitOfWork.Quizzes.GetAsync(a => a.Id == request.Id,
-            includeProperties: [nameof(Quiz.Course)]);
-
-        if (quiz == null)
-            return DomainErrors.Quiz.NotFound(request.Id);
-
-        if (quiz.Course.InstructorId != userId)
-            return DomainErrors.Course.NotOwned;
+        var quizResult = await _permissionService.AuthorizeInstructorAccessToQuizAsync(request.Id);
+        if (!quizResult.IsSuccess) return Result<Guid>.Failure(quizResult.Error!);
+        var quiz = quizResult.Value!;
 
         quiz.Title = request.Title;
         quiz.Description = request.Description;
@@ -64,13 +55,13 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
                 _backgroundJobService.Schedule<IQuizPublishSchedulerJob>((job) => job.ExecuteAsync(quiz.Id), request.PublishedDate!.Value);
             }
 
-            if(request.Questions != null)
+            if (request.Questions != null)
             {
                 var questionOrder = 1;
                 request.Questions.ForEach(questionRequest =>
                 {
                     var question = _mapper.Map<Question>(questionRequest);
-                    question.QuizId = quiz.Id;  
+                    question.QuizId = quiz.Id;
 
                     int optionNumber = 1;
                     question.Options.ForEach(o =>

@@ -1,5 +1,5 @@
-﻿using LMS.Application.Common.Results;
-using LMS.Application.CurrentUser;
+using LMS.Application.Common.Interfaces;
+using LMS.Application.Common.Results;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
@@ -10,30 +10,26 @@ namespace LMS.Application.Features.Sections.Commands.DeleteMaterialFile;
 internal class DeleteMaterialFileCommandHandler : IRequestHandler<DeleteMaterialFileCommand, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IWasabiService _wasabiService;
 
-    public DeleteMaterialFileCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IWasabiService wasabiService)
+    public DeleteMaterialFileCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IWasabiService wasabiService)
     {
         _unitOfWork = unitOfWork;
-        _userContext = userContext;
+        _permissionService = permissionService;
         _wasabiService = wasabiService;
     }
 
     public async Task<Result> Handle(DeleteMaterialFileCommand request, CancellationToken cancellationToken)
     {
-        var user = _userContext.GetCurrentUser();
+        var sectionResult = await _permissionService.AuthorizeInstructorAccessToSectionAsync(request.SectionId);
+        if (!sectionResult.IsSuccess) return Result.Failure(sectionResult.Error!);
+        var section = sectionResult.Value!;
 
-        var section = await _unitOfWork.Sections.GetAsync(sec => sec.Id == request.SectionId,
-            includeProperties: [nameof(Section.Course), nameof(Section.MaterialFiles)]);
+        var sectionWithFiles = await _unitOfWork.Sections.GetAsync(sec => sec.Id == request.SectionId,
+            includeProperties: [nameof(Section.MaterialFiles)]);
 
-        if(section == null)
-            return DomainErrors.Section.NotFound(request.SectionId);
-
-        if (section.Course.InstructorId != user.Id)
-            return DomainErrors.Common.Forbidden("You do not have permission to delete this section file.");
-
-        var file = section.MaterialFiles.FirstOrDefault(f => f.Id == request.FileId);
+        var file = sectionWithFiles!.MaterialFiles.FirstOrDefault(f => f.Id == request.FileId);
 
         if (file == null)
             return DomainErrors.MaterialFile.NotFound(request.FileId);

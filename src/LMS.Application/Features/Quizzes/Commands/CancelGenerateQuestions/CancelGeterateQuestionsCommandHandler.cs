@@ -1,5 +1,5 @@
-﻿using LMS.Application.Common.Results;
-using LMS.Application.CurrentUser;
+using LMS.Application.Common.Interfaces;
+using LMS.Application.Common.Results;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
@@ -11,34 +11,27 @@ namespace LMS.Application.Features.Quizzes.Commands.CancelGenerateQuestions;
 
 public class CancelGeterateQuestionsCommandHandler : IRequestHandler<CancelGeterateQuestionsCommand, Result>
 {
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IBackgroundJobService _backgroundService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CancelGeterateQuestionsCommandHandler(IUserContext userContext, IBackgroundJobService backgroundService, IUnitOfWork unitOfWork)
+    public CancelGeterateQuestionsCommandHandler(IPermissionService permissionService, IBackgroundJobService backgroundService, IUnitOfWork unitOfWork)
     {
-        _userContext = userContext;
+        _permissionService = permissionService;
         _backgroundService = backgroundService;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(CancelGeterateQuestionsCommand request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.GetCurrentUser().Id;
-
         var job = await _unitOfWork.QuestionGenerationJobs.GetAsync(x => x.Id == request.id,
             includeProperties: [nameof(Quiz)]);
 
         if (job == null)
             return DomainErrors.QuestionGenerationJobs.NotFound(request.id);
 
-        var course = await _unitOfWork.Courses.GetByIdAsync(job.Quiz.CourseId);
-
-        if (course == null)
-            return DomainErrors.Course.NotFound(job.Quiz.CourseId);
-
-        if (course.InstructorId != userId)
-            return DomainErrors.Quiz.NotOwned;
+        var courseResult = await _permissionService.AuthorizeInstructorAccessToCourseAsync(job.Quiz.CourseId);
+        if (!courseResult.IsSuccess) return courseResult.Error!;
 
         if (job.Status != AIJobStatus.InProgress)
             return DomainErrors.QuestionGenerationJobs.NotInProgress;

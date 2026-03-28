@@ -1,12 +1,11 @@
-﻿using AutoMapper;
+using AutoMapper;
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Quizzes.Shared.DTO;
 using LMS.Domain.Constants;
-using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
-using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -19,13 +18,15 @@ namespace LMS.Application.Features.Quizzes.Queries.GetAllQuizzes
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<GetAllQuizzesByCourseIdQueryHandler> _logger;
         private readonly IMapper _mapper;
+        private readonly IPermissionService _permissionService;
         private readonly IUserContext _userContext;
 
-        public GetAllQuizzesByCourseIdQueryHandler(IUnitOfWork unitOfWork, ILogger<GetAllQuizzesByCourseIdQueryHandler> logger, IMapper mapper, IUserContext userContext)
+        public GetAllQuizzesByCourseIdQueryHandler(IUnitOfWork unitOfWork, ILogger<GetAllQuizzesByCourseIdQueryHandler> logger, IMapper mapper, IPermissionService permissionService, IUserContext userContext)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _mapper = mapper;
+            _permissionService = permissionService;
             _userContext = userContext;
         }
 
@@ -33,25 +34,16 @@ namespace LMS.Application.Features.Quizzes.Queries.GetAllQuizzes
         {
             try
             {
-                var user =  _userContext.GetCurrentUser();
+                var user = _userContext.GetCurrentUser();
 
-                var course = await _unitOfWork.Courses.GetAsync(c => c.Id ==  request.CourseId, 
-                    includeProperties: [nameof(Course.Quizzes)]);
+                var courseResult = await _permissionService.AuthorizeCourseAccessAsync(request.CourseId);
+                if (!courseResult.IsSuccess) return Result<List<GetAllQuizDto>>.Failure(courseResult.Error!);
 
-                if (course == null)
-                    return DomainErrors.Course.NotFound(request.CourseId);
+                Expression<Func<Quiz, bool>> predicate = user.IsInRole(UserRoles.Student)
+                    ? q => q.CourseId == request.CourseId && q.Status == QuizStatus.Published
+                    : q => q.CourseId == request.CourseId;
 
-                if (user.IsInRole(UserRoles.Instructor) && user.Id != course.InstructorId)
-                    return DomainErrors.Course.NotOwned;
-
-                else if (user.IsInRole(UserRoles.Student) && !await _unitOfWork.Enrollments.IsEnrolledAsync(request.CourseId, user.Id))
-                    return DomainErrors.Common.Forbidden("Can't access this course");
-
-                Expression<Func<Quiz, bool>> perdicate = user.IsInRole(UserRoles.Student) 
-                    ?q => q.CourseId == request.CourseId  && q.Status == QuizStatus.Published 
-                    :q => q.CourseId == request.CourseId;
-
-                var quizzes = await _unitOfWork.Quizzes.FilterAsync(perdicate);
+                var quizzes = await _unitOfWork.Quizzes.FilterAsync(predicate);
 
                 var dto = _mapper.Map<List<GetAllQuizDto>>(quizzes);
 

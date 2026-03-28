@@ -1,9 +1,8 @@
-﻿using AutoMapper;
+using AutoMapper;
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
-using LMS.Domain.Errors;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
@@ -13,29 +12,22 @@ namespace LMS.Application.Features.Quizzes.Commands.CreateQuiz;
 public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Result<Guid>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IMapper _mapper;
     private readonly IBackgroundJobService _backgroundJobService;
 
-    public CreateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, IBackgroundJobService backgroundJobService)
+    public CreateQuizCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IMapper mapper, IBackgroundJobService backgroundJobService)
     {
         _unitOfWork = unitOfWork;
-        _userContext = userContext;
+        _permissionService = permissionService;
         _mapper = mapper;
         _backgroundJobService = backgroundJobService;
     }
 
     public async Task<Result<Guid>> Handle(CreateQuizCommand request, CancellationToken cancellationToken)
     {
-        var user = _userContext.GetCurrentUser();
-        var course = await _unitOfWork.Courses.GetByIdAsync(request.CourseId);
-
-        if (course == null)
-            return DomainErrors.Course.NotFound(request.CourseId);
-
-        if (user.Id != course.InstructorId)
-            return DomainErrors.Course.NotOwned;
-
+        var courseResult = await _permissionService.AuthorizeInstructorAccessToCourseAsync(request.CourseId);
+        if (!courseResult.IsSuccess) return Result<Guid>.Failure(courseResult.Error!);
 
         var quiz = _mapper.Map<Quiz>(request);
 

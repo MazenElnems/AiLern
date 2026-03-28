@@ -1,39 +1,31 @@
-using LMS.Application.CurrentUser;
+using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results;
+using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
-using LMS.Domain.Entities.Assignments;
-using LMS.Domain.Errors;
 
 namespace LMS.Application.Features.Assignments.Commands.DaleteAssignmentFile;
 
 public class AssignmentDeleteFileCommandHandler : IRequestHandler<AssignmentDeleteFileCommand, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserContext _userContext;
+    private readonly IPermissionService _permissionService;
     private readonly IWasabiService _wasabiService;
 
-    public AssignmentDeleteFileCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IWasabiService wasabiService)
+    public AssignmentDeleteFileCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IWasabiService wasabiService)
     {
         _unitOfWork = unitOfWork;
-        _userContext = userContext;
+        _permissionService = permissionService;
         _wasabiService = wasabiService;
     }
 
     public async Task<Result> Handle(AssignmentDeleteFileCommand request, CancellationToken cancellationToken)
     {
-        var assignment = await _unitOfWork.Assignments.GetAsync(
-            a => a.Id == request.AssignmentId,
-            [nameof(Assignment.Course), nameof(Assignment.Files)]);
+        var assignmentResult = await _permissionService.AuthorizeInstructorAccessToAssignmentAsync(request.AssignmentId);
+        if (!assignmentResult.IsSuccess) return Result.Failure(assignmentResult.Error!);
 
-        if (assignment == null)
-            return Result.Failure(DomainErrors.Assignment.NotFound(request.AssignmentId));
-
-        var userId = _userContext.GetCurrentUser().Id;
-        if (assignment.Course.InstructorId != userId)
-            return Result.Failure(DomainErrors.Common.Forbidden("You do not have permission to delete this assignment file."));
-
-        var file = assignment.Files.FirstOrDefault(f => f.Id == request.FileId);
+        var files = _unitOfWork.Assignments.GetFilesByAssignmentId(request.AssignmentId);
+        var file = files.FirstOrDefault(f => f.Id == request.FileId);
         if (file == null)
             return Result.Failure(DomainErrors.AssignmentFile.NotFound(request.FileId));
 
