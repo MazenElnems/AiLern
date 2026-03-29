@@ -1,4 +1,5 @@
 ﻿using LMS.Application.Common.Results;
+using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
@@ -11,19 +12,22 @@ internal class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComm
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserContext _userContext;
 
-    public ChangePasswordCommandHandler(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork)
+    public ChangePasswordCommandHandler(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IUserContext userContext)
     {
         _userManager = userManager;
         _unitOfWork = unitOfWork;
+        _userContext = userContext;
     }
 
     public async Task<Result> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByEmailAsync(request.Email);
+        var userEmail  = _userContext.GetCurrentUser().Email;
+        var user = await _userManager.FindByEmailAsync(userEmail);
 
         if (user == null)
-            return DomainErrors.User.NotFound(request.Email);
+            return DomainErrors.User.NotFound(userEmail);
 
         var result = await _userManager.ChangePasswordAsync(user, request.CurrentPasswor, request.NewPasswor);
 

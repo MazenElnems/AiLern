@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
 using LMS.Domain.Interfaces;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
 
 namespace LMS.Application.Features.Auth.Commands.ResendConfirmEmail;
 
@@ -33,7 +35,9 @@ public class ResendEmailConfirmationCommandHandler : IRequestHandler<ResendEmail
 
         var tokn = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-        _backgroundService.Enqueue(() => _emailSender.SendConfirmationEmailAsync(user.Email!, user.FullName, tokn));
+        var endcodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(tokn));
+
+        _backgroundService.Enqueue(() => _emailSender.SendConfirmationEmailAsync(user.Email!, user.FullName, endcodedToken));
 
         return Result.Success("sending email confirmation");
     }

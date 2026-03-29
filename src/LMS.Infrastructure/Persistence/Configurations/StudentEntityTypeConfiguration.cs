@@ -8,11 +8,6 @@ public class StudentEntityTypeConfiguration : IEntityTypeConfiguration<Student>
 {
     public void Configure(EntityTypeBuilder<Student> builder)
     {
-        builder.Property(s => s.StudentId)
-            .HasColumnType("INT")
-            .IsRequired();
 
-        builder.HasIndex(s => s.StudentId)
-            .IsUnique();
     }
 }

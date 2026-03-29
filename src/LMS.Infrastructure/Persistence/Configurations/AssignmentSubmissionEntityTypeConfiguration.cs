@@ -28,7 +28,7 @@ public class AssignmentSubmissionEntityTypeConfiguration : IEntityTypeConfigurat
             .WithMany(s => s.AssignmentSubmissions)
             .HasForeignKey(a => a.StudentId)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(a => a.Assignment)
             .WithMany(s => s.Submissions)

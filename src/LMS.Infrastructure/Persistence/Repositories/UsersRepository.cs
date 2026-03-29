@@ -26,12 +26,6 @@ internal class UsersRepository : BaseRepository<ApplicationUser>, IUsersReposito
         return result;
     }
 
-    public async Task<Student?> GetStudentByStudentId(int studentId)
-    {
-        var std =await _context.Students.FirstOrDefaultAsync(std => std.StudentId == studentId);
-        return  std;
-    }
-
     public async Task RevokeRefreshTokensByUserIdAsync(int userId)
     {
         await _context.RefreshTokens

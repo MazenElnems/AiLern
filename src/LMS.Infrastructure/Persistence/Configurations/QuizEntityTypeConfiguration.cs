@@ -28,10 +28,6 @@ public class QuizEntityTypeConfiguration : IEntityTypeConfiguration<Quiz>
             .HasColumnType("DATETIME2")
             .IsRequired();
 
-        builder.Property(q => q.AttemptTimeLimit)
-            .HasColumnType("INT")
-            .IsRequired(false);
-
         builder.Property(q => q.MaximumAttempts)
             .HasColumnType("INT")
             .IsRequired();

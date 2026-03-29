@@ -27,7 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Features\Admins\Commands\" />
+    <Folder Include="Features\Instructors\Commands\" />
     <Folder Include="Features\Sections\Shared\Mappings\" />
+    <Folder Include="Features\Students\Commands\" />
   </ItemGroup>
 
 </Project>

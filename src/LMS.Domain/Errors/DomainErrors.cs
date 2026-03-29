@@ -183,7 +183,10 @@ public static class DomainErrors
             Common.NotFound("User", id);
 
         public static Error AlreadyExists =>
-            Common.BusinessRule("User.AlreadyExists", "User already exists.");
+            Common.BusinessRule("User.AlreadyExists", "User with this email is already exists.");
+
+        public static Error RoleAssignmentFailed(string role) =>
+            Common.BusinessRule("User.RoleAssignmentFailed", $"Unable to assign user to role {role}");
 
         public static Error CreationFailed(string message) =>
             Common.BusinessRule("User.CreationFailed", message);
@@ -206,6 +209,9 @@ public static class DomainErrors
 
     public static class Auth
     {
+        public static Error InvalidRole =>
+            Common.BusinessRule("Auth.InvalidRole", "Invalid user role");
+        
         public static Error InvalidCredentials =>
             Common.Unauthorized("Invalid email or password.");
 

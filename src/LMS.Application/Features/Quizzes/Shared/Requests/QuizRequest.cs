@@ -15,6 +15,6 @@ public class QuizRequest
     public int CourseId { get; set; }
     public QuizStatus Status { get; set; }
     public DateTime? PublishedDate { get; set; }
-    public int? AttemptTimeLimit { get; set; }
+    public int AttemptTimeLimit { get; set; }
     public List<QuestionRequest>? Questions { get; set; }
 }

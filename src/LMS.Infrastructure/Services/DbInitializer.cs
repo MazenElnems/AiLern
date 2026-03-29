@@ -92,7 +92,8 @@ public class DbInitializer : IDbInitializer
                 UserName = adminEmail,
                 Email = adminEmail,
                 FullName = "Admin User",
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Role = UserRoles.Admin
             };
 
             await _userManager.CreateAsync(adminUser, adminPassword!);

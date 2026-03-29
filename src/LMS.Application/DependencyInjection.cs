@@ -2,13 +2,11 @@
 using LMS.Application.Common.Behaviors;
 using LMS.Application.ConfigurationOptions;
 using LMS.Application.CurrentUser;
-using LMS.Application.Features.Admins.Commands.CreateAdmin;
 using LMS.Application.Features.Assignments.Shared.DTO;
 using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
+using LMS.Application.Features.Auth.Commands.Register;
 using LMS.Application.Features.Courses.Commands.CreateCourse;
 using LMS.Application.Features.Courses.Shared.DTO;
-using LMS.Application.Features.Instructors.Commands.CreateInstructor;
-using LMS.Application.Features.Students.Commands.CreateStudent;
 using LMS.Application.Features.Students.Shared.DTO;
 using LMS.Application.Features.Users.Shared.DTO;
 using LMS.Domain.Entities.Assignments;
@@ -40,17 +38,11 @@ public static class DependencyInjection
 
         // Validator
         services
-            .AddValidatorsFromAssemblyContaining<CreateStudentCommandValidator>();
-
+            .AddValidatorsFromAssemblyContaining<RegisterUserCommandValidator>();
 
         services.AddAutoMapper(cfg =>
         {
             cfg.CreateMap<CreateCourseCommand, Course>();
-            cfg.CreateMap<CreateStudentCommand, Student>();
-            cfg.CreateMap<CreateInstructorCommand, Instructor>();
-
-            cfg.CreateMap<CreateAdminCommand, Admin>();
-
             cfg.CreateMap<Course, GetCourseDto>()
                .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.UserName));
 

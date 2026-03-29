@@ -1,13 +1,12 @@
-using LMS.Application.ConfigurationOptions;
 using LMS.Application.Common.Results;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
-using Microsoft.Extensions.Configuration;
 using LMS.Domain.Interfaces;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
 
 namespace LMS.Application.Features.Auth.Commands.PasswordResetEmail;
 
@@ -36,7 +35,9 @@ public class ForgetPasswordCommandHandler : IRequestHandler<ForgetPasswordComman
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-        _backgroundService.Enqueue(() => _emailSender.SendForgetPasswordEmailAsync(user.Email!, user.FullName, token));
+        var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+        _backgroundService.Enqueue(() => _emailSender.SendForgetPasswordEmailAsync(user.Email!, user.FullName, encodedToken));
 
         return Result.Success("sending forget password email");
     }

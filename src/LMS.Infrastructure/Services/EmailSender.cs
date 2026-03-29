@@ -42,15 +42,22 @@ internal class EmailSender : IEmailSender
         var template = await File.ReadAllTextAsync(templatePath);
 
         var body = template
-            .Replace("{{ResetLink}}", $"{_frontEndSettings.Domain}reset-password?email={email}&token={token}")
+            .Replace("{{ResetLink}}", $"{_frontEndSettings.Domain}set-password?email={email}&token={token}")
             .Replace("{{FullName}}", fullName);
 
-        await SendAsync(email, fullName, "Email Confirmation", body);
+        await SendAsync(email, fullName, "Forget Password", body);
     }
 
-    public Task SendWelcomeEmailAsync(string email, string fullName)
+    public async Task SendWelcomeEmailAsync(string email, string fullName)
     {
-        throw new NotImplementedException();
+        var templatePath = Path.Combine(_env.WebRootPath, "EmailTemplates", "Welcome.html");
+        var template = await File.ReadAllTextAsync(templatePath);
+
+        var body = template
+            .Replace("{{FullName}}", fullName)
+            .Replace("{{DashboardLink}}", _frontEndSettings.Domain);
+
+        await SendAsync(email, fullName, "Welcome", body);
     }
 
     private async Task SendAsync(string to, string toName ,string subject, string body)
@@ -59,7 +66,7 @@ internal class EmailSender : IEmailSender
 
         message.From.Add(new MailboxAddress(_emailSettings.FromName, _emailSettings.FromEmail));
         message.To.Add(new MailboxAddress(toName, to));
-        message.Subject = "Email Confirmation";
+        message.Subject = subject;
         message.Body = new TextPart("html")
         {
             Text = body
