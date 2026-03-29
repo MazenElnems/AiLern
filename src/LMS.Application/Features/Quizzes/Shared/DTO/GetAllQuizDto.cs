@@ -13,6 +13,7 @@ public class GetAllQuizDto
     public QuizStatus Status { get; set; }
     public int MaximumAttempts { get; set; }
     public bool ShowResultOnClose { get; set; }
+    public int AttemptTimeLimit { get; set; }   
     public DateTime CreatedAt { get; set; }
     public DateTime? PublishedAt { get; set; }
 }

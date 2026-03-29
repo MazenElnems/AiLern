@@ -8,14 +8,11 @@ using LMS.Application.Features.Auth.Commands.RefreshTokens;
 using LMS.Application.Features.Auth.Commands.RevokeToken;
 using LMS.Application.Features.Auth.Commands.ResetPassword;
 using LMS.Application.Features.Auth.Commands.PasswordResetEmail;
-using LMS.Application.Features.Admins.Commands.CreateAdmin;
-using LMS.Application.Features.Instructors.Commands.CreateInstructor;
-using LMS.Application.Features.Students.Commands.CreateStudent;
 using Swashbuckle.AspNetCore.Annotations;
 using LMS.API.Models;
-using Microsoft.AspNetCore.Authorization;
-using LMS.Domain.Constants;
 using LMS.Application.Features.Auth.Commands.ChangePassword;
+using LMS.Application.Features.Auth.Commands.Register;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LMS.API.Controllers;
 
@@ -56,43 +53,19 @@ public class AuthController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpPost("admin/register")]
-    [Authorize(Roles = UserRoles.Admin)]
-    [SwaggerOperation(Summary = "Register admin", Description = "Creates a new admin account.")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Admin registered successfully.", typeof(ApiResponse))]
+    [HttpPost("register")]
+    [SwaggerOperation(Summary = "Register user", Description = "register a new user account.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "User registered successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> RegisterAdminUser(CreateAdminCommand command)
-    {
-        var result = await _mediator.Send(command);
-        return HandleResponse(this, result);
-    }
-
-    [HttpPost("instructor/register")]
-    [Authorize(Roles = UserRoles.Admin)]
-    [SwaggerOperation(Summary = "Register instructor", Description = "Creates a new instructor account.")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Instructor registered successfully.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> RegisterInstructorUser(CreateInstructorCommand command)
-    {
-        var result = await _mediator.Send(command);
-        return HandleResponse(this, result);
-    }
-
-    [HttpPost("students/register")]
-    [Authorize(Roles = UserRoles.Admin)]
-    [SwaggerOperation(Summary = "Register student", Description = "Creates a new student account.")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Student registered successfully.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> RegisterStudentUser(CreateStudentCommand command)
+    public async Task<ActionResult<ApiResponse>> Register([FromBody] RegisterUserCommand command)
     {
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
 
     [HttpPut("revoke-token")]
+    [Authorize]
     [SwaggerOperation(Summary = "Revoke refresh token", Description = "Revokes a refresh token so it can no longer be used.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Token revoked successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -154,6 +127,7 @@ public class AuthController : ApiBaseController
     }
 
     [HttpPost("change-password")]
+    [Authorize]
     [SwaggerOperation(Summary = "Change password", Description = "Change password for logged-in users.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Password changed successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]

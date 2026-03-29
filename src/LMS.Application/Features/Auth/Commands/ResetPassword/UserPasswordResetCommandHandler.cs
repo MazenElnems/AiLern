@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
 
 namespace LMS.Application.Features.Auth.Commands.ResetPassword;
 
@@ -29,7 +31,10 @@ public class UserPasswordResetCommandHandler : IRequestHandler<UserPasswordReset
         if (await _userManager.CheckPasswordAsync(user, request.NewPassword))
             return DomainErrors.Auth.PasswordResetFailed;
 
-        var result = await _userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
+
+        var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
+
+        var result = await _userManager.ResetPasswordAsync(user, decodedToken, request.NewPassword);
 
         if (!result.Succeeded)
             return DomainErrors.Auth.PasswordResetFailed;

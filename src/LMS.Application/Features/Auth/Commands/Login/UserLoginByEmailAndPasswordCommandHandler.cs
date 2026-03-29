@@ -19,16 +19,12 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
     private readonly RefreshTokenOptions _refreshToken;
     private readonly JwtOptions _jwt;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IEmailSender _emailSender;
-    private readonly IBackgroundJobService _backgroundService;
 
     public UserLoginByEmailAndPasswordCommandHandler(
         UserManager<ApplicationUser> userManager,
         IOptions<JwtOptions> jwt,
         IOptions<RefreshTokenOptions> refreshToken,
         IUnitOfWork unitOfWork,
-        IEmailSender emailSender,
-        IBackgroundJobService backgroundService,
         IJwtTokenService jwtTokenService,
         IRefreshTokenService refreshTokenService)
     {
@@ -36,8 +32,6 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
         _refreshToken = refreshToken.Value;
         _jwt = jwt.Value;
         _unitOfWork = unitOfWork;
-        _emailSender = emailSender;
-        _backgroundService = backgroundService;
         _jwtTokenService = jwtTokenService;
         _refreshTokenService = refreshTokenService;
     }
@@ -53,11 +47,7 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
             return Result<GetTokenResponseDto>.Failure(DomainErrors.Auth.InvalidCredentials);
 
         if (!user.EmailConfirmed)
-        {
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            _backgroundService.Enqueue(() => _emailSender.SendConfirmationEmailAsync(user.Email!, user.FullName, token));
             return DomainErrors.Auth.EmailNotConfirmed;
-        }
 
         var accessTokenExpiration = DateTime.UtcNow.AddMinutes(_jwt.DurationInMinutes);
         var accessToken = await _jwtTokenService.GenerateTokenAsync(user, accessTokenExpiration);

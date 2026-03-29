@@ -3,7 +3,9 @@ using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace LMS.Application.Commands.Auth.EmailConfirmationCommands;
 
@@ -23,7 +25,7 @@ public class UserEmailConfirmationCommandHandler : IRequestHandler<UserEmailConf
         var user = await _userManager.FindByEmailAsync(request.Email);
             
         if (user == null)
-            return Result.Failure(DomainErrors.User.NotFound(request.Email));
+            return DomainErrors.User.NotFound(request.Email);
 
         if(user.EmailConfirmed)
         {
@@ -33,12 +35,14 @@ public class UserEmailConfirmationCommandHandler : IRequestHandler<UserEmailConf
 
         _logger.LogInformation("Confirming email for user with email {Email}", request.Email);
 
-        var result = await _userManager.ConfirmEmailAsync(user, request.Token);
+        var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
+
+        var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
 
         if (!result.Succeeded)
         {
             _logger.LogWarning("Email confirmation failed for user with email {Email}. Errors: {Errors}", request.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
-            return Result.Failure(DomainErrors.Auth.EmailConfirmationFailed);
+            return DomainErrors.Auth.EmailConfirmationFailed;
         }
 
         return Result.Success("Email confirmed successfully.");

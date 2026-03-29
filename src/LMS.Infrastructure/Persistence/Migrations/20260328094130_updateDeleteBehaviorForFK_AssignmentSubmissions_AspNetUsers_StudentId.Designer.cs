@@ -4,6 +4,7 @@ using LMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260328094130_updateDeleteBehaviorForFK_AssignmentSubmissions_AspNetUsers_StudentId")]
+    partial class updateDeleteBehaviorForFK_AssignmentSubmissions_AspNetUsers_StudentId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -423,8 +426,8 @@ namespace LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AttemptTimeLimit")
-                        .HasColumnType("int");
+                    b.Property<int?>("AttemptTimeLimit")
+                        .HasColumnType("INT");
 
                     b.Property<DateTime>("AvailableFrom")
                         .HasColumnType("DATETIME2");
@@ -740,6 +743,13 @@ namespace LMS.Infrastructure.Migrations
             modelBuilder.Entity("LMS.Domain.Entities.Users.Student", b =>
                 {
                     b.HasBaseType("LMS.Domain.Entities.Users.ApplicationUser");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("INT");
+
+                    b.HasIndex("StudentId")
+                        .IsUnique()
+                        .HasFilter("[StudentId] IS NOT NULL");
 
                     b.HasDiscriminator().HasValue("Student");
                 });

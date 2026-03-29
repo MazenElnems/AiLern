@@ -45,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<IAIService, AIService>();
         services.AddScoped<IAttemptAnswersRepository, AttemptAnswersRepository>();
         services.AddScoped<IPermissionService, PermissionService>();
+        services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
         services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
