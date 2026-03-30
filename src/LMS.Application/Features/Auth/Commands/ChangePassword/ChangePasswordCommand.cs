@@ -4,6 +4,6 @@ using MediatR;
 namespace LMS.Application.Features.Auth.Commands.ChangePassword;
 
 public record ChangePasswordCommand(
-    string CurrentPasswor,
+    string CurrentPassword,
     string NewPassword
 ) : IRequest<Result>;
