@@ -29,7 +29,7 @@ internal class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComm
         if (user == null)
             return DomainErrors.User.NotFound(userEmail);
 
-        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPasswor, request.NewPasswor);
+        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPasswor, request.NewPassword);
 
         if (!result.Succeeded)
             return DomainErrors.Auth.ChangePasswordFailed(string.Join(", ", result.Errors.Select(err => err.Description)));

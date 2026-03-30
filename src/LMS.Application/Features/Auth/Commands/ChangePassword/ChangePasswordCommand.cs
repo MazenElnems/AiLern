@@ -5,5 +5,5 @@ namespace LMS.Application.Features.Auth.Commands.ChangePassword;
 
 public record ChangePasswordCommand(
     string CurrentPasswor,
-    string NewPasswor
+    string NewPassword
 ) : IRequest<Result>;

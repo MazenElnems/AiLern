@@ -7,7 +7,7 @@ public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCo
 {
     public ChangePasswordCommandValidator()
     {
-        RuleFor(c => c.NewPasswor)
+        RuleFor(c => c.NewPassword)
            .MustBeValidPassword();
     }
 }
