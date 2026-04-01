@@ -13,8 +13,6 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace LMS.API.Controllers;
 
-namespace LMS.API.Controllers
-{
 [Route("api/[controller]")]
 [ApiController]
 public class DashboardController : ApiBaseController
@@ -25,8 +23,7 @@ public class DashboardController : ApiBaseController
     {
         _mediator = mediator;
     }
-    [HttpGet]
-
+    [HttpGet("my-dashboard")]
     [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Get instructor dashboard ", Description = "Retrieves instructor dashboard.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Instructor dashboard retrieved successfully.", typeof(ApiResponse))]
@@ -34,13 +31,11 @@ public class DashboardController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status404NotFound, "User not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
     public async Task<ActionResult<ApiResponse>> GetInstructorDashboard()
-        [HttpGet("quiz/{quizId}")]
-        public async Task<ActionResult<ApiResponse>> GetQuizDashboard([FromRoute]GetQuizDashboardQuery query)
     {
         var result = await _mediator.Send(new GetInstructorDashboardQuery());
-            var result = await _mediator.Send(query);
         return HandleResponse(this, result);
     }
+
     [HttpGet("UpcomingEvents")]
     [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Get upcoming Events ", Description = "Retrieves upcoming Events.")]
@@ -50,7 +45,15 @@ public class DashboardController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
     public async Task<ActionResult<ApiResponse>> GetUpcomingEvents(EventType eventType, int pageNo = 1, int pageSize = 10)
     {
-        var result = await _mediator.Send(new GetUpcomingEventsQuery(eventType,pageNo, pageSize));
+        var result = await _mediator.Send(new GetUpcomingEventsQuery(eventType, pageNo, pageSize));
+        return HandleResponse(this, result);
+    }
+
+
+    [HttpGet("quiz/{quizId}")]
+    public async Task<ActionResult<ApiResponse>> GetQuizDashboard([FromRoute]GetQuizDashboardQuery query)
+    {
+        var result = await _mediator.Send(query);
         return HandleResponse(this, result);
     }
 }
