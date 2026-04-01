@@ -45,15 +45,6 @@ public class DashboardController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
     public async Task<ActionResult<ApiResponse>> GetUpcomingEvents(EventType eventType, int pageNo = 1, int pageSize = 10)
     {
-        var result = await _mediator.Send(new GetUpcomingEventsQuery(eventType, pageNo, pageSize));
-        return HandleResponse(this, result);
-    }
-
-
-    [HttpGet("quiz/{quizId}")]
-    public async Task<ActionResult<ApiResponse>> GetQuizDashboard([FromRoute]GetQuizDashboardQuery query)
-    {
-        var result = await _mediator.Send(query);
         return HandleResponse(this, result);
     }
 }
