@@ -7,14 +7,11 @@ using LMS.Domain.Constants;
 using LMS.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace LMS.API.Controllers;
 
-namespace LMS.API.Controllers
-{
 [Route("api/[controller]")]
 [ApiController]
 public class DashboardController : ApiBaseController
@@ -34,13 +31,18 @@ public class DashboardController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status404NotFound, "User not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
     public async Task<ActionResult<ApiResponse>> GetInstructorDashboard()
-        [HttpGet("quiz/{quizId}")]
-        public async Task<ActionResult<ApiResponse>> GetQuizDashboard([FromRoute]GetQuizDashboardQuery query)
     {
         var result = await _mediator.Send(new GetInstructorDashboardQuery());
-            var result = await _mediator.Send(query);
         return HandleResponse(this, result);
     }
+
+    [HttpGet("quiz/{quizId}")]
+    public async Task<ActionResult<ApiResponse>> GetQuizDashboard([FromRoute]GetQuizDashboardQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
+    }
+
     [HttpGet("UpcomingEvents")]
     [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Get upcoming Events ", Description = "Retrieves upcoming Events.")]
@@ -54,3 +56,4 @@ public class DashboardController : ApiBaseController
         return HandleResponse(this, result);
     }
 }
+
