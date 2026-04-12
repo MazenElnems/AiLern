@@ -1,6 +1,6 @@
-﻿using LMS.Domain.Constants;
+﻿using LMS.Application.Contracts.ExternalServices;
+using LMS.Domain.Constants;
 using LMS.Domain.Entities.Users;
-using LMS.Domain.Interfaces;
 using LMS.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;

@@ -47,31 +47,11 @@ public class QuestionEntityTypeConfiguration : IEntityTypeConfiguration<Question
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(q => q.AttemptAnswers)
+        builder.HasMany(q => q.Answers)
             .WithOne(a => a.Question)
             .HasForeignKey(a => a.QuestionId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.OwnsMany(q => q.Options, o =>
-        {
-            o.ToTable("QuestionOptions");
-            
-            o.WithOwner(o => o.Question).HasForeignKey("QuestionId");
-            
-            o.HasKey(opt => new { opt.OptionNumber, opt.QuestionId });
-
-            o.Property(opt => opt.OptionNumber)
-                .ValueGeneratedNever();
-
-            o.Property(opt => opt.OptionText)
-                .HasColumnType("NVARCHAR(500)")
-                .IsRequired();
-           
-            o.Property(opt => opt.IsCorrect)
-                .HasColumnType("BIT")
-                .IsRequired();
-        });
     }
 }
 

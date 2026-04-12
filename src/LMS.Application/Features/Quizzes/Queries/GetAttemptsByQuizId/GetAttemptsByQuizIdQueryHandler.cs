@@ -1,4 +1,3 @@
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Quizzes.Shared.DTO;
@@ -15,14 +14,12 @@ public class GetAttemptsByQuizIdQueryHandler : IRequestHandler<GetAttemptsByQuiz
 {
     private readonly IUserContext _userContext;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPermissionService _permissionService;
     private readonly ILogger<GetAttemptsByQuizIdQueryHandler> _logger;
 
-    public GetAttemptsByQuizIdQueryHandler(IUserContext userContext, IUnitOfWork unitOfWork, IPermissionService permissionService, ILogger<GetAttemptsByQuizIdQueryHandler> logger)
+    public GetAttemptsByQuizIdQueryHandler(IUserContext userContext, IUnitOfWork unitOfWork, ILogger<GetAttemptsByQuizIdQueryHandler> logger)
     {
         _userContext = userContext;
         _unitOfWork = unitOfWork;
-        _permissionService = permissionService;
         _logger = logger;
     }
 
@@ -37,12 +34,14 @@ public class GetAttemptsByQuizIdQueryHandler : IRequestHandler<GetAttemptsByQuiz
             if (quiz == null)
                 return DomainErrors.Quiz.NotFound(request.QuizId);
 
-            var enrollmentResult = await _permissionService.AuthorizeStudentEnrollmentAsync(quiz.CourseId);
-            if (!enrollmentResult.IsSuccess) return Result<GetAttemptsByQuizIdDto>.Failure(enrollmentResult.Error!);
+            var isEnrolled = await _unitOfWork.Enrollments.IsEnrolledAsync(quiz.CourseId, user.Id);
+
+            if (!isEnrolled)
+                return DomainErrors.Course.NotEnrolled;
 
             var attempts = await _unitOfWork.Attempts.FilterAsync(
                 a => a.StudentId == user.Id && a.QuizId == request.QuizId,
-                includeProperties: [nameof(Attempt.AttemptAnswers)]);
+                includeProperties: [nameof(Attempt.Answers)]);
 
             var myAttempts = new GetAttemptsByQuizIdDto
             {

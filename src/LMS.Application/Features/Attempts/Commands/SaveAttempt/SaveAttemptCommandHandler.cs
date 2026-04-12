@@ -1,7 +1,6 @@
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results;
+using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Quizzes;
-using LMS.Domain.Enums;
 using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
@@ -10,46 +9,41 @@ namespace LMS.Application.Features.Attempts.Commands.SaveAttempt;
 
 public class SaveAttemptCommandHandler : IRequestHandler<SaveAttemptCommand, Result>
 {
-    private readonly IPermissionService _permissionService;
+    private readonly IUserContext _userContext;
     private readonly IUnitOfWork _unitOfWork;
 
-    public SaveAttemptCommandHandler(IPermissionService permissionService, IUnitOfWork unitOfWork)
+    public SaveAttemptCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork)
     {
-        _permissionService = permissionService;
+        _userContext = userContext;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(SaveAttemptCommand request, CancellationToken cancellationToken)
     {
-        var attemptResult = await _permissionService.AuthorizeStudentAccessToAttemptAsync(request.AttemptId);
-        if (!attemptResult.IsSuccess) return Result.Failure(attemptResult.Error!);
-        var attempt = attemptResult.Value!;
+        var user = _userContext.GetCurrentUser();
 
-        if (attempt.Status != AttemptStatus.InProgress)
-            return DomainErrors.Attempt.NotInProgress;
+        var attempt = await _unitOfWork.Attempts.GetByIdAsync(request.AttemptId);
 
-        var now = DateTime.UtcNow;
-        if (now > attempt.AttemptEndTime)
+        if(attempt == null) 
+            return DomainErrors.Attempt.NotFound(request.AttemptId);
+
+        if(attempt.StudentId != user.Id)
+            return DomainErrors.Attempt.NotOwned;
+
+        if(DateTime.UtcNow > attempt.AttemptEndTime)
             return DomainErrors.Attempt.TimeExpired;
 
-        if (request.Answers is null || request.Answers.Count == 0)
-            return Result.Success("No answer changes detected.");
+        var answers = request.Answers.Select(a => new Answer
+        {
+            AttemptId = attempt.Id,
+            QuestionId = a.QuestionId,
+            WrittenAnswer = a.WrittenAnswer,
+            OptionId = a.OptionId
+        }).ToArray();
 
-        var attemptAnswers = request.Answers
-            .Select(a => new AttemptAnswer
-            {
-                AttemptId = request.AttemptId,
-                BooleanAnswer = a.BooleanAnswer,
-                OptionNumber = a.OptionNumber,
-                WrittenAnswer = a.WrittenAnswer,
-                QuestionId = a.QuestionId,
-            }).ToArray();
-
-        attempt.SavedAt = now;
-        _unitOfWork.AttemptAnswers.UpdateRange(attemptAnswers);
-
-        await _unitOfWork.CommitAsync();
-
-        return Result.Success("Answers saved successfully.");
+        _unitOfWork.Answers.UpdateRange(answers);
+        await _unitOfWork.CommitAsync(cancellationToken);
+        return Result.Success();
     }
 }
+

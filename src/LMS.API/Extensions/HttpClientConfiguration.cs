@@ -1,4 +1,4 @@
-﻿using LMS.Application.ConfigurationOptions;
+﻿using LMS.Application.Settings;
 using Microsoft.Extensions.Options;
 
 namespace LMS.API.Extensions;

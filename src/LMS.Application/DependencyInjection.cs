@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using LMS.Application.Common.Behaviors;
-using LMS.Application.ConfigurationOptions;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Assignments.Shared.DTO;
 using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
@@ -9,6 +8,7 @@ using LMS.Application.Features.Courses.Commands.CreateCourse;
 using LMS.Application.Features.Courses.Shared.DTO;
 using LMS.Application.Features.Students.Shared.DTO;
 using LMS.Application.Features.Users.Shared.DTO;
+using LMS.Application.Settings;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Users;

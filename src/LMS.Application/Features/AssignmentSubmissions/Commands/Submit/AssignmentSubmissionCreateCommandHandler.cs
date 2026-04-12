@@ -1,13 +1,13 @@
 using AutoMapper;
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Contracts.Jobs;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
-using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
 
@@ -18,15 +18,13 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
-    private readonly IPermissionService _permissionService;
     private readonly IWasabiService _wasabiService;
     private readonly IBackgroundJobService _backgroundService;
 
-    public AssignmentSubmissionCreateCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IPermissionService permissionService, IMapper mapper, IWasabiService wasabiService, IBackgroundJobService backgroundService)
+    public AssignmentSubmissionCreateCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IMapper mapper, IWasabiService wasabiService, IBackgroundJobService backgroundService)
     {
         _userContext = userContext;
         _unitOfWork = unitOfWork;
-        _permissionService = permissionService;
         _mapper = mapper;
         _wasabiService = wasabiService;
         _backgroundService = backgroundService;
@@ -42,13 +40,13 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
         if (assignment == null)
             return DomainErrors.Assignment.NotFound(request.AssignmentId);
 
-        if (await _unitOfWork.AssignmentSubmissions.AnyAsync(s => s.StudentId == user.Id && s.AssignmentId == assignment.Id))
+        if(await _unitOfWork.AssignmentSubmissions.AnyAsync(s => s.StudentId == user.Id && s.AssignmentId == assignment.Id))
             return DomainErrors.AssignmentSubmission.AlreadySubmitted;
 
         var course = assignment.Course;
 
-        var enrollmentResult = await _permissionService.AuthorizeStudentEnrollmentAsync(course.Id);
-        if (!enrollmentResult.IsSuccess) return Result<AssignmentSubmissionDto>.Failure(enrollmentResult.Error!);
+        if(!await _unitOfWork.Enrollments.IsEnrolledAsync(course.Id, user.Id))
+            return DomainErrors.Course.NotEnrolled;
 
         var submission = new AssignmentSubmission
         {
@@ -57,10 +55,10 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
 
         var isLate = submission.SubmissionDate > assignment.DueDate;
 
-        if (isLate)
+        if(isLate)
             submission.IsLate = true;
 
-        if (submission.IsLate && !assignment.AllowLateSubmission)
+        if(submission.IsLate && !assignment.AllowLateSubmission)
             return DomainErrors.AssignmentSubmission.LateNotAllowed;
 
         submission.StudentId = user.Id;

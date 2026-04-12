@@ -1,8 +1,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
-using LMS.Application.ConfigurationOptions;
-using LMS.Domain.Repositories;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

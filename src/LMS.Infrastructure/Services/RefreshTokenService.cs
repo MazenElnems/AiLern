@@ -1,4 +1,4 @@
-﻿using LMS.Domain.Interfaces;
+﻿using LMS.Application.Contracts.Identity;
 using System.Security.Cryptography;
 
 namespace LMS.Infrastructure.Services;

@@ -1,4 +1,3 @@
-using LMS.Application.ConfigurationOptions;
 using LMS.Application.Common.Results.Generic;
 using LMS.Domain.Repositories;
 using MediatR;
@@ -8,8 +7,9 @@ using Microsoft.Extensions.Options;
 using LMS.Application.Features.Auth.Commands.Login;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
-using LMS.Domain.Interfaces;
 using LMS.Application.Features.Auth.Shared.DTO;
+using LMS.Application.Contracts.Identity;
+using LMS.Application.Settings;
 
 namespace LMS.Application.Features.Auth.Commands.RefreshTokens;
 

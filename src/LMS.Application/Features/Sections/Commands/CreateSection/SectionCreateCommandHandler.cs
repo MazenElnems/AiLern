@@ -1,8 +1,9 @@
 using AutoMapper;
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.CurrentUser;
 using LMS.Application.Features.Sections.Shared.DTO;
 using LMS.Domain.Entities.Courses;
+using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 
@@ -11,21 +12,28 @@ namespace LMS.Application.Features.Sections.Commands.CreateSection;
 public class SectionCreateCommandHandler : IRequestHandler<SectionCreateCommand, Result<SectionDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPermissionService _permissionService;
+    private readonly IUserContext _userContext;
     private readonly IMapper _mapper;
 
-    public SectionCreateCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IMapper mapper)
+    public SectionCreateCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
-        _permissionService = permissionService;
+        _userContext = userContext;
         _mapper = mapper;
     }
 
     public async Task<Result<SectionDto>> Handle(SectionCreateCommand request, CancellationToken cancellationToken)
     {
-        var courseResult = await _permissionService.AuthorizeInstructorAccessToCourseAsync(request.CourseId);
-        if (!courseResult.IsSuccess) return Result<SectionDto>.Failure(courseResult.Error!);
-
+        var userId = _userContext.GetCurrentUser().Id;
+        var course = await _unitOfWork.Courses.GetByIdAsync(request.CourseId);
+        if (course == null)
+        {
+            return DomainErrors.Course.NotFound(request.CourseId);
+        }
+        if (course.InstructorId != userId)
+        {
+            return DomainErrors.Common.Forbidden("You do not have permission to create an assignment for this course.");
+        }
         var section = _mapper.Map<Section>(request);
 
         await _unitOfWork.Sections.InsertAsync(section);

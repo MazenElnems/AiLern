@@ -10,6 +10,7 @@ public class QuestionDto
     public double Mark { get; set; }
     public string? Instructions { get; set; }
     public string? Explanation { get; set; }
+    public int Order { get; set; }  
     public List<OptionDto>? Options { get; set; }
 }
 

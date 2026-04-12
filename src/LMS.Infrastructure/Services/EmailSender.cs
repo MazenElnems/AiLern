@@ -1,5 +1,5 @@
-﻿using LMS.Application.ConfigurationOptions;
-using LMS.Domain.Repositories;
+﻿using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Settings;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Hosting;

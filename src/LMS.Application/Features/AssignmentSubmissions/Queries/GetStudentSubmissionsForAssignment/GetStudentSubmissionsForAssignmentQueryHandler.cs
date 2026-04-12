@@ -1,8 +1,10 @@
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.CurrentUser;
 using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
 using LMS.Domain.Constants;
+using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -12,20 +14,24 @@ namespace LMS.Application.Features.AssignmentSubmissions.Queries.GetStudentSubmi
 public class GetStudentSubmissionsForAssignmentQueryHandler
     : IRequestHandler<GetStudentSubmissionsForAssignmentQuery, Result<PaginationResult<StudentsAssignmentSubmissionsDto>>>
 {
-    private readonly IPermissionService _permissionService;
+    private readonly IUserContext _userContext;
     private readonly IUnitOfWork _unitOfWork;
 
-    public GetStudentSubmissionsForAssignmentQueryHandler(IPermissionService permissionService, IUnitOfWork unitOfWork)
+    public GetStudentSubmissionsForAssignmentQueryHandler(IUserContext userContext, IUnitOfWork unitOfWork)
     {
-        _permissionService = permissionService;
+        _userContext = userContext;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<PaginationResult<StudentsAssignmentSubmissionsDto>>> Handle(GetStudentSubmissionsForAssignmentQuery request, CancellationToken cancellationToken)
     {
-        var assignmentResult = await _permissionService.AuthorizeInstructorAccessToAssignmentAsync(request.AssignmentId);
-        if (!assignmentResult.IsSuccess)
-            return Result<PaginationResult<StudentsAssignmentSubmissionsDto>>.Failure(assignmentResult.Error!);
+        var userId = _userContext.GetCurrentUser().Id;
+
+        if (!await _unitOfWork.Assignments.AnyAsync(a => a.Id == request.AssignmentId))
+            return DomainErrors.Assignment.NotFound(request.AssignmentId);
+
+        if (!await _unitOfWork.Assignments.AnyAsync(a => a.Id == request.AssignmentId && a.Course.InstructorId == userId))
+            return DomainErrors.Common.Forbidden("You do not have permission to view submissions for this assignment.");
 
         var query = _unitOfWork.AssignmentSubmissions.Query
             .AsNoTracking()

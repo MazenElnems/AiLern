@@ -270,6 +270,35 @@ namespace LMS.Infrastructure.Migrations
                     b.ToTable("QuestionGenerationJobs");
                 });
 
+            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Answer", b =>
+                {
+                    b.Property<Guid>("AttemptId")
+                        .HasColumnType("UNIQUEIDENTIFIER");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("UNIQUEIDENTIFIER");
+
+                    b.Property<string>("Feedback")
+                        .HasColumnType("NVARCHAR(3000)");
+
+                    b.Property<double?>("Mark")
+                        .HasColumnType("FLOAT");
+
+                    b.Property<Guid?>("OptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("WrittenAnswer")
+                        .HasColumnType("NVARCHAR(3000)");
+
+                    b.HasKey("AttemptId", "QuestionId");
+
+                    b.HasIndex("OptionId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("Answers", (string)null);
+                });
+
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Attempt", b =>
                 {
                     b.Property<Guid>("Id")
@@ -316,34 +345,31 @@ namespace LMS.Infrastructure.Migrations
                     b.ToTable("Attempts", (string)null);
                 });
 
-            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.AttemptAnswer", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Option", b =>
                 {
-                    b.Property<Guid>("AttemptId")
-                        .HasColumnType("UNIQUEIDENTIFIER");
+                    b.Property<Guid>("OptionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("BIT");
+
+                    b.Property<int>("OptionNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OptionText")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(500)");
 
                     b.Property<Guid>("QuestionId")
-                        .HasColumnType("UNIQUEIDENTIFIER");
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("BooleanAnswer")
-                        .HasColumnType("VARCHAR(5)");
-
-                    b.Property<string>("Feedback")
-                        .HasColumnType("NVARCHAR(MAX)");
-
-                    b.Property<double?>("Mark")
-                        .HasColumnType("FLOAT");
-
-                    b.Property<int?>("OptionNumber")
-                        .HasColumnType("INT");
-
-                    b.Property<string>("WrittenAnswer")
-                        .HasColumnType("NVARCHAR(MAX)");
-
-                    b.HasKey("AttemptId", "QuestionId");
+                    b.HasKey("OptionId");
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("AttemptAnswers", (string)null);
+                    b.ToTable("Options", (string)null);
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Question", b =>
@@ -443,6 +469,9 @@ namespace LMS.Infrastructure.Migrations
 
                     b.Property<int>("MaximumAttempts")
                         .HasColumnType("INT");
+
+                    b.Property<string>("PublishBackgroundJobId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("PublishedAt")
                         .HasColumnType("datetime2");
@@ -899,6 +928,31 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Quiz");
                 });
 
+            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Answer", b =>
+                {
+                    b.HasOne("LMS.Domain.Entities.Quizzes.Attempt", "Attempt")
+                        .WithMany("Answers")
+                        .HasForeignKey("AttemptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LMS.Domain.Entities.Quizzes.Option", "Option")
+                        .WithMany("Answers")
+                        .HasForeignKey("OptionId");
+
+                    b.HasOne("LMS.Domain.Entities.Quizzes.Question", "Question")
+                        .WithMany("Answers")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Attempt");
+
+                    b.Navigation("Option");
+
+                    b.Navigation("Question");
+                });
+
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Attempt", b =>
                 {
                     b.HasOne("LMS.Domain.Entities.Quizzes.Quiz", "Quiz")
@@ -918,21 +972,13 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.AttemptAnswer", b =>
+            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Option", b =>
                 {
-                    b.HasOne("LMS.Domain.Entities.Quizzes.Attempt", "Attempt")
-                        .WithMany("AttemptAnswers")
-                        .HasForeignKey("AttemptId")
+                    b.HasOne("LMS.Domain.Entities.Quizzes.Question", "Question")
+                        .WithMany("Options")
+                        .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("LMS.Domain.Entities.Quizzes.Question", "Question")
-                        .WithMany("AttemptAnswers")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Attempt");
 
                     b.Navigation("Question");
                 });
@@ -944,35 +990,6 @@ namespace LMS.Infrastructure.Migrations
                         .HasForeignKey("QuizId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.OwnsMany("LMS.Domain.Entities.Quizzes.Option", "Options", b1 =>
-                        {
-                            b1.Property<int>("OptionNumber")
-                                .HasColumnType("int");
-
-                            b1.Property<Guid>("QuestionId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<bool>("IsCorrect")
-                                .HasColumnType("BIT");
-
-                            b1.Property<string>("OptionText")
-                                .IsRequired()
-                                .HasColumnType("NVARCHAR(500)");
-
-                            b1.HasKey("OptionNumber", "QuestionId");
-
-                            b1.HasIndex("QuestionId");
-
-                            b1.ToTable("QuestionOptions", (string)null);
-
-                            b1.WithOwner("Question")
-                                .HasForeignKey("QuestionId");
-
-                            b1.Navigation("Question");
-                        });
-
-                    b.Navigation("Options");
 
                     b.Navigation("Quiz");
                 });
@@ -1086,12 +1103,19 @@ namespace LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Attempt", b =>
                 {
-                    b.Navigation("AttemptAnswers");
+                    b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Option", b =>
+                {
+                    b.Navigation("Answers");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Question", b =>
                 {
-                    b.Navigation("AttemptAnswers");
+                    b.Navigation("Answers");
+
+                    b.Navigation("Options");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Quiz", b =>

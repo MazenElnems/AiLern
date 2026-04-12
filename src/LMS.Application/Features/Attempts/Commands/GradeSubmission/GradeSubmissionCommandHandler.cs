@@ -1,5 +1,5 @@
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results;
+using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
@@ -11,29 +11,34 @@ namespace LMS.Application.Features.Attempts.Commands.GradeSubmission;
 public class GradeSubmissionCommandHandler : IRequestHandler<GradeSubmissionCommand, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPermissionService _permissionService;
+    private readonly IUserContext _userContext;
 
-    public GradeSubmissionCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService)
+    public GradeSubmissionCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext)
     {
         _unitOfWork = unitOfWork;
-        _permissionService = permissionService;
+        _userContext = userContext;
     }
 
     public async Task<Result> Handle(GradeSubmissionCommand request, CancellationToken cancellationToken)
     {
+        var userId = _userContext.GetCurrentUser().Id;
+
         var attempt = await _unitOfWork.Attempts.GetAsync(a => a.Id == request.Id,
-            includeProperties: [nameof(Attempt.AttemptAnswers)]);
+            includeProperties: [nameof(Attempt.Answers)]);
 
         if (attempt == null)
             return DomainErrors.Attempt.NotFound(request.Id);
 
-        var quizResult = await _permissionService.AuthorizeInstructorAccessToQuizAsync(attempt.QuizId);
-        if (!quizResult.IsSuccess) return quizResult.Error!;
+        var quiz = await _unitOfWork.Quizzes.GetAsync(a => a.Id == attempt.QuizId, includeProperties: [nameof(Quiz.Course)]);
+        if (quiz == null)
+            return DomainErrors.Quiz.NotFound(attempt.QuizId);
+        if (quiz.Course.InstructorId != userId)
+            return DomainErrors.Course.NotOwned;
 
         if (attempt.Status == AttemptStatus.InProgress)
             return DomainErrors.Attempt.StillInProgress;
 
-        var answersDictionary = attempt.AttemptAnswers
+        var answersDictionary = attempt.Answers
             .ToDictionary(a => a.QuestionId);
 
         foreach (var gradeDto in request.Grades)

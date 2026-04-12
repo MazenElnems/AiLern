@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using LMS.Application.Common.Results;
+using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Contracts.Jobs;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
-using LMS.Domain.Interfaces;
-using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;

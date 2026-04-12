@@ -1,14 +1,13 @@
 using AutoMapper;
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Quizzes.Shared.DTO;
 using LMS.Domain.Constants;
-using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Application.Features.Quizzes.Queries.GetQuiz;
@@ -18,15 +17,13 @@ public class GetQuizByIdQueryHandler : IRequestHandler<GetQuizByIdQuery, Result<
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<GetQuizByIdQueryHandler> _logger;
     private readonly IMapper _mapper;
-    private readonly IPermissionService _permissionService;
     private readonly IUserContext _userContext;
 
-    public GetQuizByIdQueryHandler(IUnitOfWork unitOfWork, ILogger<GetQuizByIdQueryHandler> logger, IMapper mapper, IPermissionService permissionService, IUserContext userContext)
+    public GetQuizByIdQueryHandler(IUnitOfWork unitOfWork, ILogger<GetQuizByIdQueryHandler> logger, IMapper mapper, IUserContext userContext)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
         _mapper = mapper;
-        _permissionService = permissionService;
         _userContext = userContext;
     }
 
@@ -36,17 +33,28 @@ public class GetQuizByIdQueryHandler : IRequestHandler<GetQuizByIdQuery, Result<
         {
             var user = _userContext.GetCurrentUser();
 
-            var quizResult = await _permissionService.AuthorizeQuizAccessAsync(request.Id);
-            if (!quizResult.IsSuccess) return Result<GetQuizDto>.Failure(quizResult.Error!);
-            var quiz = quizResult.Value!;
+            var quiz = await _unitOfWork.Quizzes.Query
+                .AsNoTracking()
+                .Include(q => q.Course)
+                .Include(q => q.Questions)
+                    .ThenInclude(q => q.Options)
+                .FirstOrDefaultAsync(q => q.Id == request.QuizId, cancellationToken);
 
-            var quizWithQuestions = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.Id,
-                includeProperties: [nameof(Quiz.Questions)]);
+            if (quiz == null)
+                return DomainErrors.Quiz.NotFound(request.QuizId);
 
-            var dto = _mapper.Map<GetQuizDto>(quizWithQuestions);
+            var dto = _mapper.Map<GetQuizDto>(quiz);
 
-            if (user.IsInRole(UserRoles.Student))
+            if (user.IsInRole(UserRoles.Instructor) && quiz.Course.InstructorId != user.Id)
+                return DomainErrors.Course.NotOwned;
+
+            else if (user.IsInRole(UserRoles.Student))
             {
+                var isEnrolled = await _unitOfWork.Enrollments.IsEnrolledAsync(quiz.Course.Id, user.Id);
+
+                if (!isEnrolled)
+                    return DomainErrors.Course.NotEnrolled;
+
                 if (quiz.Status != QuizStatus.Published)
                     return DomainErrors.Common.Forbidden("You do not have permissions to access this quiz.");
 
@@ -58,6 +66,9 @@ public class GetQuizByIdQueryHandler : IRequestHandler<GetQuizByIdQuery, Result<
                 dto.Status = null;
             }
 
+            dto.Questions?.ForEach(q => q.Options = q.Options?.OrderBy(o => o.OptionNumber).ToList());
+            dto.Questions = dto.Questions?.OrderBy(q => q.Order).ToList();
+
             return Result<GetQuizDto>.Success(dto);
         }
         catch (Exception ex)
@@ -67,3 +78,4 @@ public class GetQuizByIdQueryHandler : IRequestHandler<GetQuizByIdQuery, Result<
         }
     }
 }
+

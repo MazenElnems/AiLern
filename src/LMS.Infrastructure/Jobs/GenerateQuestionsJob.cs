@@ -1,7 +1,8 @@
 using AutoMapper;
+using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Contracts.Jobs;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
-using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using LMS.Infrastructure.ExternalServices.AIService.Contracts;
 using LMS.Infrastructure.ExternalServices.AIService.Requests;

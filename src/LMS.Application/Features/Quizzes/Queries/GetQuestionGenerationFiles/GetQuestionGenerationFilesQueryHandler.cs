@@ -1,6 +1,8 @@
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.CurrentUser;
 using LMS.Application.Features.Quizzes.Shared.DTO;
+using LMS.Domain.Entities.Quizzes;
+using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 
@@ -8,19 +10,24 @@ namespace LMS.Application.Features.Quizzes.Queries.GetQuestionGenerationFiles;
 
 public class GetQuestionGenerationFilesQueryHandler : IRequestHandler<GetQuestionGenerationFilesQuery, Result<List<QuestionGenerationFilesDto>>>
 {
-    private readonly IPermissionService _permissionService;
+    private readonly IUserContext _userContext;
     private readonly IUnitOfWork _unitOfWork;
 
-    public GetQuestionGenerationFilesQueryHandler(IPermissionService permissionService, IUnitOfWork unitOfWork)
+    public GetQuestionGenerationFilesQueryHandler(IUserContext userContext, IUnitOfWork unitOfWork)
     {
-        _permissionService = permissionService;
+        _userContext = userContext;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<List<QuestionGenerationFilesDto>>> Handle(GetQuestionGenerationFilesQuery request, CancellationToken cancellationToken)
     {
-        var quizResult = await _permissionService.AuthorizeInstructorAccessToQuizAsync(request.QuizId);
-        if (!quizResult.IsSuccess) return Result<List<QuestionGenerationFilesDto>>.Failure(quizResult.Error!);
+        var userId = _userContext.GetCurrentUser().Id;
+        var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId,
+            includeProperties: [nameof(Quiz.Course)]);
+        if (quiz == null)
+            return Result<List<QuestionGenerationFilesDto>>.Failure(DomainErrors.Quiz.NotFound(request.QuizId));
+        if (quiz.Course.InstructorId != userId)
+            return Result<List<QuestionGenerationFilesDto>>.Failure(DomainErrors.Quiz.NotOwned);
 
         var questionGenerationFiles = (await _unitOfWork.QuestionGenerationFiles
             .FilterAsync(f => f.QuizId == request.QuizId)).ToList();

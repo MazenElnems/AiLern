@@ -1,5 +1,5 @@
-﻿using LMS.Domain.Enums;
-using LMS.Domain.Interfaces;
+﻿using LMS.Application.Contracts.Jobs;
+using LMS.Domain.Enums;
 using LMS.Domain.Repositories;
 
 namespace LMS.Infrastructure.Jobs;

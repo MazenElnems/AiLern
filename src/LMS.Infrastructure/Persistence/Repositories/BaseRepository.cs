@@ -16,7 +16,7 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
     }
 
     public IQueryable<T> Query 
-        => _dbSet.AsNoTracking().AsQueryable();
+        => _dbSet.AsQueryable();
 
     public IQueryable<T> TrackedQuery 
         => _dbSet.AsQueryable();

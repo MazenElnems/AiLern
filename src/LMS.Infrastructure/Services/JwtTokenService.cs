@@ -1,6 +1,6 @@
-﻿using LMS.Application.ConfigurationOptions;
+﻿using LMS.Application.Contracts.Identity;
+using LMS.Application.Settings;
 using LMS.Domain.Entities.Users;
-using LMS.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

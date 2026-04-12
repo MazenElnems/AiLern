@@ -1,17 +1,16 @@
-﻿using LMS.Application.Features.Quizzes.Shared.Requests;
+﻿using LMS.Domain.Enums;
 
 namespace LMS.Application.Features.Attempts.Shared.DTO;
 
 public class AttemptResultDto
 {
-    public Guid QuestionId { get; set; }
-    public string QuestionText { get; set; }
-    public string Type { get; set; }
-    public string StudentAnswer { get; set; }
-    public double? Score { get; set; }
-    public double MaxScore { get; set; }
-    public string Feedback { get; set; }
-    public string? Instructions { get; set; }
-    public string? Explanation { get; set; }
-    public List<OptionDto>? Options { get; set; }
+    public Guid AttemptId { get; set; }
+    public int StudentId { get; set; }
+    public AttemptStatus Status { get; set; }
+    public string QuizName { get; set; }
+    public Guid QuizId { get; set; }
+    public List<AnswerDto> Answers { get; set; }
+    public int TimeSpentInSeconds { get; set; }
+    public double TotalScore { get; set; }
+    public double AchievedScore { get; set; }
 }

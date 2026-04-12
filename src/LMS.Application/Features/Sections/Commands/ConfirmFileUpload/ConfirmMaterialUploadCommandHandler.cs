@@ -1,5 +1,6 @@
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results;
+using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
@@ -10,30 +11,36 @@ namespace LMS.Application.Features.Sections.Commands.ConfirmFileUpload;
 
 public class ConfirmMaterialUploadCommandHandler : IRequestHandler<ConfirmMaterialUploadCommand, Result>
 {
-    private readonly IPermissionService _permissionService;
+    private readonly IUserContext _userContext;
     private readonly IWasabiService _wasabiService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public ConfirmMaterialUploadCommandHandler(IPermissionService permissionService, IWasabiService wasabiService, IUnitOfWork unitOfWork)
+    public ConfirmMaterialUploadCommandHandler(IUserContext userContext, IWasabiService wasabiService, IUnitOfWork unitOfWork)
     {
-        _permissionService = permissionService;
+        _userContext = userContext;
         _wasabiService = wasabiService;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(ConfirmMaterialUploadCommand request, CancellationToken cancellationToken)
     {
-        var sectionResult = await _permissionService.AuthorizeInstructorAccessToSectionAsync(request.SectionId);
-        if (!sectionResult.IsSuccess) return Result.Failure(sectionResult.Error!);
+        var user = _userContext.GetCurrentUser();
 
-        var sectionWithFiles = await _unitOfWork.Sections.GetAsync(sec => sec.Id == request.SectionId,
-            includeProperties: [nameof(Section.MaterialFiles)]);
+        var section = await _unitOfWork.Sections.GetAsync(sec => sec.Id == request.SectionId,
+            includeProperties: [nameof(Section.Course), nameof(Section.MaterialFiles)]);
 
-        foreach (var file in sectionWithFiles!.MaterialFiles)
+        if (section == null)
+            return DomainErrors.Section.NotFound(request.SectionId);
+        var course = section.Course;
+
+        if(course.InstructorId != user.Id)
+            return DomainErrors.Common.Forbidden("You do not have permission to request pre-signed URLs for this section.");
+
+        foreach(var file in section.MaterialFiles)
         {
             var exist = await _wasabiService.FileExists(file.StoragePath);
 
-            if (!exist)
+            if(!exist)
                 return DomainErrors.Storage.FileMissing;
 
             file.UploadStatus = UploadStatus.Completed;
