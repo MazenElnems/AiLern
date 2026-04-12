@@ -1,5 +1,7 @@
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results;
+using LMS.Application.CurrentUser;
+using LMS.Domain.Entities.Courses;
+using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 
@@ -8,20 +10,25 @@ namespace LMS.Application.Features.Sections.Commands.UpdateSection;
 public class SectionUpdateCommandHandler : IRequestHandler<SectionUpdateCommand, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPermissionService _permissionService;
+    private readonly IUserContext _userContext;
 
-    public SectionUpdateCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService)
+    public SectionUpdateCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext)
     {
         _unitOfWork = unitOfWork;
-        _permissionService = permissionService;
+        _userContext = userContext;
     }
 
     public async Task<Result> Handle(SectionUpdateCommand request, CancellationToken cancellationToken)
     {
-        var sectionResult = await _permissionService.AuthorizeInstructorAccessToSectionAsync(request.Id);
-        if (!sectionResult.IsSuccess) return Result.Failure(sectionResult.Error!);
-        var section = sectionResult.Value!;
-
+        var section = await _unitOfWork.Sections.GetAsync(a => a.Id == request.Id,
+            includeProperties: [nameof(Section.Course)]);
+        if (section == null)
+        {
+            return DomainErrors.Section.NotFound(request.Id);
+        }
+        var userId = _userContext.GetCurrentUser().Id;
+        if (section.Course.InstructorId != userId)
+            return DomainErrors.Common.Forbidden("You do not have permission to update this section.");
         section.Title = request.Title;
         section.SectionNumber = request.SectionNumber;
 

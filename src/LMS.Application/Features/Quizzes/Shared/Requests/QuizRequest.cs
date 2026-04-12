@@ -4,6 +4,7 @@ namespace LMS.Application.Features.Quizzes.Shared.Requests;
 
 public class QuizRequest
 {
+    public int CourseId { get; set; }
     public string Title { get; set; }
     public string? Description { get; set; }
     public DateTime AvailableFrom { get; set; }
@@ -12,9 +13,7 @@ public class QuizRequest
     public bool ShowResultOnClose { get; set; }
     public bool ShuffleQuestions { get; set; }
     public bool ShuffleOptions { get; set; }
-    public int CourseId { get; set; }
     public QuizStatus Status { get; set; }
     public DateTime? PublishedDate { get; set; }
     public int AttemptTimeLimit { get; set; }
-    public List<QuestionRequest>? Questions { get; set; }
 }

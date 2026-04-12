@@ -73,6 +73,8 @@ public static class DomainErrors
     }
     public static class Quiz
     {
+        public static Error UpdateNotAllowedAfterStart =>
+            Common.BusinessRule("Quiz.UpdateNotAllowedAfterStart", "Cannot update quiz after it has started.");
         public static Error NotFound(Guid id) =>
             Common.NotFound("Quiz", id.ToString());
 
@@ -91,12 +93,18 @@ public static class DomainErrors
                 "Quiz.InvalidAvailabilityRange",
                 "AvailableUntil must be later than AvailableFrom."
             );
+
+        public static Error QuizFinished =>
+            Common.BusinessRule("Quiz.QuizFinished", "The quiz has already finished and cannot be modified.");
         public static Error QuizNotAvailableAtThisTime =>
             Common.BusinessRule("Quiz.NotAvailableAtThisTime", "The quiz is not available at the current time.");
     }
 
     public static class Attempt
     {
+        public static Error NotSubmitted =>
+            Common.BusinessRule("Attempt.NotSubmitted", "The attempt has not been submitted yet, you cannot view the result.");
+
         public static Error NotFound(Guid attemptId)
             => Common.NotFound("Attempt", attemptId.ToString());
 
@@ -127,6 +135,11 @@ public static class DomainErrors
         public static Error NotPublished =>
             Common.BusinessRule("Quiz.NotPublished", "Quiz is not published.");
 
+        public static Error QuizNotFinshYet 
+            => Common.BusinessRule("Quiz.NotFinshYet", "Quiz is not finished yet, you cannot view the result.");
+
+        public static Error AttemptNotReviewedYet
+            => Common.BusinessRule("Attempt.NotReviewedYet", "Attempt is not reviewed yet, you cannot view the result.");
     }
 
     public static class QuestionGenerationJob

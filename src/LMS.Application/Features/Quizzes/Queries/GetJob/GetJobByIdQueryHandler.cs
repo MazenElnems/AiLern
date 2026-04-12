@@ -1,6 +1,6 @@
 using AutoMapper;
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.CurrentUser;
 using LMS.Application.Features.Quizzes.Shared.DTO;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Errors;
@@ -13,25 +13,30 @@ public class GetJobByIdQueryHandler : IRequestHandler<GetJobByIdQuery, Result<Ge
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private readonly IPermissionService _permissionService;
+    private readonly IUserContext _userContext;
 
-    public GetJobByIdQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IPermissionService permissionService)
+    public GetJobByIdQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IUserContext userContext)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _permissionService = permissionService;
+        _userContext = userContext;
     }
 
     public async Task<Result<GetJobDto>> Handle(GetJobByIdQuery request, CancellationToken cancellationToken)
     {
+        var userId = _userContext.GetCurrentUser().Id;
+
         var job = await _unitOfWork.QuestionGenerationJobs.GetAsync(j => j.Id == request.Id,
             includeProperties: [nameof(AIQuestionGenerationJob.Quiz)]);
 
         if (job == null)
             return DomainErrors.QuestionGenerationJob.NotFound(request.Id);
 
-        var courseResult = await _permissionService.AuthorizeInstructorAccessToCourseAsync(job.Quiz.CourseId);
-        if (!courseResult.IsSuccess) return Result<GetJobDto>.Failure(courseResult.Error!);
+        var course = await _unitOfWork.Courses.GetByIdAsync(job.Quiz.CourseId);
+        if (course == null)
+            return Result<GetJobDto>.Failure(DomainErrors.Course.NotFound(job.Quiz.CourseId));
+        if (course.InstructorId != userId)
+            return Result<GetJobDto>.Failure(DomainErrors.Course.NotOwned);
 
         var dto = _mapper.Map<GetJobDto>(job);
         return Result<GetJobDto>.Success(dto);

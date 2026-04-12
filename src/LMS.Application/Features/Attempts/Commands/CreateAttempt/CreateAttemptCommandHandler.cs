@@ -1,11 +1,10 @@
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.Jobs;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Attempts.Shared.DTO;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
-using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -17,16 +16,14 @@ public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand,
 {
     private readonly IUserContext _userContext;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPermissionService _permissionService;
     private readonly IBackgroundJobService _backgroundJobService;
     private readonly IAutoSubmitAttemptJob _autoSubmitAttemptJob;
     private readonly ILogger<CreateAttemptCommandHandler> _logger;
 
-    public CreateAttemptCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IPermissionService permissionService, ILogger<CreateAttemptCommandHandler> logger, IBackgroundJobService backgroundJobService, IAutoSubmitAttemptJob autoSubmitAttemptJob)
+    public CreateAttemptCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, ILogger<CreateAttemptCommandHandler> logger, IBackgroundJobService backgroundJobService, IAutoSubmitAttemptJob autoSubmitAttemptJob)
     {
         _userContext = userContext;
         _unitOfWork = unitOfWork;
-        _permissionService = permissionService;
         _logger = logger;
         _backgroundJobService = backgroundJobService;
         _autoSubmitAttemptJob = autoSubmitAttemptJob;
@@ -45,31 +42,35 @@ public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand,
             if (quiz == null)
                 return DomainErrors.Quiz.NotFound(request.QuizId);
 
-            var enrollmentResult = await _permissionService.AuthorizeStudentEnrollmentAsync(quiz.CourseId);
-            if (!enrollmentResult.IsSuccess) return Result<AttemptDto>.Failure(enrollmentResult.Error!);
+            if (!await _unitOfWork.Enrollments.IsEnrolledAsync(quiz.CourseId, user.Id))
+                return DomainErrors.Course.NotEnrolled;
 
+            // quiz is not published
             if (quiz.Status != QuizStatus.Published)
                 return DomainErrors.Quiz.NotPublished;
 
             var now = DateTime.UtcNow;
 
+            // quiz is expired or not yet available
             if (quiz.AvailableFrom > now || quiz.AvailableUntil < now)
                 return DomainErrors.Quiz.QuizNotAvailableAtThisTime;
+
+            var studentAttemptsCount = await _unitOfWork.Attempts.CountAsync(
+                a => a.StudentId == user.Id &&
+                a.QuizId == quiz.Id);
+
+            // student has reached the maximum attempts for this quiz
+            if (studentAttemptsCount >= quiz.MaximumAttempts)
+                return DomainErrors.Attempt.MaximumAttemptsReaches;
 
             var hasInProgressAttempt = await _unitOfWork.Attempts.AnyAsync(
                 a => a.StudentId == user.Id &&
                      a.QuizId == request.QuizId &&
                      a.Status == AttemptStatus.InProgress);
 
+            // student has no current in-progress attempt for this quiz
             if (hasInProgressAttempt)
                 return DomainErrors.Attempt.AnotherAttemptSessionStarted;
-
-            var studentAttemptsCount = await _unitOfWork.Attempts.CountAsync(
-                a => a.StudentId == user.Id &&
-                a.QuizId == quiz.Id);
-
-            if (studentAttemptsCount >= quiz.MaximumAttempts)
-                return DomainErrors.Attempt.MaximumAttemptsReaches;
 
             var quizQuestionIds = await _unitOfWork.Questions.GetQuestionIdsByQuizIdAsync(quiz.Id);
 
@@ -81,8 +82,8 @@ public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand,
                 questionIds: quizQuestionIds);
 
             jobId = _backgroundJobService.Schedule(
-                () => _autoSubmitAttemptJob.ExecuteAsync(attempt.Id),
-                attempt.AttemptEndTime - now);
+                () => _autoSubmitAttemptJob.ExecuteAsync(attempt.Id, cancellationToken),
+                attempt.AttemptEndTime.AddSeconds(5) - now);
 
             attempt.AutoSubmitJobId = jobId;
 

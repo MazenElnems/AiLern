@@ -3,5 +3,7 @@ using MediatR;
 
 namespace LMS.Application.Features.Attempts.Commands.SubmitAttempt;
 
-public record SubmitAttemptCommand(Guid AttemptId) : IRequest<Result>
+public record SubmitAttemptCommand(
+    Guid AttemptId
+) : IRequest<Result>
 { }

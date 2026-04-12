@@ -1,7 +1,9 @@
 using AutoMapper;
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.CurrentUser;
 using LMS.Application.Features.Assignments.Shared.DTO;
+using LMS.Domain.Entities.Courses;
+using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 
@@ -10,22 +12,30 @@ namespace LMS.Application.Features.Assignments.Queries.GetCourseAssignmentsForIn
 public class GetCourseAssignmentsForInstructorsQueryHandler : IRequestHandler<GetCourseAssignmentsForInstructorsQuery, Result<List<GetAllAssignmentForInstructorDto>>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPermissionService _permissionService;
+    private readonly IUserContext _userContext;
     private readonly IMapper _mapper;
 
-    public GetCourseAssignmentsForInstructorsQueryHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IMapper mapper)
+    public GetCourseAssignmentsForInstructorsQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
-        _permissionService = permissionService;
+        _userContext = userContext;
         _mapper = mapper;
     }
 
     public async Task<Result<List<GetAllAssignmentForInstructorDto>>> Handle(GetCourseAssignmentsForInstructorsQuery request, CancellationToken cancellationToken)
     {
-        var courseResult = await _permissionService.AuthorizeInstructorAccessToCourseAsync(request.CourseId);
-        if (!courseResult.IsSuccess) return Result<List<GetAllAssignmentForInstructorDto>>.Failure(courseResult.Error!);
+        var user = _userContext.GetCurrentUser();
 
-        var assignments = await _unitOfWork.Assignments.FilterAsync(a => a.CourseId == request.CourseId);
+        var course = await _unitOfWork.Courses.GetAsync(c => c.Id == request.CourseId,
+            includeProperties: [nameof(Course.Assignments)]);
+
+        if (course == null)
+            return DomainErrors.Course.NotFound(request.CourseId);
+
+        if (course.InstructorId != user.Id)
+            return DomainErrors.Course.NotOwned;
+
+        var assignments = course.Assignments;
 
         return _mapper.Map<List<GetAllAssignmentForInstructorDto>>(assignments);
     }

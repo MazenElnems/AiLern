@@ -1,10 +1,12 @@
 using AutoMapper;
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Contracts.Jobs;
+using LMS.Application.CurrentUser;
 using LMS.Application.Features.Assignments.Shared.DTO;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Enums;
-using LMS.Domain.Interfaces;
+using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 
@@ -13,15 +15,15 @@ namespace LMS.Application.Features.Assignments.Commands.CreateAssignment;
 public class AssignmentCreateCommandHandler : IRequestHandler<AssignmentCreateCommand, Result<AssignmentDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPermissionService _permissionService;
+    private readonly IUserContext _userContext;
     private readonly IMapper _mapper;
     private readonly IWasabiService _wasabiService;
     private readonly IBackgroundJobService _backgroundService;
 
-    public AssignmentCreateCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IMapper mapper, IWasabiService wasabiService, IBackgroundJobService backgroundService)
+    public AssignmentCreateCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, IWasabiService wasabiService, IBackgroundJobService backgroundService)
     {
         _unitOfWork = unitOfWork;
-        _permissionService = permissionService;
+        _userContext = userContext;
         _mapper = mapper;
         _wasabiService = wasabiService;
         _backgroundService = backgroundService;
@@ -29,9 +31,14 @@ public class AssignmentCreateCommandHandler : IRequestHandler<AssignmentCreateCo
 
     public async Task<Result<AssignmentDto>> Handle(AssignmentCreateCommand request, CancellationToken cancellationToken)
     {
-        var courseResult = await _permissionService.AuthorizeInstructorAccessToCourseAsync(request.CourseId);
-        if (!courseResult.IsSuccess) return Result<AssignmentDto>.Failure(courseResult.Error!);
-        var course = courseResult.Value!;
+        var userId = _userContext.GetCurrentUser().Id;
+        var course = await _unitOfWork.Courses.GetByIdAsync(request.CourseId);
+
+        if(course == null)
+            return Result<AssignmentDto>.Failure(DomainErrors.Course.NotFound(request.CourseId));
+
+        if(course.InstructorId != userId)
+            return Result<AssignmentDto>.Failure(DomainErrors.Common.Forbidden("You do not have permission to create an assignment for this course."));
 
         var assignment = _mapper.Map<Assignment>(request);
         assignment.CreatedAt = DateTime.UtcNow;

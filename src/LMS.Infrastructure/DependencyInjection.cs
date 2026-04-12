@@ -1,7 +1,10 @@
 using Amazon.S3;
 using Hangfire;
 using LMS.Application.Common.Interfaces;
-using LMS.Application.ConfigurationOptions;
+using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Contracts.Identity;
+using LMS.Application.Contracts.Jobs;
+using LMS.Application.Settings;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
@@ -42,9 +45,9 @@ public static class DependencyInjection
         services.AddScoped<IQuizPublishSchedulerJob, QuizPublishSchedulerJob>();
         services.AddScoped<IGenerateQuestionsJob, GenerateQuestionsJob>();
         services.AddScoped<IAutoSubmitAttemptJob, AutoSubmitAttemptJob>();
+        services.AddScoped<ICalculateStudentScoreJob, CalculateStudentScoreJob>();
         services.AddScoped<IAIService, AIService>();
-        services.AddScoped<IAttemptAnswersRepository, AttemptAnswersRepository>();
-        services.AddScoped<IPermissionService, PermissionService>();
+        services.AddScoped<IAnswersRepository, AnswersRepository>();
         services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 
         services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));

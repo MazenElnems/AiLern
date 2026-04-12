@@ -27,5 +27,7 @@ public class QuizProfile : Profile
         CreateMap<QuestionGenerationFiles, QuestionGenerationFilesDto>();
 
         CreateMap<GenerateQuestionByAIRequest, GenerateQuestionsCommand>();
+
+        CreateMap<QuizRequest, Quiz>();
     }
 }

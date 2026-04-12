@@ -3,5 +3,5 @@
 public class AttemptOptionDto
 {
     public string Option { get; set; }
-    public int OptionNumber { get; set; }
+    public Guid OptionId { get; set; }
 }

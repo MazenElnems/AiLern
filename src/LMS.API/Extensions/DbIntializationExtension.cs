@@ -1,4 +1,4 @@
-﻿using LMS.Domain.Interfaces;
+﻿using LMS.Application.Contracts.ExternalServices;
 
 namespace LMS.API.Extensions;
 

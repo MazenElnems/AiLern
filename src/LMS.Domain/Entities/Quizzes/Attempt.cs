@@ -13,7 +13,7 @@ public class Attempt
     public DateTime StartAt { get; set; }
     public DateTime? SubmittedAt { get; set; }
     public DateTime? SavedAt { get; set; }
-    public double? Score => AttemptAnswers.Sum(a => a.Mark ?? 0);
+    public double? Score => Answers.Sum(a => a.Mark ?? 0);
     public int AttemptNumber { get; set; }
     public AttemptStatus Status { get; set; }
     public string AutoSubmitJobId { get; set; } 
@@ -21,12 +21,12 @@ public class Attempt
     // Navigation Properties
     public Student Student { get; set; } = null!;
     public Quiz Quiz { get; set; } = null!;
-    public List<AttemptAnswer> AttemptAnswers { get; set; } = new List<AttemptAnswer>();
+    public List<Answer> Answers { get; set; } = new List<Answer>();
 
     public void Submit()
     {
-        this.Status = AttemptStatus.Submitted;
-        this.SubmittedAt = DateTime.UtcNow;
+        Status = AttemptStatus.Submitted;
+        SubmittedAt = DateTime.UtcNow;
     }
 
     public static Attempt StartNew(
@@ -44,7 +44,7 @@ public class Attempt
             AttemptEndTime = attemptEndTime,
             StartAt = startAt,
             AttemptNumber = attemptNumber,
-            AttemptAnswers = questionIds.Select(questionId => new AttemptAnswer
+            Answers = questionIds.Select(questionId => new Answer
             {
                 QuestionId = questionId,
                 Mark = 0

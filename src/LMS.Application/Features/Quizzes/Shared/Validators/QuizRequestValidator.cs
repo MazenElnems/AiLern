@@ -14,8 +14,8 @@ namespace LMS.Application.Features.Quizzes.Shared.Validators
                 .MaximumLength(200).WithMessage("can't exceed 200 characters");
 
             RuleFor(q => q.Description)
-                .NotNull().WithMessage("can't be null")
-                .NotEmpty().WithMessage("Description is required");
+                .MaximumLength(2000).WithMessage("can't exceed 2000 characters")
+                .When(q => !string.IsNullOrEmpty(q.Description));
 
             RuleFor(q => q.AvailableFrom)
                 .NotEmpty().WithMessage("AvailableFrom date is required")
@@ -33,13 +33,6 @@ namespace LMS.Application.Features.Quizzes.Shared.Validators
                     .LessThan(q => q.AvailableFrom).WithMessage("PublishedDate must be before AvailableFrom");
             });
 
-            When(q => q.Status == QuizStatus.Published, () =>
-            {
-                RuleFor(q => q.Questions)
-                    .NotNull().WithMessage("At least one question is required when status is Published")
-                    .NotEmpty().WithMessage("At least one question is required when status is Published");
-            });
-
             RuleFor(q => q.MaximumAttempts)
                 .GreaterThan(0).WithMessage("must be greater than 0")
                 .LessThanOrEqualTo(5).WithMessage("can't exceed 5");
@@ -47,8 +40,9 @@ namespace LMS.Application.Features.Quizzes.Shared.Validators
             RuleFor(q => q.CourseId)
                 .NotNull().WithMessage("CourseId can't be null");
 
-            RuleForEach(q => q.Questions)
-                .SetValidator(new QuestionRequestValidator());
+            RuleFor(q => q.AttemptTimeLimit)
+                .NotNull().WithMessage("AttemptTimeLimit can't be null")
+                .GreaterThan(0).WithMessage("must be greater than 0");
         }
     }
 }

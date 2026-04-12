@@ -7,6 +7,11 @@ public class UpdateQuizCommandValidator : AbstractValidator<UpdateQuizCommand>
 {
     public UpdateQuizCommandValidator()
     {
-        Include(new QuizRequestValidator());
+        RuleFor(q => q.QuizId)
+            .NotEmpty().WithMessage("QuizId is required.")
+            .NotNull().WithMessage("QuizId cannot be null.");
+
+        RuleFor(q => q.Quiz)
+            .SetValidator(new QuizRequestValidator());
     }
 }

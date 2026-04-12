@@ -5,6 +5,7 @@ using LMS.Application.Features.Quizzes.Commands.CreateQuiz;
 using LMS.Application.Features.Quizzes.Commands.DeleteQuiz;
 using LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
 using LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
+using LMS.Application.Features.Quizzes.Commands.UpsertQuestions;
 using LMS.Application.Features.Quizzes.Queries.GetAllQuizzes;
 using LMS.Application.Features.Quizzes.Queries.GetAttemptsByQuizId;
 using LMS.Application.Features.Quizzes.Queries.GetJob;
@@ -36,9 +37,9 @@ public class QuizzesController : ApiBaseController
 
     [HttpPost]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> Create([FromBody] CreateQuizCommand command)
+    public async Task<ActionResult<ApiResponse>> Create([FromBody] QuizRequest request)
     {
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(new CreateQuizCommand(request.CourseId, request));
         return HandleResponse(this, result);
     }
 
@@ -51,12 +52,19 @@ public class QuizzesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Assignment not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> Update(Guid id, UpdateQuizCommand command)
+    public async Task<ActionResult<ApiResponse>> Update(Guid id, QuizRequest command)
     {
-        command.Id = id;
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(new UpdateQuizCommand(id, command));
         return HandleResponse(this, result);
     }
+
+    [HttpPut("{id}/questions")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> UpsertQuestions(Guid id, [FromBody] List<QuestionUpsertRequest> questions)
+    {
+        var result = await _mediator.Send(new UpsertQuestionsCommand(id, questions));
+        return HandleResponse(this, result);
+    }   
 
     [HttpDelete("{id}")]
     [Authorize(Roles = UserRoles.Instructor)]
@@ -75,10 +83,9 @@ public class QuizzesController : ApiBaseController
 
     [HttpGet("/api/courses/{courseId}/quizzes")]
     [Authorize(Roles = $"{UserRoles.Instructor},{UserRoles.Student}")]
-    public async Task<ActionResult<ApiResponse>> GetAllQuizzesByCourseId(int courseId,[FromQuery] GetAllQuizzesByCourseIdQuery query)
+    public async Task<ActionResult<ApiResponse>> GetAllQuizzesByCourseId(int courseId, int pageNo = 1, int pageSize = 10)
     {
-        query.CourseId = courseId;
-        var result = await _mediator.Send(query);
+        var result = await _mediator.Send(new GetAllQuizzesByCourseIdQuery(courseId, pageNo, pageSize));
         return HandleResponse(this, result);
     }
 
@@ -91,10 +98,9 @@ public class QuizzesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "quiz not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetQuizById(Guid id , [FromQuery] GetQuizByIdQuery query)
+    public async Task<ActionResult<ApiResponse>> GetQuizById(Guid id)
     {
-        query.Id = id;
-        var result = await _mediator.Send(query);
+        var result = await _mediator.Send(new GetQuizByIdQuery(id));
         return HandleResponse(this, result);
     }
 

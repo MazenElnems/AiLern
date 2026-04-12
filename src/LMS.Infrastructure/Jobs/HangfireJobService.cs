@@ -1,5 +1,5 @@
 ﻿using Hangfire;
-using LMS.Domain.Interfaces;
+using LMS.Application.Contracts.Jobs;
 using System.Linq.Expressions;
 
 namespace LMS.Infrastructure.Jobs;

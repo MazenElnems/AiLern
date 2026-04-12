@@ -21,6 +21,7 @@ public class Quiz
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public DateTime? PublishedAt { get; set; }
+    public string? PublishBackgroundJobId { get; set; }
 
     // Foreign Keys
     public int CourseId { get; set; }
@@ -34,9 +35,13 @@ public class Quiz
 
     public DateTime CalculateAttemptEndTime(DateTime now)
     {
-        var remainingWindowMinutes = (AvailableUntil - now).TotalMinutes;
-        var configuredLimitMinutes = AttemptTimeLimit;
-        var attemptDurationMinutes = Math.Min(remainingWindowMinutes, configuredLimitMinutes);
+        var remainingMinutes = (AvailableUntil - now).TotalMinutes;
+        var attemptDurationMinutes = Math.Min(remainingMinutes, AttemptTimeLimit);
         return now.AddMinutes(attemptDurationMinutes);
+    }
+
+    public void UpsertQuestions(List<Question> upsertedQuestions)
+    {
+        throw new NotImplementedException();
     }
 }

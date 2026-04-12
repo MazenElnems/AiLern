@@ -18,7 +18,7 @@ public class Question
     public Guid QuizId { get; set; }
 
     // Navigation Properties
-    public Quiz Quiz { get; set; }
+    public Quiz Quiz { get; set; } = null!;
     public List<Option> Options { get; set; } = new();
-    public List<AttemptAnswer> AttemptAnswers { get; set; } = new();
+    public List<Answer> Answers { get; set; } = new();
 }

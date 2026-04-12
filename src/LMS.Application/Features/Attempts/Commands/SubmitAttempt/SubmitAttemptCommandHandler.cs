@@ -1,6 +1,7 @@
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results;
-using LMS.Domain.Interfaces;
+using LMS.Application.Contracts.Jobs;
+using LMS.Application.CurrentUser;
+using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 
@@ -9,26 +10,37 @@ namespace LMS.Application.Features.Attempts.Commands.SubmitAttempt;
 public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPermissionService _permissionService;
+    private readonly IUserContext _userContext;
     private readonly IBackgroundJobService _backgroundJobService;
+    private readonly ICalculateStudentScoreJob _calculateStudentScoreJob;
 
-    public SubmitAttemptCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IBackgroundJobService backgroundJobService)
+    public SubmitAttemptCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IBackgroundJobService backgroundJobService, ICalculateStudentScoreJob calculateStudentScoreJob)
     {
         _unitOfWork = unitOfWork;
-        _permissionService = permissionService;
+        _userContext = userContext;
         _backgroundJobService = backgroundJobService;
+        _calculateStudentScoreJob = calculateStudentScoreJob;
     }
 
     public async Task<Result> Handle(SubmitAttemptCommand request, CancellationToken cancellationToken)
     {
-        var attemptResult = await _permissionService.AuthorizeStudentAccessToAttemptAsync(request.AttemptId);
-        if (!attemptResult.IsSuccess) return Result.Failure(attemptResult.Error!);
-        var attempt = attemptResult.Value!;
+        var user = _userContext.GetCurrentUser();
+
+        var attempt = await _unitOfWork.Attempts.GetByIdAsync(request.AttemptId);
+
+        if (attempt == null)
+            return DomainErrors.Attempt.NotFound(request.AttemptId);
+
+        if (attempt.StudentId != user.Id)
+            return DomainErrors.Attempt.NotOwned;
 
         attempt.Submit();
         await _unitOfWork.CommitAsync();
 
+        // Delete the auto submit background job
         _backgroundJobService.Delete(attempt.AutoSubmitJobId);
+
+        _backgroundJobService.Enqueue(() => _calculateStudentScoreJob.ExecuteAsync(attempt.Id, cancellationToken));
 
         return Result.Success("Submit Successfully");
     }

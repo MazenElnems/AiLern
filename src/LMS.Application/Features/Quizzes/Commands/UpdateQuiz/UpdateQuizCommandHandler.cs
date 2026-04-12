@@ -1,9 +1,10 @@
 using AutoMapper;
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.Jobs;
+using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
-using LMS.Domain.Interfaces;
+using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 
@@ -12,68 +13,56 @@ namespace LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
 public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Result<Guid>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPermissionService _permissionService;
-    private readonly IMapper _mapper;
+    private readonly IUserContext _userContext;
     private readonly IBackgroundJobService _backgroundJobService;
 
-    public UpdateQuizCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IMapper mapper, IBackgroundJobService backgroundJobService)
+    public UpdateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IBackgroundJobService backgroundJobService)
     {
         _unitOfWork = unitOfWork;
-        _permissionService = permissionService;
-        _mapper = mapper;
+        _userContext = userContext;
         _backgroundJobService = backgroundJobService;
     }
 
     public async Task<Result<Guid>> Handle(UpdateQuizCommand request, CancellationToken cancellationToken)
     {
-        var quizResult = await _permissionService.AuthorizeInstructorAccessToQuizAsync(request.Id);
-        if (!quizResult.IsSuccess) return Result<Guid>.Failure(quizResult.Error!);
-        var quiz = quizResult.Value!;
+        var userId = _userContext.GetCurrentUser().Id;
+        var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId,
+            includeProperties: [nameof(Quiz.Course)]);
+        if (quiz is null)
+            return Result<Guid>.Failure(DomainErrors.Quiz.NotFound(request.QuizId));
+        if (quiz.Course.InstructorId != userId)
+            return Result<Guid>.Failure(DomainErrors.Quiz.NotOwned);
 
-        quiz.Title = request.Title;
-        quiz.Description = request.Description;
-        quiz.AvailableUntil = request.AvailableUntil;
-        quiz.ShowResultOnClose = request.ShowResultOnClose;
-        quiz.ShuffleQuestions = request.ShuffleQuestions;
-        quiz.ShuffleOptions = request.ShuffleOptions;
-        quiz.MaximumAttempts = request.MaximumAttempts;
+        if (quiz.AvailableUntil < DateTime.UtcNow)
+            return DomainErrors.Quiz.QuizFinished;
 
-        var quizStarted = DateTime.UtcNow > quiz.AvailableFrom;
+        // Can't update quiz after start time
+        if (DateTime.UtcNow > quiz.AvailableFrom)
+            return DomainErrors.Quiz.UpdateNotAllowedAfterStart;
 
-        if (!quizStarted)
+        if(quiz.Status == QuizStatus.Scheduled && request.Quiz.Status != QuizStatus.Scheduled)
+            _backgroundJobService.Delete(quiz.PublishBackgroundJobId!);
+
+        quiz.Title = request.Quiz.Title;
+        quiz.Description = request.Quiz.Description;
+        quiz.AvailableFrom = request.Quiz.AvailableFrom;
+        quiz.AvailableUntil = request.Quiz.AvailableUntil;
+        quiz.ShowResultOnClose = request.Quiz.ShowResultOnClose;
+        quiz.MaximumAttempts = request.Quiz.MaximumAttempts;
+        quiz.ShuffleQuestions = request.Quiz.ShuffleQuestions;
+        quiz.ShuffleOptions = request.Quiz.ShuffleOptions;
+        quiz.Status = request.Quiz.Status;
+
+        if (quiz.Status == QuizStatus.Published)
+            quiz.PublishedAt = DateTime.UtcNow;
+
+        else if (quiz.Status == QuizStatus.Draft)
+            quiz.PublishedAt = null;
+
+        else if (quiz.Status == QuizStatus.Scheduled)
         {
-            quiz.AvailableFrom = request.AvailableFrom;
-            quiz.Status = request.Status;
-
-            if (request.Status == QuizStatus.Published)
-                quiz.PublishedAt = DateTime.UtcNow;
-            else if (request.Status == QuizStatus.Draft)
-                quiz.PublishedAt = null;
-            else if (request.Status == QuizStatus.Scheduled)
-            {
-                quiz.PublishedAt = null;
-                _backgroundJobService.Schedule<IQuizPublishSchedulerJob>((job) => job.ExecuteAsync(quiz.Id), request.PublishedDate!.Value);
-            }
-
-            if (request.Questions != null)
-            {
-                var questionOrder = 1;
-                request.Questions.ForEach(questionRequest =>
-                {
-                    var question = _mapper.Map<Question>(questionRequest);
-                    question.QuizId = quiz.Id;
-
-                    int optionNumber = 1;
-                    question.Options.ForEach(o =>
-                    {
-                        o.OptionNumber = optionNumber++;
-                        o.QuestionId = question.Id;
-                    });
-
-                    question.Order = questionOrder++;
-                    _unitOfWork.Questions.Update(question);
-                });
-            }
+            quiz.PublishedAt = null;
+            quiz.PublishBackgroundJobId = _backgroundJobService.Schedule<IQuizPublishSchedulerJob>((job) => job.ExecuteAsync(quiz.Id), request.Quiz.PublishedDate!.Value);
         }
 
         await _unitOfWork.CommitAsync();

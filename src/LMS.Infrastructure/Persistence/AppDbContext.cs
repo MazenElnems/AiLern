@@ -25,8 +25,9 @@ namespace LMS.Infrastructure.Persistence
         public DbSet<Section> Sections { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<Question> Questions { get; set; }
+        public DbSet<Option> Options { get; set; }  
         public DbSet<Attempt> Attempts { get; set; }
-        public DbSet<AttemptAnswer> AttemptAnswers { get; set; }
+        public DbSet<Answer> Answers { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options):
             base(options)

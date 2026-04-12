@@ -1,7 +1,7 @@
-﻿using LMS.Domain.Enums;
-using LMS.Domain.Interfaces;
+﻿using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Contracts.Jobs;
+using LMS.Domain.Enums;
 using LMS.Domain.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Infrastructure.Jobs;
 

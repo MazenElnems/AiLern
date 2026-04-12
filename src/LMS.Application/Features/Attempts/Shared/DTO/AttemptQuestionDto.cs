@@ -9,7 +9,6 @@ public class AttemptQuestionDto
     public QuestionType Type { get; set; }
     public string? Instructions { get; set; }
     public List<AttemptOptionDto>? Options { get; set; }
-    public string? WrittenAnswer { get; set; }   
-    public string? BooleanAnswer { get; set; }   
-    public int? OptionNumber { get; set; }   
+    public string? WrittenAnswer { get; set; }
+    public Guid? SelectedOptionId { get; set; }
 }

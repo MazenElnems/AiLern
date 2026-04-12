@@ -1,12 +1,12 @@
 using LMS.Application.Common.Results;
-using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
-using LMS.Domain.Interfaces;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
+using LMS.Application.Contracts.Jobs;
+using LMS.Application.Contracts.ExternalServices;
 
 namespace LMS.Application.Features.Auth.Commands.ResendConfirmEmail;
 

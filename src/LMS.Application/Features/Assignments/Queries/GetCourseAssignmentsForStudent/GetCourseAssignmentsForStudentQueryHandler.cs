@@ -1,5 +1,4 @@
 using AutoMapper;
-using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Assignments.Shared.DTO;
@@ -13,14 +12,12 @@ namespace LMS.Application.Features.Assignments.Queries.GetCourseAssignmentsForSt
 public class GetCourseAssignmentsForStudentQueryHandler : IRequestHandler<GetCourseAssignmentsForStudentQuery, Result<List<GetAllAssignmentForStudentDto>>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPermissionService _permissionService;
     private readonly IUserContext _userContext;
     private readonly IMapper _mapper;
 
-    public GetCourseAssignmentsForStudentQueryHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IUserContext userContext, IMapper mapper)
+    public GetCourseAssignmentsForStudentQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
-        _permissionService = permissionService;
         _userContext = userContext;
         _mapper = mapper;
     }
@@ -29,11 +26,11 @@ public class GetCourseAssignmentsForStudentQueryHandler : IRequestHandler<GetCou
     {
         var userId = _userContext.GetCurrentUser().Id;
 
-        if (!await _unitOfWork.Courses.AnyAsync(c => c.Id == request.CourseId))
+        if(!await _unitOfWork.Courses.AnyAsync(c => c.Id == request.CourseId))
             return DomainErrors.Course.NotFound(request.CourseId);
 
-        var enrollmentResult = await _permissionService.AuthorizeStudentEnrollmentAsync(request.CourseId);
-        if (!enrollmentResult.IsSuccess) return Result<List<GetAllAssignmentForStudentDto>>.Failure(enrollmentResult.Error!);
+        if(!await _unitOfWork.Enrollments.IsEnrolledAsync(request.CourseId, userId))
+            return DomainErrors.Course.NotEnrolled;
 
         var assignmentsWithSubmissions = await _unitOfWork.Assignments.Query
             .Include(a => a.Submissions.Where(s => s.StudentId == userId))
