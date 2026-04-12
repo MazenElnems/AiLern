@@ -1,10 +1,6 @@
-﻿using AutoMapper;
-using LMS.Application.Common.Interfaces;
-using LMS.Application.Common.Results.Generic;
+﻿using LMS.Application.Common.Results.Generic;
 using LMS.Application.Features.Dashboards.Shared.DTO;
-using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
-using LMS.Domain.Interfaces;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -14,38 +10,28 @@ namespace LMS.Application.Features.Dashboards.Queries.GetQuizDashboard;
 public class GetQuizDashboardQueryHandler : IRequestHandler<GetQuizDashboardQuery, Result<QuizDashboardDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPermissionService _permissionService;
-    private readonly IMapper _mapper;
-    private readonly IBackgroundJobService _backgroundJobService;
 
-    public GetQuizDashboardQueryHandler(IUnitOfWork unitOfWork, IPermissionService permissionService, IMapper mapper, IBackgroundJobService backgroundJobService)
+    public GetQuizDashboardQueryHandler(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
-        _permissionService = permissionService;
-        _mapper = mapper;
-        _backgroundJobService = backgroundJobService;
     }
 
     public async Task<Result<QuizDashboardDto>> Handle(GetQuizDashboardQuery request, CancellationToken cancellationToken)
     {
-        var quizResult = await _permissionService.AuthorizeInstructorAccessToQuizAsync(request.quizId);
-        if (!quizResult.IsSuccess)
-            return Result<QuizDashboardDto>.Failure(quizResult.Error!);
-
-        var quiz = quizResult.Value;
+        var quiz = await _unitOfWork.Quizzes.GetByIdAsync(request.QuizId);
 
         var studentsInCourse = await _unitOfWork.Enrollments.Query
             .Where(e => e.CourseId == quiz!.CourseId)
             .CountAsync();
 
         var numberOfStudents = await _unitOfWork.Attempts.Query
-            .Where(a => a.QuizId == request.quizId && a.Status == AttemptStatus.Reviewed)
+            .Where(a => a.QuizId == request.QuizId && a.Status == AttemptStatus.Reviewed)
             .Select(a => a.StudentId)
             .Distinct()
             .CountAsync();
 
-        var attemptScores = await _unitOfWork.AttemptAnswers.Query
-            .Where(aa => aa.Attempt.QuizId == request.quizId && aa.Attempt.Status == AttemptStatus.Reviewed)
+        var attemptScores = await _unitOfWork.Answers.Query
+            .Where(aa => aa.Attempt.QuizId == request.QuizId && aa.Attempt.Status == AttemptStatus.Reviewed)
             .GroupBy(aa => new { aa.AttemptId, aa.Attempt.StudentId })
             .Select(g => new
             {
@@ -54,8 +40,8 @@ public class GetQuizDashboardQueryHandler : IRequestHandler<GetQuizDashboardQuer
             })
             .ToListAsync();
 
-        var studentQuestionScores = await _unitOfWork.AttemptAnswers.Query
-            .Where(a => a.Attempt.QuizId == request.quizId
+        var studentQuestionScores = await _unitOfWork.Answers.Query
+            .Where(a => a.Attempt.QuizId == request.QuizId
                         && a.Attempt.Status == AttemptStatus.Reviewed)
             .GroupBy(a => new { a.Attempt.StudentId, a.QuestionId, a.Question.Mark, a.Question.QuestionText })
             .Select(g => new
@@ -78,7 +64,7 @@ public class GetQuizDashboardQueryHandler : IRequestHandler<GetQuizDashboardQuer
             .ToList();
 
         var attemptDistributions = await _unitOfWork.Attempts.Query
-            .Where(a => a.QuizId == request.quizId && a.Status == AttemptStatus.Reviewed)
+            .Where(a => a.QuizId == request.QuizId && a.Status == AttemptStatus.Reviewed)
             .GroupBy(a => a.StudentId)
             .Select(g => g.Max(a => a.AttemptNumber))
             .GroupBy(x => x)
@@ -90,12 +76,12 @@ public class GetQuizDashboardQueryHandler : IRequestHandler<GetQuizDashboardQuer
             .ToListAsync();
 
         var times = await _unitOfWork.Attempts.Query
-            .Where(a => a.QuizId == request.quizId && a.Status == AttemptStatus.Reviewed)
+            .Where(a => a.QuizId == request.QuizId && a.Status == AttemptStatus.Reviewed)
             .Select(a => a.TimeSpent)
             .ToListAsync();
 
         var quizTotalPoints = await _unitOfWork.Quizzes.Query
-            .Where(q => q.Id == request.quizId)
+            .Where(q => q.Id == request.QuizId)
             .Select(q => q.Questions.Sum(a => a.Mark))
             .FirstOrDefaultAsync();
 

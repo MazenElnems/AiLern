@@ -4,5 +4,5 @@ using MediatR;
 
 namespace LMS.Application.Features.Dashboards.Queries.GetQuizDashboard;
 
-public sealed record GetQuizDashboardQuery(Guid quizId) : IRequest<Result<QuizDashboardDto>>;
+public sealed record GetQuizDashboardQuery(Guid QuizId) : IRequest<Result<QuizDashboardDto>>;
 
