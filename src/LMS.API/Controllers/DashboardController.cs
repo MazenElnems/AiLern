@@ -22,8 +22,7 @@ public class DashboardController : ApiBaseController
     {
         _mediator = mediator;
     }
-    [HttpGet]
-
+    [HttpGet("my-dashboard")]
     [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Get instructor dashboard ", Description = "Retrieves instructor dashboard.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Instructor dashboard retrieved successfully.", typeof(ApiResponse))]
@@ -37,9 +36,9 @@ public class DashboardController : ApiBaseController
     }
 
     [HttpGet("quiz/{quizId}")]
-    public async Task<ActionResult<ApiResponse>> GetQuizDashboard([FromRoute]GetQuizDashboardQuery query)
+    public async Task<ActionResult<ApiResponse>> GetQuizDashboard(Guid quizId)
     {
-        var result = await _mediator.Send(query);
+        var result = await _mediator.Send(new GetQuizDashboardQuery(quizId));
         return HandleResponse(this, result);
     }
 
@@ -56,4 +55,3 @@ public class DashboardController : ApiBaseController
         return HandleResponse(this, result);
     }
 }
-

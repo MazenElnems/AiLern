@@ -1,6 +1,9 @@
 ﻿using LMS.Application.Common.Results.Generic;
+using LMS.Application.CurrentUser;
 using LMS.Application.Features.Dashboards.Shared.DTO;
+using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
+using LMS.Domain.Errors;
 using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -10,15 +13,26 @@ namespace LMS.Application.Features.Dashboards.Queries.GetQuizDashboard;
 public class GetQuizDashboardQueryHandler : IRequestHandler<GetQuizDashboardQuery, Result<QuizDashboardDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserContext _userContext;
 
-    public GetQuizDashboardQueryHandler(IUnitOfWork unitOfWork)
+    public GetQuizDashboardQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext)
     {
         _unitOfWork = unitOfWork;
+        _userContext = userContext;
     }
 
     public async Task<Result<QuizDashboardDto>> Handle(GetQuizDashboardQuery request, CancellationToken cancellationToken)
     {
-        var quiz = await _unitOfWork.Quizzes.GetByIdAsync(request.QuizId);
+        var user = _userContext.GetCurrentUser();
+
+        var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId,
+            includeProperties: [nameof(Quiz.Course)]);
+
+        if(quiz == null)
+            return DomainErrors.Quiz.NotFound(request.QuizId);
+
+        if (quiz.Course.InstructorId != user.Id)
+            return DomainErrors.Course.NotOwned;
 
         var studentsInCourse = await _unitOfWork.Enrollments.Query
             .Where(e => e.CourseId == quiz!.CourseId)
@@ -41,8 +55,7 @@ public class GetQuizDashboardQueryHandler : IRequestHandler<GetQuizDashboardQuer
             .ToListAsync();
 
         var studentQuestionScores = await _unitOfWork.Answers.Query
-            .Where(a => a.Attempt.QuizId == request.QuizId
-                        && a.Attempt.Status == AttemptStatus.Reviewed)
+            .Where(a => a.Attempt.QuizId == request.QuizId && a.Attempt.Status == AttemptStatus.Reviewed)
             .GroupBy(a => new { a.Attempt.StudentId, a.QuestionId, a.Question.Mark, a.Question.QuestionText })
             .Select(g => new
             {
