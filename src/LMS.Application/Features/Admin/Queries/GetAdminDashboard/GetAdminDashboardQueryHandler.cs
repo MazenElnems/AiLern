@@ -1,7 +1,7 @@
 ﻿using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.Features.Admin.Shared.DTO;
 using LMS.Domain.Constants;
-using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
