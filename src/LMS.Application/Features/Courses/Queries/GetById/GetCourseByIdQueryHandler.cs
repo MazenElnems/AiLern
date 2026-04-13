@@ -1,9 +1,9 @@
 using AutoMapper;
-using LMS.Domain.Repositories;
 using LMS.Application.Common.Results.Generic;
 using MediatR;
 using LMS.Domain.Errors;
 using LMS.Application.Features.Courses.Shared.DTO;
+using LMS.Application.Contracts.UnitOfWork;
 
 namespace LMS.Application.Features.Courses.Queries.GetById;
 

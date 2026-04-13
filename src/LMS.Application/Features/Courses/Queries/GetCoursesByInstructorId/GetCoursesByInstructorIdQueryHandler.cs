@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using LMS.Application.Common.Results;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Courses.Shared.DTO;
 using LMS.Domain.Constants;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
-using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 

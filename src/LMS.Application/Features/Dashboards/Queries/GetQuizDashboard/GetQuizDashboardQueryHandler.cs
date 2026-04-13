@@ -1,10 +1,10 @@
 ﻿using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Dashboards.Shared.DTO;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
-using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

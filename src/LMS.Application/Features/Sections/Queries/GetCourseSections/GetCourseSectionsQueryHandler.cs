@@ -1,13 +1,13 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Sections.Shared.DTO;
 using LMS.Application.Settings;
 using LMS.Domain.Constants;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Errors;
-using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Options;
 

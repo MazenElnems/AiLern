@@ -1,9 +1,9 @@
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Quizzes.Shared.DTO;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Errors;
-using LMS.Domain.Repositories;
 using MediatR;
 
 namespace LMS.Application.Features.Quizzes.Queries.GetQuestionGenerationFiles;

@@ -2,7 +2,6 @@ using AutoMapper;
 using LMS.Application.CurrentUser;
 using LMS.Domain.Constants;
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Options;
 using LMS.Domain.Entities.Assignments;
@@ -10,6 +9,7 @@ using LMS.Domain.Errors;
 using LMS.Application.Features.Assignments.Shared.DTO;
 using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Settings;
+using LMS.Application.Contracts.UnitOfWork;
 
 namespace LMS.Application.Features.Assignments.Queries.GetAssignment;
 

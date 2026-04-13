@@ -2,8 +2,8 @@ using LMS.Application.Common.Results;
 using LMS.Application.CurrentUser;
 using LMS.Domain.Errors;
 using LMS.Domain.Entities.Quizzes;
-using LMS.Domain.Repositories;
 using MediatR;
+using LMS.Application.Contracts.UnitOfWork;
 
 namespace LMS.Application.Features.Quizzes.Commands.DeleteQuiz;
 

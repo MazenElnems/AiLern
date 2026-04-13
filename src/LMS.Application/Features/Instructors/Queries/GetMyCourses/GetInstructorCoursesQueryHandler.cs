@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Courses.Shared.DTO;
-using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

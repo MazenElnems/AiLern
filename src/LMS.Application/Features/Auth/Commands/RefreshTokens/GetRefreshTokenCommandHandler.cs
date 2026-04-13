@@ -1,5 +1,4 @@
 using LMS.Application.Common.Results.Generic;
-using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -10,6 +9,7 @@ using LMS.Domain.Errors;
 using LMS.Application.Features.Auth.Shared.DTO;
 using LMS.Application.Contracts.Identity;
 using LMS.Application.Settings;
+using LMS.Application.Contracts.UnitOfWork;
 
 namespace LMS.Application.Features.Auth.Commands.RefreshTokens;
 

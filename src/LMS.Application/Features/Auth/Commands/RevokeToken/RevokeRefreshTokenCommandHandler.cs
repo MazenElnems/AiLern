@@ -1,7 +1,7 @@
-using LMS.Domain.Repositories;
 using LMS.Application.Common.Results;
 using MediatR;
 using LMS.Domain.Errors;
+using LMS.Application.Contracts.UnitOfWork;
 
 namespace LMS.Application.Features.Auth.Commands.RevokeToken;
 
