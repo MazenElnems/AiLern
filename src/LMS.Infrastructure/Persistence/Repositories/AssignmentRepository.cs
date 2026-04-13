@@ -1,6 +1,6 @@
+using LMS.Application.Contracts.Repositories;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Enums;
-using LMS.Domain.Repositories;
 
 namespace LMS.Infrastructure.Persistence.Repositories;
 

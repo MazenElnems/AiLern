@@ -1,6 +1,6 @@
 ﻿using LMS.Application.Contracts.Jobs;
+using LMS.Application.Contracts.UnitOfWork;
 using LMS.Domain.Enums;
-using LMS.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Infrastructure.Jobs;

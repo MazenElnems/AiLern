@@ -1,4 +1,4 @@
-﻿using LMS.Domain.Repositories;
+﻿using LMS.Application.Contracts.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 

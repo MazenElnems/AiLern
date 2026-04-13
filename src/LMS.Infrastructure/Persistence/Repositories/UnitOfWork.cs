@@ -1,8 +1,8 @@
-﻿using LMS.Domain.Entities.Assignments;
+﻿using LMS.Application.Contracts.Repositories;
+using LMS.Application.Contracts.UnitOfWork;
+using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Quizzes;
-using LMS.Domain.Interfaces;
-using LMS.Domain.Repositories;
 
 namespace LMS.Infrastructure.Persistence.Repositories;
 
