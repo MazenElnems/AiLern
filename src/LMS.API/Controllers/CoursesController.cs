@@ -118,10 +118,9 @@ public class CoursesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetStudentsByCourseId(int id)
+    public async Task<ActionResult<ApiResponse>> GetEnrolledStudents(int id, int pageNo = 1, int pageSize = 10, string searchString = "")    
     {
-        var query = new GetStudentsByCourseIdQuery { Id = id };
-        var result = await _mediator.Send(query);
+        var result = await _mediator.Send(new GetEnrolledStudentsQuery(id, pageNo, pageSize, searchString));
         return HandleResponse(this, result);
     }
 
@@ -142,17 +141,14 @@ public class CoursesController : ApiBaseController
 
     [HttpGet("instructors/{id}")]
     [Authorize]
-    [SwaggerOperation(
-    Summary = "Get courses by instructor id", Description = "Retrieves approved courses for a specific instructor.")]
+    [SwaggerOperation(Summary = "Get courses by instructor id", Description = "Retrieves approved courses for a specific instructor.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Courses retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Instructor not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
     public async Task<ActionResult<ApiResponse>> GetCoursesByInstructorId(int id)
     {
         var query = new GetCoursesByInstructorIdQuery(id);
-
         var result = await _mediator.Send(query);
-
         return HandleResponse(this, result);
     }
 }

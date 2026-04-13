@@ -5,10 +5,10 @@ using LMS.Application.Features.Attempts.Shared.DTO;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
 using LMS.Domain.Entities.Quizzes;
-using LMS.Domain.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper.QueryableExtensions;
+using LMS.Application.Contracts.UnitOfWork;
 
 namespace LMS.Application.Features.Attempts.Queries.GetAttemptInstructor;
 

@@ -3,9 +3,9 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
-using LMS.Domain.Repositories;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
+using LMS.Application.Contracts.UnitOfWork;
 
 namespace LMS.Application.Features.Auth.Commands.ResetPassword;
 

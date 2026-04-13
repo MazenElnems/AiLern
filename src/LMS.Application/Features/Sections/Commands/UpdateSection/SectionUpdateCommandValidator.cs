@@ -1,7 +1,4 @@
 ﻿using FluentValidation;
-using LMS.Application.Features.Sections.Commands.CreateSection;
-using LMS.Domain.Entities;
-using LMS.Domain.Repositories;
 
 namespace LMS.Application.Features.Sections.Commands.UpdateSection;
 

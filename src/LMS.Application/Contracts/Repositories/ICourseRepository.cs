@@ -1,7 +1,7 @@
 ﻿using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Users;
 
-namespace LMS.Domain.Repositories;
+namespace LMS.Application.Contracts.Repositories;
 
 public interface ICourseRepository : IBaseRepository<Course>
 {

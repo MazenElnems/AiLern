@@ -1,6 +1,6 @@
 using LMS.Domain.Entities.Courses;
 
-namespace LMS.Domain.Repositories;
+namespace LMS.Application.Contracts.Repositories;
 
 public interface IEnrollmentRepository : IBaseRepository<Enrollment>
 {

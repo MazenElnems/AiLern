@@ -1,26 +1,20 @@
 ﻿using LMS.Application.Contracts.Jobs;
-using LMS.Domain.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using LMS.Application.Contracts.UnitOfWork;
 
-namespace LMS.Infrastructure.Jobs
+namespace LMS.Infrastructure.Jobs;
+
+public class RemoveExpiredRefreshTokensJob : IRemoveExpiredRefreshTokensJob
 {
-    public class RemoveExpiredRefreshTokensJob : IRemoveExpiredRefreshTokensJob
+    private readonly IUnitOfWork _unitOfWork;
+
+    public RemoveExpiredRefreshTokensJob(IUnitOfWork unitOfWork)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+    }
 
-        public RemoveExpiredRefreshTokensJob(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-
-        public async Task ExecuteAsync()
-        {
-            await _unitOfWork.RefreshTokens.RemoveExpiredRefreshTokensAsync();
-            await _unitOfWork.CommitAsync();
-        }
+    public async Task ExecuteAsync()
+    {
+        await _unitOfWork.RefreshTokens.RemoveExpiredRefreshTokensAsync();
+        await _unitOfWork.CommitAsync();
     }
 }

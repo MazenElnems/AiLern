@@ -1,7 +1,6 @@
 ﻿using LMS.Domain.Entities.Quizzes;
-using LMS.Domain.Repositories;
 
-namespace LMS.Domain.Interfaces;
+namespace LMS.Application.Contracts.Repositories;
 
 public interface IQuestionsRepository : IBaseRepository<Question>
 {

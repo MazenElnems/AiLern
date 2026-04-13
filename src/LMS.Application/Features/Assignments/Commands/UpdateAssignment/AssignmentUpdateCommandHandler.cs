@@ -1,12 +1,12 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Assignments.Shared.DTO;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
-using LMS.Domain.Repositories;
 using MediatR;
 
 namespace LMS.Application.Features.Assignments.Commands.UpdateAssignment;

@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace LMS.Domain.Repositories;
+namespace LMS.Application.Contracts.Repositories;
 
 public interface IBaseRepository<T> where T : class
 {

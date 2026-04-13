@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using LMS.Domain.Repositories;
+using LMS.Application.Contracts.UnitOfWork;
 
 namespace LMS.Application.Features.Sections.Commands.CreateSection;
 

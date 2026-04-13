@@ -1,6 +1,6 @@
-﻿using LMS.Domain.Repositories;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using LMS.Domain.Entities.Users;
+using LMS.Application.Contracts.Repositories;
 
 namespace LMS.Infrastructure.Persistence.Repositories;
 
