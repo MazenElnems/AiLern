@@ -10,6 +10,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using LMS.Application.Features.Admin.Queries.GetAdminDashboard;
 
 namespace LMS.API.Controllers;
 
@@ -23,7 +24,7 @@ public class DashboardController : ApiBaseController
     {
         _mediator = mediator;
     }
-    [HttpGet("my-dashboard")]
+    [HttpGet("instructor")]
     [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Get instructor dashboard ", Description = "Retrieves instructor dashboard.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Instructor dashboard retrieved successfully.", typeof(ApiResponse))]
@@ -33,6 +34,19 @@ public class DashboardController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetInstructorDashboard()
     {
         var result = await _mediator.Send(new GetInstructorDashboardQuery());
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("admin")]
+    [Authorize(Roles = UserRoles.Admin)]
+    [SwaggerOperation(Summary = "Get admin dashboard ", Description = "Retrieves admin dashboard.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Admin dashboard retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "User not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetAdminDashboard()
+    {
+        var result = await _mediator.Send(new GetAdminDashboardQuery());
         return HandleResponse(this, result);
     }
 
