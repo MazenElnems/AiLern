@@ -15,7 +15,7 @@ public interface IUnitOfWork
     public IBaseRepository<AssignmentSubmissionFile> SubmissionFiles { get; }
     public IBaseRepository<AssignmentSubmission> AssignmentSubmissions { get; }
     public IBaseRepository<Section> Sections { get; }
-    public IBaseRepository<Quiz> Quizzes { get; }
+    public IQuizRepository Quizzes { get; }
     public IQuestionsRepository Questions { get; }
     public IBaseRepository<AIQuestionGenerationJob> QuestionGenerationJobs { get; }
     public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }

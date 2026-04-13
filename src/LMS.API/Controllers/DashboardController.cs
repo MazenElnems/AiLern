@@ -1,8 +1,9 @@
 ﻿using LMS.API.Controllers.Common;
 using LMS.API.Models;
+using LMS.Application.Features.Dashboards.Queries.CourseDashboard;
+using LMS.Application.Features.Dashboards.Queries.GetQuizDashboard;
 using LMS.Application.Features.Instructors.Queries.GetMyDashboard;
 using LMS.Application.Features.Instructors.Queries.GetUpcomingEvents;
-using LMS.Application.Features.Dashboards.Queries.GetQuizDashboard;
 using LMS.Domain.Constants;
 using LMS.Domain.Enums;
 using MediatR;
@@ -52,6 +53,14 @@ public class DashboardController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetUpcomingEvents(EventType eventType, int pageNo = 1, int pageSize = 10)
     {
         var result = await _mediator.Send(new GetUpcomingEventsQuery(eventType,pageNo, pageSize));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("course/{courseId}")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> GetCourseDashboard(int courseId)
+    {
+        var result = await _mediator.Send(new GetCourseDashboardQuery(courseId));
         return HandleResponse(this, result);
     }
 }

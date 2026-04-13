@@ -18,7 +18,7 @@ internal class UnitOfWork : IUnitOfWork
     public IBaseRepository<AssignmentSubmissionFile> SubmissionFiles { get; }
     public IBaseRepository<Section> Sections { get; }
     public IBaseRepository<AssignmentSubmission> AssignmentSubmissions { get; }
-    public IBaseRepository<Quiz> Quizzes { get; }
+    public IQuizRepository Quizzes { get; }
     public IQuestionsRepository Questions { get; }
     public IBaseRepository<AIQuestionGenerationJob> QuestionGenerationJobs { get; }
     public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
@@ -36,7 +36,7 @@ internal class UnitOfWork : IUnitOfWork
         Sections = new BaseRepository<Section>(_context);
         SubmissionFiles = new BaseRepository<AssignmentSubmissionFile>(_context);
         AssignmentSubmissions = new BaseRepository<AssignmentSubmission>(_context);
-        Quizzes = new BaseRepository<Quiz>(_context);
+        Quizzes = new QuizRepository(_context);
         Questions = new QuestionsRepository(_context);
         QuestionGenerationJobs = new BaseRepository<AIQuestionGenerationJob>(_context);
         QuestionGenerationFiles = new BaseRepository<QuestionGenerationFiles>(_context);
