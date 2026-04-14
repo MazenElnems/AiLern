@@ -1,4 +1,4 @@
-﻿using LMS.Application.Contracts.ExternalServices;
+﻿using LMS.Application.Contracts.Services;
 using System.Security.Cryptography;
 using System.Text;
 

@@ -1,6 +1,6 @@
 using AutoMapper;
-using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.Jobs;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;

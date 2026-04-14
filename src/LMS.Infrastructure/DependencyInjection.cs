@@ -1,10 +1,10 @@
 using Amazon.S3;
 using Hangfire;
 using LMS.Application.Common.Interfaces;
-using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.Identity;
 using LMS.Application.Contracts.Jobs;
 using LMS.Application.Contracts.Repositories;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.Settings;
 using LMS.Domain.Entities.Users;
@@ -34,6 +34,7 @@ public static class DependencyInjection
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IWasabiService, WasabiService>();
+        services.AddScoped<INotificationService, SignalRNotificationService>();
         services.AddScoped<IEmailSender,EmailSender>();
         services.AddScoped<IBunnyUrlSigner, BunnyUrlSigner>();
         services.AddScoped<IDbInitializer, DbInitializer>();

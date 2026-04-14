@@ -1,4 +1,4 @@
-﻿using LMS.Application.Contracts.ExternalServices;
+﻿using LMS.Application.Contracts.Services;
 using LMS.Application.Settings;
 using MailKit.Net.Smtp;
 using MailKit.Security;

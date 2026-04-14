@@ -1,7 +1,7 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.Jobs;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Assignments.Shared.DTO;
