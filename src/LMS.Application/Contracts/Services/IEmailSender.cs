@@ -1,4 +1,4 @@
-﻿namespace LMS.Application.Contracts.ExternalServices;
+﻿namespace LMS.Application.Contracts.Services;
 
 public interface IEmailSender
 {
