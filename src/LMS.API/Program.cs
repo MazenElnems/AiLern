@@ -5,6 +5,7 @@ using LMS.API.Middleware;
 using LMS.API.Models;
 using LMS.Application;
 using LMS.Infrastructure;
+using LMS.Infrastructure.Hubs;
 using LMS.Infrastructure.Jobs;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -23,6 +24,8 @@ builder.Host.UseSerilog((context, configuration) =>
 });
 
 builder.Services.AddAuthentication();
+
+builder.Services.AddSignalR();
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
@@ -88,5 +91,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<NotificationHub>("/notificationHub")
+   .RequireAuthorization();
 
 app.Run();
