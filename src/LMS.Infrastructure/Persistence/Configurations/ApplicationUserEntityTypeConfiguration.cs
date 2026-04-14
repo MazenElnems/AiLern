@@ -12,5 +12,11 @@ public class ApplicationUserEntityTypeConfiguration : IEntityTypeConfiguration<A
         .HasValue<Admin>("Admin")
         .HasValue<Student>("Student")
         .HasValue<Instructor>("Instructor");
+
+        builder
+            .HasMany(u => u.Notifications)
+            .WithOne(n => n.User)
+            .HasForeignKey(n => n.UserId)
+            .IsRequired();
     }
 }

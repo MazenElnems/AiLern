@@ -1,6 +1,7 @@
 ﻿using LMS.Application.Contracts.Repositories;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Entities.Courses;
+using LMS.Domain.Entities.Notification;
 using LMS.Domain.Entities.Quizzes;
 
 namespace LMS.Application.Contracts.UnitOfWork;
@@ -20,7 +21,9 @@ public interface IUnitOfWork
     public IBaseRepository<AIQuestionGenerationJob> QuestionGenerationJobs { get; }
     public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
     public IBaseRepository<Attempt> Attempts { get; }
-    public IAnswersRepository Answers { get; }   
+    public IAnswersRepository Answers { get; }
+    public IBaseRepository<Notification> Notfications { get; }
+    public IBaseRepository<UserNotification> UserNotifications { get; }    
 
     Task<int> CommitAsync();
     Task<int> CommitAsync(CancellationToken cancellationToken);
