@@ -46,6 +46,7 @@ public static class DependencyInjection
         services.AddScoped<IQuizPublishSchedulerJob, QuizPublishSchedulerJob>();
         services.AddScoped<IGenerateQuestionsJob, GenerateQuestionsJob>();
         services.AddScoped<IAutoSubmitAttemptJob, AutoSubmitAttemptJob>();
+        services.AddScoped<ISendEmailToUsersJob, SendEmailToUsersJob>();
         services.AddScoped<ICalculateStudentScoreJob, CalculateStudentScoreJob>();
         services.AddScoped<IAIService, AIService>();
         services.AddScoped<IAnswersRepository, AnswersRepository>();

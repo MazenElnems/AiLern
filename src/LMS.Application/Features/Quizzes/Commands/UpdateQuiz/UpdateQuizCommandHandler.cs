@@ -1,8 +1,10 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.Contracts.Jobs;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
+using LMS.Domain.Entities.Notification;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
@@ -15,12 +17,14 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IBackgroundJobService _backgroundJobService;
+    private readonly INotificationService _notificationService;
 
-    public UpdateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IBackgroundJobService backgroundJobService)
+    public UpdateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IBackgroundJobService backgroundJobService, INotificationService notificationService)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _backgroundJobService = backgroundJobService;
+        _notificationService = notificationService;
     }
 
     public async Task<Result<Guid>> Handle(UpdateQuizCommand request, CancellationToken cancellationToken)
@@ -41,7 +45,15 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
             return DomainErrors.Quiz.UpdateNotAllowedAfterStart;
 
         if(quiz.Status == QuizStatus.Scheduled && request.Quiz.Status != QuizStatus.Scheduled)
-            _backgroundJobService.Delete(quiz.PublishBackgroundJobId!);
+        {
+
+            if (!string.IsNullOrEmpty(quiz.PublishBackgroundJobId))
+            {
+                _backgroundJobService.Delete(quiz.PublishBackgroundJobId);
+            }
+        }
+
+        var previousStatus = quiz.Status;
 
         quiz.Title = request.Quiz.Title;
         quiz.Description = request.Quiz.Description;
@@ -59,13 +71,30 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
         else if (quiz.Status == QuizStatus.Draft)
             quiz.PublishedAt = null;
 
-        else if (quiz.Status == QuizStatus.Scheduled)
+        await _unitOfWork.CommitAsync();
+
+        if (quiz.Status == QuizStatus.Scheduled)
         {
             quiz.PublishedAt = null;
             quiz.PublishBackgroundJobId = _backgroundJobService.Schedule<IQuizPublishSchedulerJob>((job) => job.ExecuteAsync(quiz.Id), request.Quiz.PublishedDate!.Value);
+            await _unitOfWork.CommitAsync();
+
+
         }
 
-        await _unitOfWork.CommitAsync();
+
+        if (previousStatus != QuizStatus.Published && quiz.Status == QuizStatus.Published)
+        {
+            await _notificationService.NotifyAsync(
+                quiz.CourseId,
+                $"{quiz.Course.Name}: New Quiz",
+                $"\"{quiz.Title}\" is now available. Start solving now!",
+                NotificationType.NewQuizAdded,
+                $"https://www.ailern.me/quizzes/{quiz.Id}",
+                "Start Quiz"
+            );
+        }
+
         return Result<Guid>.Success(quiz.Id, "quiz updated successfully.");
     }
 }

@@ -8,6 +8,7 @@ public interface IBaseRepository<T> where T : class
     public IQueryable<T> TrackedQuery { get; }
 
     Task InsertAsync(T entity);
+    Task InsertRangeAsync(IEnumerable<T> entity);
 
     void Update(T entity);
     void UpdateRange(T[] entities); 
