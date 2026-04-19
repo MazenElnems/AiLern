@@ -5,6 +5,7 @@ using LMS.Application.Features.Quizzes.Commands.CreateQuiz;
 using LMS.Application.Features.Quizzes.Commands.DeleteQuiz;
 using LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
 using LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
+using LMS.Application.Features.Quizzes.Commands.UpdateQuizStatus;
 using LMS.Application.Features.Quizzes.Commands.UpsertQuestions;
 using LMS.Application.Features.Quizzes.Queries.GetAllQuizzes;
 using LMS.Application.Features.Quizzes.Queries.GetAttemptsByQuizId;
@@ -35,11 +36,12 @@ public class QuizzesController : ApiBaseController
         _mapper = mapper;
     }
 
-    [HttpPost]
+    [HttpPost("/api/courses/{courseId}/quizzes")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> Create([FromBody] QuizRequest request)
+    public async Task<ActionResult<ApiResponse>> Create(int courseId, CreateQuizCommand command)
     {
-        var result = await _mediator.Send(new CreateQuizCommand(request.CourseId, request));
+        command.CourseId = courseId;
+        var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
 
@@ -52,9 +54,18 @@ public class QuizzesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Assignment not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> Update(Guid id, QuizRequest command)
+    public async Task<ActionResult<ApiResponse>> Update(Guid id, UpdateQuizCommand command)
     {
-        var result = await _mediator.Send(new UpdateQuizCommand(id, command));
+        command.QuizId = id;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("{id}/update-status")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> UpdateStatus(Guid id, QuizStatus status)
+    {
+        var result = await _mediator.Send(new UpdateQuizStatusCommand(id, status));
         return HandleResponse(this, result);
     }
 
