@@ -63,7 +63,7 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
                     OrderIndex = file.OrderIndex,
                     UploadDate = file.UploadDate,
                     FileUrl = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl,
-                                            _bunnyOptions.Token, file.StoragePath, TimeSpan.FromMinutes(5))
+                                            _bunnyOptions.Token, file.StoragePath, TimeSpan.FromMinutes(60))
                 }).ToList();
 
             return sectionDto;
