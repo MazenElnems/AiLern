@@ -52,7 +52,7 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
 
             foreach(var file in request.Files)
             {
-                var key = $"courses/{course.Name}/Materials/{Guid.NewGuid()}_{file.FileName}";
+                var key = $"courses/{course.Id}/Materials/{Guid.NewGuid()}.{file.FileName.Split('.').Last()}";
                 var preSignedUrl = await _wasabiService.GeneratePresignedUploadUrlAsync(key, file.ContentType, 2);
 
                 section.MaterialFiles.Add(new MaterialFile

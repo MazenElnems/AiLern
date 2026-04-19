@@ -5,7 +5,7 @@ public interface IBunnyUrlSigner
     string GenerateSignedUrl(
         string baseUrl,
         string tokenKey,
-        string filePath,
+        string path,
         TimeSpan validFor
     );
 }

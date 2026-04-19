@@ -1,71 +1,72 @@
-using AutoMapper;
-using LMS.Application.Common.Results.Generic;
-using LMS.Application.Contracts.Jobs;
+using LMS.Application.Common.Results;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Quizzes;
-using LMS.Domain.Enums;
 using LMS.Domain.Errors;
 using MediatR;
 
 namespace LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
 
-public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Result<Guid>>
+public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
-    private readonly IBackgroundJobService _backgroundJobService;
 
-    public UpdateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IBackgroundJobService backgroundJobService)
+    public UpdateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
-        _backgroundJobService = backgroundJobService;
     }
 
-    public async Task<Result<Guid>> Handle(UpdateQuizCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateQuizCommand request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.GetCurrentUser().Id;
+        var instructorId = _userContext.GetCurrentUser().Id;
+
         var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId,
             includeProperties: [nameof(Quiz.Course)]);
-        if (quiz is null)
-            return Result<Guid>.Failure(DomainErrors.Quiz.NotFound(request.QuizId));
-        if (quiz.Course.InstructorId != userId)
-            return Result<Guid>.Failure(DomainErrors.Quiz.NotOwned);
 
-        if (quiz.AvailableUntil < DateTime.UtcNow)
-            return DomainErrors.Quiz.QuizFinished;
+        if(quiz == null)
+            return DomainErrors.Quiz.NotFound(request.QuizId);
 
-        // Can't update quiz after start time
-        if (DateTime.UtcNow > quiz.AvailableFrom)
-            return DomainErrors.Quiz.UpdateNotAllowedAfterStart;
+        if(quiz.Course.InstructorId != instructorId)
+            return DomainErrors.Quiz.NotOwned;
 
-        if(quiz.Status == QuizStatus.Scheduled && request.Quiz.Status != QuizStatus.Scheduled)
-            _backgroundJobService.Delete(quiz.PublishBackgroundJobId!);
-
-        quiz.Title = request.Quiz.Title;
-        quiz.Description = request.Quiz.Description;
-        quiz.AvailableFrom = request.Quiz.AvailableFrom;
-        quiz.AvailableUntil = request.Quiz.AvailableUntil;
-        quiz.ShowResultOnClose = request.Quiz.ShowResultOnClose;
-        quiz.MaximumAttempts = request.Quiz.MaximumAttempts;
-        quiz.ShuffleQuestions = request.Quiz.ShuffleQuestions;
-        quiz.ShuffleOptions = request.Quiz.ShuffleOptions;
-        quiz.Status = request.Quiz.Status;
-
-        if (quiz.Status == QuizStatus.Published)
-            quiz.PublishedAt = DateTime.UtcNow;
-
-        else if (quiz.Status == QuizStatus.Draft)
-            quiz.PublishedAt = null;
-
-        else if (quiz.Status == QuizStatus.Scheduled)
+        // Quiz started
+        if(quiz.AvailableFrom < DateTime.UtcNow)
         {
-            quiz.PublishedAt = null;
-            quiz.PublishBackgroundJobId = _backgroundJobService.Schedule<IQuizPublishSchedulerJob>((job) => job.ExecuteAsync(quiz.Id), request.Quiz.PublishedDate!.Value);
-        }
+            // Can only increase AvailableUntil, MaximumAttempts, AttemptTimeLimit
+            if (request.MaximumAttempts < quiz.MaximumAttempts)
+                return DomainErrors.Quiz.CannotDecreaseMaximumAttempts;
 
-        await _unitOfWork.CommitAsync();
-        return Result<Guid>.Success(quiz.Id, "quiz updated successfully.");
+            if (request.AttemptTimeLimit < quiz.AttemptTimeLimit)
+                return DomainErrors.Quiz.CannotDecreaseAttemptTimeLimit;
+
+            if (request.AvailableUntil < quiz.AvailableUntil)
+                return DomainErrors.Quiz.CannotShortenQuizDuration;
+
+            quiz.MaximumAttempts = request.MaximumAttempts;
+            quiz.AvailableUntil = request.AvailableUntil;
+            quiz.AttemptTimeLimit = request.AttemptTimeLimit;
+
+            await _unitOfWork.CommitAsync(cancellationToken);
+
+            return Result.Success("Quiz updated successfully");
+        }
+        // Not Started (can't set quiz start time at the pasts)
+        else if(request.AvailableFrom < DateTime.UtcNow)
+            return DomainErrors.Quiz.StartTimeCannotBeInThePast;
+
+        quiz.Title = request.Title;
+        quiz.Description = request.Description;
+        quiz.MaximumAttempts = request.MaximumAttempts;
+        quiz.AvailableUntil = request.AvailableUntil;
+        quiz.AttemptTimeLimit = request.AttemptTimeLimit;
+        quiz.AvailableFrom = request.AvailableFrom;
+        quiz.ShowResultOnClose = request.ShowResultOnClose;
+        quiz.ShuffleQuestions = request.ShuffleQuestions;
+        quiz.ShuffleOptions = request.ShuffleOptions;
+
+        await _unitOfWork.CommitAsync(cancellationToken);
+        return Result.Success("Quiz updated successfully");
     }
 }

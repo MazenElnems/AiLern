@@ -40,10 +40,6 @@ public class QuizEntityTypeConfiguration : IEntityTypeConfiguration<Quiz>
             .HasColumnType("DATETIME2")
             .IsRequired();
 
-        builder.Property(q => q.UpdatedAt)
-            .HasColumnType("DATETIME2")
-            .IsRequired(false);
-
         builder.Property(q => q.Status)
             .HasConversion<string>()
             .HasColumnType("VARCHAR(10)")
