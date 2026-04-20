@@ -57,7 +57,8 @@ public class GetStudentSubmissionsForAssignmentQueryHandler
             Name = s.Student.FullName,
             StudentId = s.Student.Id,
             IsLate = s.IsLate,
-            SubmissionDate = s.SubmissionDate
+            SubmissionDate = s.SubmissionDate,
+            Feedback = s.Feedback
         }).ToListAsync();
 
         return PaginationResult<StudentsAssignmentSubmissionsDto>.CreatePaginationResult(

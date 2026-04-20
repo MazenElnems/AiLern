@@ -8,6 +8,7 @@ public class AssignmentWithFilesDto
     public DateTime DueDate { get; set; }
     public bool AllowLateSubmission { get; set; }
     public DateTime CreatedAt { get; set; }
+    public int CourseId { get; set; }
     public bool IsPublished { get; set; }
-    public List<string> FileUrls { get; set; } = new(); 
+    public List<SubmissionFilesDto> SubmissionFiles { get; set; } = new(); 
 }

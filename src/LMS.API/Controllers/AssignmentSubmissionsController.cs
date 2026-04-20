@@ -2,6 +2,7 @@ using LMS.API.Controllers.Common;
 using LMS.API.Models;
 using LMS.Application.Features.AssignmentSubmissions.Commands.ConfirmUpload;
 using LMS.Application.Features.AssignmentSubmissions.Commands.DeleteSubmission;
+using LMS.Application.Features.AssignmentSubmissions.Commands.ReviewSubmission;
 using LMS.Application.Features.AssignmentSubmissions.Commands.Submit;
 using LMS.Application.Features.AssignmentSubmissions.Queries.GetStudentSubmissionsForAssignment;
 using LMS.Application.Features.AssignmentSubmissions.Queries.GetSubmission;
@@ -53,6 +54,21 @@ public class AssignmentSubmissionsController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> Delete(int id)
     {
         var result = await _mediator.Send(new SubmissionDeleteCommand(id));
+        return HandleResponse(this, result);
+    }
+    [HttpPut("{id}")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Review submission", Description = "Review a submission by ID.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Submission reviewed successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Submission not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> Review(int id, SubmissionReviewCommand command)
+    {
+        command.Id = id;
+        var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
 
