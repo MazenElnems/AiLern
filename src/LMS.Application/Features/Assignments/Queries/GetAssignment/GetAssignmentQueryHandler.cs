@@ -52,8 +52,12 @@ public class GetAssignmentQueryHandler : IRequestHandler<GetAssignmentQuery, Res
             return DomainErrors.Common.Forbidden("It's not allowed to access this assignment.");
 
         var assignmentDto = _mapper.Map<AssignmentWithFilesDto>(assignment);
-        assignmentDto.FileUrls = assignment.Files
-            .Select(file => _urlSigner.GenerateSignedUrl(_bunnyOptions.BaseUrl , _bunnyOptions.Token, file.StoragePath, TimeSpan.FromMinutes(5)))
+        assignmentDto.SubmissionFiles = assignment.Files
+            .Select(file => new SubmissionFilesDto
+            { 
+                FileUrl = _urlSigner.GenerateSignedUrl(_bunnyOptions.BaseUrl , _bunnyOptions.Token, file.StoragePath, TimeSpan.FromMinutes(5)) , 
+                FileName = file.FileName
+            })
             .ToList();
 
         return assignmentDto;

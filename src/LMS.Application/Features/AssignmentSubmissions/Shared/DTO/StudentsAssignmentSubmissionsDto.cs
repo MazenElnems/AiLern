@@ -1,4 +1,4 @@
-﻿namespace LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
+namespace LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
 
 public class StudentsAssignmentSubmissionsDto
 {
@@ -8,4 +8,5 @@ public class StudentsAssignmentSubmissionsDto
     public string Email { get; set; }
     public DateTime SubmissionDate { get; set; }
     public bool IsLate { get; set; }
+    public string? Feedback { get; set; }
 }
