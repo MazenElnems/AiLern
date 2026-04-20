@@ -68,7 +68,7 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
         List<string> keys = new();
         foreach (var file in request.FileMetaData)
         {
-            var key = $"courses/{course.Name}/assignments/{assignment.Id}/submissions/{submission.Id}/{file.FileName}";
+            var key = $"courses/{course.Id}/assignments/{assignment.Id}/submissions/{user.Id}/{file.FileName}";
             var url = await _wasabiService.GeneratePresignedUploadUrlAsync(key, file.ContentType, 2);
             fileUrls.Add(url);
 
@@ -83,9 +83,11 @@ public class AssignmentSubmissionCreateCommandHandler : IRequestHandler<Assignme
         }
 
         await _unitOfWork.CommitAsync();
-        _backgroundService.Schedule<IConfirmUploadedFilesJob>(
-            job => job.ExecuteAsync(keys),
-            TimeSpan.FromMinutes(2));
+
+        if(keys.Any())
+            _backgroundService.Schedule<IConfirmUploadedFilesJob>(
+                job => job.ExecuteAsync(keys),
+                TimeSpan.FromMinutes(2));
 
         var dto = _mapper.Map<AssignmentSubmissionDto>(submission);
         dto.UploadFilesUrls = fileUrls;
