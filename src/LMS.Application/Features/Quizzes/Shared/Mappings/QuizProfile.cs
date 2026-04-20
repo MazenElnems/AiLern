@@ -28,6 +28,6 @@ public class QuizProfile : Profile
 
         CreateMap<GenerateQuestionByAIRequest, GenerateQuestionsCommand>();
 
-        CreateMap<QuizRequest, Quiz>();
+        CreateMap<CreateQuizCommand, Quiz>();
     }
 }

@@ -28,10 +28,13 @@ public class GenerateQuestionsCommandHandler : IRequestHandler<GenerateQuestions
     public async Task<Result<Guid>> Handle(GenerateQuestionsCommand request, CancellationToken cancellationToken)
     {
         var userId = _userContext.GetCurrentUser().Id;
+
         var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId,
             includeProperties: [nameof(Quiz.Course)]);
+
         if (quiz is null)
             return Result<Guid>.Failure(DomainErrors.Quiz.NotFound(request.QuizId));
+
         if (quiz.Course.InstructorId != userId)
             return Result<Guid>.Failure(DomainErrors.Quiz.NotOwned);
 
@@ -54,7 +57,7 @@ public class GenerateQuestionsCommandHandler : IRequestHandler<GenerateQuestions
             var newUploadedFileStreams = request.NewUploadedFiles.Select(f => f.OpenReadStream()).ToList();
             var newUploadedFileKeys = request.NewUploadedFiles.Select(f =>
             {
-                var filePath = $"ailern-storage2/quiz-{request.QuizId}/uploaded/{Guid.NewGuid()}-{f.FileName}";
+                var filePath = $"courses/{course.Id}/quizzes/{request.QuizId}/uploaded/{Guid.NewGuid()}.{f.FileName.Split('.').Last()}";
                 return filePath;
             }).ToList();
 
@@ -63,7 +66,7 @@ public class GenerateQuestionsCommandHandler : IRequestHandler<GenerateQuestions
             questionGenerationFiles.AddRange(newUploadedFileKeys.Select(f => new QuestionGenerationFiles
             {
                 Id = Guid.NewGuid(),
-                FileName = f.Split('/').Last().Split('-').Last(),
+                FileName = f.Split('/').Last().Split('.').Last(),
                 StoragePath = f,
                 IsCourseMaterial = false,
                 HasUploadedToAIService = false,

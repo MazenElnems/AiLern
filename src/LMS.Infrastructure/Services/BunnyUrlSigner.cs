@@ -8,20 +8,28 @@ public class BunnyUrlSigner : IBunnyUrlSigner
 {
     public string GenerateSignedUrl(string baseUrl, string tokenKey, string filePath, TimeSpan validFor)
     {
-        var expires = DateTimeOffset.UtcNow
-            .Add(validFor)
-            .ToUnixTimeSeconds();
+        var normalizedPath = filePath.StartsWith('/') ? filePath : "/" + filePath;
+        var baseTrimmed = baseUrl.TrimEnd('/');
+        var uri = new Uri(baseTrimmed + normalizedPath);
 
-        var path = filePath.StartsWith("/") ? filePath : "/" + filePath;
+        var expires = DateTimeOffset.UtcNow.Add(validFor).ToUnixTimeSeconds().ToString();
+        var signaturePath = uri.AbsolutePath;
 
-        var hashInput = $"{tokenKey}{path}{expires}";
-        var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(hashInput));
+        // message = signaturePath + expires
+        var message = string.Concat(signaturePath, expires);
+        var token = "HS256-" + HmacSha256Base64Url(tokenKey, message);
 
-        var token = Convert.ToBase64String(hashBytes)
-            .Replace("+", "-")
-            .Replace("/", "_")
-            .Replace("=", "");
+        var origin = $"{uri.Scheme}://{uri.Authority}";
+        return $"{origin}{signaturePath}?token={token}&expires={expires}";
+    }
 
-        return $"{baseUrl}{path}?token={token}&expires={expires}";
+    private static string HmacSha256Base64Url(string key, string message)
+    {
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(key));
+        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(message));
+        return Convert.ToBase64String(hash)
+            .Replace('+', '-')
+            .Replace('/', '_')
+            .TrimEnd('=');
     }
 }

@@ -3,6 +3,5 @@
 public enum QuizStatus
 {
     Draft,
-    Published,
-    Scheduled
+    Published
 }

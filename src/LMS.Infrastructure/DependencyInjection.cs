@@ -42,7 +42,6 @@ public static class DependencyInjection
         services.AddScoped<IBackgroundJobService, HangfireJobService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-        services.AddScoped<IQuizPublishSchedulerJob, QuizPublishSchedulerJob>();
         services.AddScoped<IGenerateQuestionsJob, GenerateQuestionsJob>();
         services.AddScoped<IAutoSubmitAttemptJob, AutoSubmitAttemptJob>();
         services.AddScoped<ICalculateStudentScoreJob, CalculateStudentScoreJob>();

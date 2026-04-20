@@ -1,11 +1,7 @@
-﻿using LMS.Application.Common.Results.Generic;
-using MediatR;
+﻿namespace LMS.Application.Features.Quizzes.Shared.Requests;
 
-namespace LMS.Application.Features.Quizzes.Commands.CreateQuiz;
-
-public class CreateQuizCommand() : IRequest<Result<Guid>>
+public class CreateQuizRequest
 {
-    public int CourseId { get; set; }   
     public string Title { get; set; }
     public string? Description { get; set; }
     public DateTime AvailableFrom { get; set; }
@@ -13,7 +9,6 @@ public class CreateQuizCommand() : IRequest<Result<Guid>>
     public int AttemptTimeLimit { get; set; }
     public int MaximumAttempts { get; set; }
     public bool ShowResultOnClose { get; set; }
-    public bool ShuffleQuestions { get; set; }
+    public bool ShuffleQuestions{ get; set; }
     public bool ShuffleOptions { get; set; }
 }
-
