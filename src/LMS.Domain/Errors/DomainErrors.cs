@@ -203,6 +203,9 @@ public static class DomainErrors
 
         public static Error AlreadySubmitted =>
             Common.BusinessRule("Submission.AlreadySubmitted", "You have already submitted this assignment.");
+
+        public static Error SubmissionNotFound =>
+            Common.NotFound("Submission.NotFound", "You have not submitted this assignment yet.");
     }
 
     public static class User
