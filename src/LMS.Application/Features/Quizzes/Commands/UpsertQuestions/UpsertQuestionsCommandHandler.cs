@@ -61,6 +61,7 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
                 {
                     updatedQuestion.QuestionText = question.QuestionText;
                     updatedQuestion.Mark = question.Mark;
+                    updatedQuestion.Type = question.QuestionType;
                     updatedQuestion.Explanation = question.Explanation;
                     updatedQuestion.Instructions = question.Instructions;
                     updatedQuestion.Order = order;

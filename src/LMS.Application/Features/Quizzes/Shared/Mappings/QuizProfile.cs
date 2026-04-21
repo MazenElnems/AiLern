@@ -20,7 +20,8 @@ public class QuizProfile : Profile
         CreateMap<AIQuestionGenerationJob, GetJobDto>();
 
         CreateMap<Quiz, GetAllQuizDto>();
-        CreateMap<Question, QuestionDto>();
+        CreateMap<Question, QuestionDto>()
+            .ForMember(dest => dest.QuestionType, opt => opt.MapFrom(src => src.Type));
 
         CreateMap<Option, OptionDto>();
 
