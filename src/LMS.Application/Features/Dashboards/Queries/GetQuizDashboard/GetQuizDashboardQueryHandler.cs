@@ -147,7 +147,7 @@ public class GetQuizDashboardQueryHandler : IRequestHandler<GetQuizDashboardQuer
             var start = Math.Round(quarterOfQuiz * (i - 1));
             var end = Math.Round(quarterOfQuiz * i);
 
-            var count = times.Count(t => (t / 60) >= start && (t / 60) <= end);
+            var count = times.Count(t => t >= start && t <= end);
 
             submissionTimeDistribution.Add(
                 new SubmissionTimeBucketDto { 
