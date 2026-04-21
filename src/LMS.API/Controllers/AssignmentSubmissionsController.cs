@@ -5,6 +5,7 @@ using LMS.Application.Features.AssignmentSubmissions.Commands.DeleteSubmission;
 using LMS.Application.Features.AssignmentSubmissions.Commands.ReviewSubmission;
 using LMS.Application.Features.AssignmentSubmissions.Commands.Submit;
 using LMS.Application.Features.AssignmentSubmissions.Queries.GetStudentSubmissionsForAssignment;
+using LMS.Application.Features.AssignmentSubmissions.Queries.GetSubmission;
 using LMS.Application.Features.AssignmentSubmissions.Queries.GetSubmissionFiles;
 using LMS.Domain.Constants;
 using MediatR;
@@ -100,4 +101,13 @@ public class AssignmentSubmissionsController : ApiBaseController
         var result = await _mediator.Send(new GetAssignmentSubmissionFilesQuery(assignmentId,submissionId));
         return HandleResponse(this, result);
     }
+
+    [HttpGet("/api/assignments/{assignmentId}/my-submission")]
+    [Authorize(Roles = UserRoles.Student)]
+    public async Task<ActionResult<ApiResponse>> GetSubmissionByAssinmentId(int assignmentId)
+    {
+        var result = await _mediator.Send(new GetSubmissionByAssignmentIdQuery {AssignmentId = assignmentId });
+        return HandleResponse(this, result);
+    }
+
 }

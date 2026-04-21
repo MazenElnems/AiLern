@@ -73,8 +73,23 @@ public static class DomainErrors
     }
     public static class Quiz
     {
-        public static Error UpdateNotAllowedAfterStart =>
-            Common.BusinessRule("Quiz.UpdateNotAllowedAfterStart", "Cannot update quiz after it has started.");
+        public static Error QuizStarted  =>
+            Common.BusinessRule("Quiz.QuizStarted", "Cannot modify the quiz after it has started.");
+
+        public static Error CannotDecreaseMaximumAttempts 
+            => Common.BusinessRule("Quiz.CannotDecreaseMaximumAttempts", "Cannot decrease the maximum number of attempts after the quiz has started.");
+        public static Error CannotPublishEmptyQuiz
+            => Common.BusinessRule("Quiz.CannotPublishEmptyQuiz", "Cannot publish an empty quiz.");
+        public static Error CannotDecreaseAttemptTimeLimit
+            => Common.BusinessRule("Quiz.CannotDecreaseAttemptTimeLimit", "Cannot decrease the attempt time limit after the quiz has started.");
+        public static Error CannotShortenQuizDuration
+            => Common.BusinessRule("Quiz.CannotShortenQuizDuration", "Cannot shorten the quiz duration after it has started.");
+        public static Error StartTimeCannotBeInThePast
+            => Common.BusinessRule("Quiz.StartTimeCannotBeInThePast", "Start time cannot be in the past.");
+        public static Error CannotDeleteQuizDuration =>
+            Common.BusinessRule("Quiz.CannotDeleteQuizDuration", "Cannot delete quiz after it has started.");
+        public static Error UpdateQuestionsAfterQuizStarted =>
+            Common.BusinessRule("Quiz.UpdateQuestionsAfterQuizStarted", "Cannot update questions after the quiz has started.");
         public static Error NotFound(Guid id) =>
             Common.NotFound("Quiz", id.ToString());
 
@@ -188,6 +203,9 @@ public static class DomainErrors
 
         public static Error AlreadySubmitted =>
             Common.BusinessRule("Submission.AlreadySubmitted", "You have already submitted this assignment.");
+
+        public static Error SubmissionNotFound =>
+            Common.NotFound("Submission.NotFound", "You have not submitted this assignment yet.");
     }
 
     public static class User

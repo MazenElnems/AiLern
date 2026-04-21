@@ -7,12 +7,6 @@ public class UpsertQuestionsCommandValidator : AbstractValidator<UpsertQuestions
 {
     public UpsertQuestionsCommandValidator()
     {
-        RuleFor(c => c.QuizId)
-            .NotEmpty().WithMessage("QuizId is required.");
-
-        RuleFor(c => c.Questions)
-            .NotEmpty().WithMessage("Questions are required.");
-
         RuleForEach(c => c.Questions)
             .ChildRules(q =>
             {
@@ -23,12 +17,10 @@ public class UpsertQuestionsCommandValidator : AbstractValidator<UpsertQuestions
 
                 q.RuleFor(q => q.Mark)
                     .GreaterThan(0).WithMessage("Mark must be greater than 0.")
-                    .LessThanOrEqualTo(100).WithMessage("Mark must be less than or equal to 100.")
-                    .NotNull().WithMessage("Mark cannot be null.");
+                    .LessThanOrEqualTo(100).WithMessage("Mark must be less than or equal to 100.");
 
                 q.RuleFor(q => q.QuestionType)
-                    .IsInEnum().WithMessage("Invalid QuestionType.")
-                    .NotNull().WithMessage("QuestionType cannot be null.");
+                    .IsInEnum().WithMessage("Invalid QuestionType.");
 
                 q.RuleFor(q => q.Instructions)
                     .MaximumLength(1000).WithMessage("Instructions cannot exceed 1000 characters.")

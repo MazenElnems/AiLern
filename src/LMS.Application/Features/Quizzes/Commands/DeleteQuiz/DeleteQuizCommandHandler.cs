@@ -20,16 +20,24 @@ public class DeleteQuizCommandHandler : IRequestHandler<DeleteQuizCommand, Resul
 
     public async Task<Result> Handle(DeleteQuizCommand request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.GetCurrentUser().Id;
+        var instructorId = _userContext.GetCurrentUser().Id;
+
         var quiz = await _unitOfWork.Quizzes.GetAsync(a => a.Id == request.Id,
             includeProperties: [nameof(Quiz.Course)]);
+
         if (quiz == null)
             return DomainErrors.Quiz.NotFound(request.Id);
-        if (quiz.Course.InstructorId != userId)
+
+        if (quiz.Course.InstructorId != instructorId)
             return DomainErrors.Quiz.NotOwned;
 
+        if(quiz.AvailableFrom < DateTime.UtcNow)
+            return DomainErrors.Quiz.CannotDeleteQuizDuration;
+
         _unitOfWork.Quizzes.Delete(quiz);
+
         await _unitOfWork.CommitAsync();
+
         return Result.Success();
     }
 }

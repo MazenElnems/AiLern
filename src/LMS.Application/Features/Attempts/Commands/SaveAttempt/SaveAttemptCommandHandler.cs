@@ -20,14 +20,14 @@ public class SaveAttemptCommandHandler : IRequestHandler<SaveAttemptCommand, Res
 
     public async Task<Result> Handle(SaveAttemptCommand request, CancellationToken cancellationToken)
     {
-        var user = _userContext.GetCurrentUser();
+        var studentId = _userContext.GetCurrentUser().Id;
 
         var attempt = await _unitOfWork.Attempts.GetByIdAsync(request.AttemptId);
 
         if(attempt == null) 
             return DomainErrors.Attempt.NotFound(request.AttemptId);
 
-        if(attempt.StudentId != user.Id)
+        if(attempt.StudentId != studentId)
             return DomainErrors.Attempt.NotOwned;
 
         if(DateTime.UtcNow > attempt.AttemptEndTime)

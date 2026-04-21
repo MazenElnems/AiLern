@@ -4,6 +4,7 @@ using LMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260418224125_removePublishedAtAndUpdatedAt")]
+    partial class removePublishedAtAndUpdatedAt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -337,9 +340,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Property<Guid?>("OptionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.PrimitiveCollection<string>("ShuffledOptionIds")
-                        .HasColumnType("NVARCHAR(MAX)");
-
                     b.Property<string>("WrittenAnswer")
                         .HasColumnType("NVARCHAR(3000)");
 
@@ -372,9 +372,6 @@ namespace LMS.Infrastructure.Migrations
 
                     b.Property<DateTime?>("SavedAt")
                         .HasColumnType("DATETIME2");
-
-                    b.PrimitiveCollection<string>("ShuffledQuestionIds")
-                        .HasColumnType("NVARCHAR(MAX)");
 
                     b.Property<DateTime>("StartAt")
                         .HasColumnType("DATETIME2");

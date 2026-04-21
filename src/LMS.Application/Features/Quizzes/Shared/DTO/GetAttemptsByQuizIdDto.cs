@@ -6,7 +6,11 @@ public class GetAttemptsByQuizIdDto
 {
     public Guid QuizId { get; set; }
     public string QuizTitle { get; set; }
-    public List<AttemptMetaData> attempts { get; set; } = new List<AttemptMetaData>();
+    public double TotalPoints { get; set; }
+    public DateTime AvailableFrom { get; set; }
+    public DateTime AvailableUntil { get; set; }
+    public bool ShowResultOnClose { get; set; } 
+    public List<AttemptMetaData> Attempts { get; set; } = new List<AttemptMetaData>();
 }
 
 public class AttemptMetaData
@@ -18,4 +22,5 @@ public class AttemptMetaData
     public double? Score { get; set; }
     public int AttemptNumber { get; set; }
     public AttemptStatus Status { get; set; }
+    public DateTime AttemptEndTime { get; set; }
 }
