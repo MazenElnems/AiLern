@@ -48,6 +48,10 @@ public class AttemptEntityTypeConfiguration : IEntityTypeConfiguration<Attempt>
             .HasColumnType("VARCHAR(10)")
             .IsRequired();
 
+        builder.Property(a => a.ShuffledQuestionIds)
+            .HasColumnType("NVARCHAR(MAX)")
+            .IsRequired(false);
+
         // to avoid race condition and avoid multiple start attempts
         builder.HasIndex(a => new { a.QuizId, a.StudentId, a.AttemptNumber })
             .IsUnique();

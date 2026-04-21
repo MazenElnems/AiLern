@@ -4,7 +4,6 @@ using LMS.Application.CurrentUser;
 using LMS.Application.Features.Attempts.Shared.DTO;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
-using LMS.Domain.Entities.Quizzes;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper.QueryableExtensions;
@@ -27,7 +26,7 @@ public class GetStudentAnswersQueryHandler : IRequestHandler<GetStudentAnswersQu
 
     public async Task<Result<AttemptResultDto>> Handle(GetStudentAnswersQuery request, CancellationToken cancellationToken)
     {
-        var user = _userContext.GetCurrentUser();
+        var instructorId = _userContext.GetCurrentUser().Id;
 
         var attempt = await _unitOfWork.Attempts.Query
             .Include(a => a.Quiz)
@@ -39,18 +38,16 @@ public class GetStudentAnswersQueryHandler : IRequestHandler<GetStudentAnswersQu
 
         var course = attempt.Quiz.Course;
 
-        if(course.InstructorId != user.Id)
+        if(course.InstructorId != instructorId)
             return DomainErrors.Common.Unauthorized("You are not authorized to view this attempt.");
 
-        if (attempt.Status != AttemptStatus.Submitted)
-            return DomainErrors.Attempt.NotSubmitted;
+        if (attempt.Status == AttemptStatus.InProgress)
+            return DomainErrors.Attempt.StillInProgress;
 
         var studentAnswers = await _unitOfWork.Attempts.Query
-            .AsNoTracking()
             .ProjectTo<AttemptResultDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(a => a.AttemptId == request.AttemptId, cancellationToken);
 
         return studentAnswers!;
     }
 }
-

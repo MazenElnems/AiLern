@@ -72,14 +72,16 @@ public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand,
             if (hasInProgressAttempt)
                 return DomainErrors.Attempt.AnotherAttemptSessionStarted;
 
-            var quizQuestionIds = await _unitOfWork.Questions.GetQuestionIdsByQuizIdAsync(quiz.Id);
+            var questionIdsWithOptionIds = await _unitOfWork.Questions.GetQuestionIdsWithOptionIdsByQuizIdAsync(quiz.Id);
 
             var attempt = Attempt.StartNew(
                 studentId: user.Id,
                 attemptNumber: studentAttemptsCount + 1,
                 startAt: now,
                 attemptEndTime: quiz.CalculateAttemptEndTime(now),
-                questionIds: quizQuestionIds);
+                questionIdsWithOptionIds: questionIdsWithOptionIds,
+                shuffleOptions: quiz.ShuffleOptions,
+                shuffleQuestions: quiz.ShuffleQuestions);
 
             jobId = _backgroundJobService.Schedule(
                 () => _autoSubmitAttemptJob.ExecuteAsync(attempt.Id, cancellationToken),
@@ -88,7 +90,7 @@ public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand,
             attempt.AutoSubmitJobId = jobId;
 
             quiz.Attempts.Add(attempt);
-            await _unitOfWork.CommitAsync();
+            await _unitOfWork.CommitAsync(cancellationToken);
 
             return new AttemptDto { AttemptId = attempt.Id, AttemptEndDate = attempt.AttemptEndTime };
         }

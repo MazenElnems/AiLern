@@ -29,11 +29,11 @@ public class Quiz
     public List<AIQuestionGenerationJob> QuestionGenerationJobs { get; set; } = new();
     public List<QuestionGenerationFiles> QuestionGenerationFiles { get; set; } = new();
 
-    public DateTime CalculateAttemptEndTime(DateTime now)
+    public DateTime CalculateAttemptEndTime(DateTime attemptStartDateTime)
     {
-        var remainingMinutes = (AvailableUntil - now).TotalMinutes;
-        var attemptDurationMinutes = Math.Min(remainingMinutes, AttemptTimeLimit);
-        return now.AddMinutes(attemptDurationMinutes);
+        var remainingMinutes = (AvailableUntil - DateTime.UtcNow).TotalMinutes;
+        var attemptDurationInMinutes = Math.Min(remainingMinutes, AttemptTimeLimit);
+        return attemptStartDateTime.AddMinutes(attemptDurationInMinutes);
     }
 }
 

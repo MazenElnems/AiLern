@@ -1,4 +1,5 @@
-﻿using LMS.Domain.Enums;
+﻿using LMS.Application.Features.Quizzes.Shared.DTO;
+using LMS.Domain.Enums;
 
 namespace LMS.Application.Features.Quizzes.Shared.Requests;
 
