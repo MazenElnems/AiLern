@@ -8,7 +8,6 @@ using LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
 using LMS.Application.Features.Quizzes.Commands.UpdateQuizStatus;
 using LMS.Application.Features.Quizzes.Commands.UpsertQuestions;
 using LMS.Application.Features.Quizzes.Queries.GetAllQuizzes;
-using LMS.Application.Features.Quizzes.Queries.GetAttemptsByQuizId;
 using LMS.Application.Features.Quizzes.Queries.GetJob;
 using LMS.Application.Features.Quizzes.Queries.GetQuestionGenerationFiles;
 using LMS.Application.Features.Quizzes.Queries.GetQuiz;
@@ -146,14 +145,6 @@ public class QuizzesController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetQuestionGenerationFiles(Guid id)
     {
         var result = await _mediator.Send(new GetQuestionGenerationFilesQuery(id));
-        return HandleResponse(this, result);
-    }
-
-    [HttpGet("{id}/attempts")]
-    [Authorize(Roles = UserRoles.Student)]
-    public async Task<ActionResult<ApiResponse>> GetAttemptsByQuizId(Guid id)
-    {
-        var result = await _mediator.Send(new GetAttemptsByQuizIdQuery(id));
         return HandleResponse(this, result);
     }
 

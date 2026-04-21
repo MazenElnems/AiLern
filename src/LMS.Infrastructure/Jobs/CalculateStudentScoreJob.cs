@@ -17,13 +17,13 @@ internal class CalculateStudentScoreJob : ICalculateStudentScoreJob
 
     public async Task ExecuteAsync(Guid attemptId, CancellationToken cancellationToken)
     {
-        var answers = await _unitOfWork.Answers.Query
+        var answers = await _unitOfWork.Answers.TrackedQuery
             .Include(a => a.Question)
                 .ThenInclude(q => q.Options)
             .Where(a => a.AttemptId == attemptId)
             .ToListAsync(cancellationToken);
 
-        if (answers is null || answers.Count() == 0)
+        if (answers is null || answers.Count == 0)
             return;
 
         foreach(var answer in answers)
@@ -31,7 +31,7 @@ internal class CalculateStudentScoreJob : ICalculateStudentScoreJob
             var question = answer.Question;
 
             if (question.Type == QuestionType.Written)
-                return;
+                continue;
 
             var correctOption = question.Options.First(o => o.IsCorrect);
 

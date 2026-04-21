@@ -8,6 +8,7 @@ public class Answer
     public Guid? OptionId { get; set; }
     public double? Mark { get; set; }
     public string? Feedback { get; set; }
+    public List<Guid>? ShuffledOptionIds { get; set; } = new(); // JSON serialized list of option ids in the order they were presented to the student
 
     // Navigation Properties
     public Attempt Attempt { get; set; } = null!;

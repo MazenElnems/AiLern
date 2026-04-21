@@ -1,10 +1,12 @@
 ﻿using LMS.Application.Common.Results.Generic;
 using MediatR;
+using System.Text.Json.Serialization;
 
 namespace LMS.Application.Features.Quizzes.Commands.CreateQuiz;
 
 public class CreateQuizCommand() : IRequest<Result<Guid>>
 {
+    [JsonIgnore]
     public int CourseId { get; set; }   
     public string Title { get; set; }
     public string? Description { get; set; }
