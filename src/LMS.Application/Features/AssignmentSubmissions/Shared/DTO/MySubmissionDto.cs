@@ -8,10 +8,10 @@ public class MySubmissionDto
     public int AssignmentId { get; set; }
     public string? Feedback { get; set; }
     public bool IsLate { get; set; }
-    public List<SubmissionFilesDto> FilesUrls { get; set; } = new();
+    public List<MySubmissionFilesDto> FilesUrls { get; set; } = new();
 }
 
-public class SubmissionFilesDto
+public class MySubmissionFilesDto
 {
     public Guid Id { get; set; }
     public string FileName { get; set; }

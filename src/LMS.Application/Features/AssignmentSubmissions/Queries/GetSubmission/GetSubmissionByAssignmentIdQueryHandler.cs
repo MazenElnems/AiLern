@@ -48,7 +48,7 @@ public class GetSubmissionByAssignmentIdQueryHandler : IRequestHandler<GetSubmis
         var submissionFiles = await _unitOfWork.SubmissionFiles.FilterAsync(sf => sf.AssignmentSubmissionId == assignmentSubmission.Id);
 
         var signedUrls = submissionFiles
-            .Select(f => new SubmissionFilesDto
+            .Select(f => new MySubmissionFilesDto
             {
                 Id = f.Id,
                 FileName = f.FileName,
