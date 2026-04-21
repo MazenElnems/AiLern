@@ -55,6 +55,7 @@ public class GetAssignmentQueryHandler : IRequestHandler<GetAssignmentQuery, Res
         assignmentDto.SubmissionFiles = assignment.Files
             .Select(file => new SubmissionFilesDto
             { 
+                Id = file.Id,
                 FileUrl = _urlSigner.GenerateSignedUrl(_bunnyOptions.BaseUrl , _bunnyOptions.Token, file.StoragePath, TimeSpan.FromMinutes(5)) , 
                 FileName = file.FileName
             })
