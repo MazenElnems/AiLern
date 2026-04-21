@@ -14,11 +14,11 @@ internal class QuestionsRepository : BaseRepository<Question>, IQuestionsReposit
         _context = context;
     }
 
-    public Task<List<Guid>> GetQuestionIdsByQuizIdAsync(Guid quizId)
+    public Task<List<KeyValuePair<Guid, List<Guid>>>> GetQuestionIdsWithOptionIdsByQuizIdAsync(Guid quizId)
     {
         return _context.Questions
             .Where(q => q.QuizId == quizId)
-            .Select(q => q.Id)
+            .Select(q => new KeyValuePair<Guid, List<Guid>>(q.Id, q.Options.Select(o => o.OptionId).ToList()))
             .ToListAsync();
     }
 }

@@ -32,6 +32,10 @@ public class AnswerEntityTypeConfiguration : IEntityTypeConfiguration<Answer>
             .HasColumnType("NVARCHAR(3000)")
             .IsRequired(false);
 
+        builder.Property(a => a.ShuffledOptionIds)
+            .HasColumnType("NVARCHAR(MAX)")
+            .IsRequired(false);
+
         builder.HasOne(a => a.Attempt)
             .WithMany(a => a.Answers)
             .HasForeignKey(a => a.AttemptId)

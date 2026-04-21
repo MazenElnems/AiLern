@@ -35,7 +35,7 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
             return DomainErrors.Attempt.NotOwned;
 
         attempt.Submit();
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
 
         // Delete the auto submit background job
         _backgroundJobService.Delete(attempt.AutoSubmitJobId);

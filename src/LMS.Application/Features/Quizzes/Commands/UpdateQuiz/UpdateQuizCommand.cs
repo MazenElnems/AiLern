@@ -1,10 +1,12 @@
 ﻿using LMS.Application.Common.Results;
 using MediatR;
+using System.Text.Json.Serialization;
 
 namespace LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
 
 public class UpdateQuizCommand : IRequest<Result>
 {
+    [JsonIgnore]
     public Guid QuizId { get; set; }
     public string Title { get; set; }
     public string? Description { get; set; }

@@ -37,7 +37,7 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
             return DomainErrors.Quiz.NotOwned;
 
         // cannot update questions after the quiz has started
-        if (quiz.AvailableFrom < DateTime.UtcNow)
+        if (quiz.AvailableFrom < DateTime.UtcNow && quiz.Status == QuizStatus.Published)
             return DomainErrors.Quiz.UpdateQuestionsAfterQuizStarted;
 
         // cannot remove questions from a published quiz
