@@ -16,7 +16,6 @@ public class GetAttemptsByQuizIdDto
 public class AttemptMetaData
 {
    public Guid Id { get; set; }
-    public int? TimeSpent { get; set; }
     public DateTime StartAt { get; set; }
     public DateTime? SubmittedAt { get; set; }
     public double? Score { get; set; }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LMS.API.Controllers.Common;
 using LMS.API.Models;
+using LMS.Application.Features.Attempts.Queries.GetAttemptsByQuizId;
 using LMS.Application.Features.Quizzes.Commands.CreateQuiz;
 using LMS.Application.Features.Quizzes.Commands.DeleteQuiz;
 using LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
@@ -153,6 +154,14 @@ public class QuizzesController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetSubmissionsByQuizId(Guid id, AttemptStatus status, int pageNo = 1, int pageSize = 10)
     {
         var result = await _mediator.Send(new GetSubmissionsByQuizIdQuery(id, pageNo, pageSize, status));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("{id}/my-attempts")]
+    [Authorize(Roles = UserRoles.Student)]
+    public async Task<ActionResult<ApiResponse>> GetAttemptsByQuizId(Guid id)
+    {
+        var result = await _mediator.Send(new GetAttemptsByQuizIdQuery(id));
         return HandleResponse(this, result);
     }
 }
