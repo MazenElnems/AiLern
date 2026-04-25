@@ -30,8 +30,9 @@ public static class DependencyInjection
             cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
 
             // Pipline Behavior
-            cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
-            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));                // 1
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));             // 2
+            cfg.AddOpenBehavior(typeof(BlockAccessDuringQuizBehavior<>));   // 3
         });
 
         services.Configure<ApplicationDomain>(configuration.GetSection("Domain"));
