@@ -10,4 +10,5 @@ public class Student : ApplicationUser
     public List<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
     public List<AssignmentSubmission> AssignmentSubmissions { get; set; } = new List<AssignmentSubmission>();
     public List<Attempt> Attempts { get; set; } = new List<Attempt>();
+    public List<Progress> Progresses { get; set; } = new();
 }

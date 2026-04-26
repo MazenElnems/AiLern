@@ -22,4 +22,5 @@ public class Course
     public List<Assignment> Assignments { get; set; } = new();
     public List<Section> Sections { get; set; } = new();
     public List<Quiz> Quizzes { get; set; } = new();
+    public List<Progress> Progresses { get; set; } = new();
 }
