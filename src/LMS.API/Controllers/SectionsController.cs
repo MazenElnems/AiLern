@@ -20,12 +20,10 @@ namespace LMS.API.Controllers;
 public class SectionsController : ApiBaseController
 {
     private readonly IMediator _mediator;
-    private readonly IAttemptRepository attemptRepo;
 
-    public SectionsController(IMediator mediator, IAttemptRepository attempt)
+    public SectionsController(IMediator mediator)
     {
         _mediator = mediator;
-        this.attemptRepo = attempt;
     }
 
     [HttpPost]

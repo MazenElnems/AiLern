@@ -28,7 +28,10 @@ public class Result<T> : Result , IResult
         => new(true, value, message);
 
     public static new Result<T> Failure(Error error)
-        => new(false, error.Message, error);
+        => new Result<T>(false, error.Message, error);
+
+    static IResult IResult.Failure(Error error)
+        => new Result<T>(false, error.Message, error);
 
     public static new Result<T> ValidationFailure(Error error, Dictionary<string, string[]> validationErrors, string? message)
     => new(false, message, error, validationErrors);
