@@ -31,13 +31,17 @@ public class Result : IResult
     }
 
     public static Result Success(string? message = null)
-        => new(true, message);
+        => new Result(true, message);
 
     public static Result Failure(Error error)
-        => new(false, error.Message, error);
+        => new Result(false, error.Message, error);
+
+    static IResult IResult.Failure(Error error)
+        => new Result(false, error.Message, error);
 
     public static Result ValidationFailure(Error error,Dictionary<string, string[]> validationErrors, string? message)
         => new(false, error, validationErrors, message);
 
     public static implicit operator Result(Error error) => Failure(error);
+    public static implicit operator Result(string? message = null) => Success(message);
 }

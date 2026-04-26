@@ -32,13 +32,13 @@ public class GetAllQuizzesByCourseIdQueryHandler : IRequestHandler<GetAllQuizzes
             includeProperties: [nameof(Course.Quizzes)]);
 
         if (course == null)
-            return Result<PaginationResult<GetAllQuizDto>>.Failure(DomainErrors.Course.NotFound(request.CourseId));
+            return DomainErrors.Course.NotFound(request.CourseId);
 
         if (user.IsInRole(UserRoles.Instructor) && user.Id != course.InstructorId)
-            return Result<PaginationResult<GetAllQuizDto>>.Failure(DomainErrors.Course.NotOwned);
+            return DomainErrors.Course.NotOwned;
 
         else if (user.IsInRole(UserRoles.Student) && !await _unitOfWork.Enrollments.IsEnrolledAsync(request.CourseId, user.Id))
-            return Result<PaginationResult<GetAllQuizDto>>.Failure(DomainErrors.Common.Forbidden("Can't access this course"));
+            return DomainErrors.Common.Forbidden("Can't access this course");
 
         var query = _unitOfWork.Quizzes.Query
             .Where(q => q.CourseId == request.CourseId);
