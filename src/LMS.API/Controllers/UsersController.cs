@@ -1,7 +1,9 @@
 using LMS.API.Controllers.Common;
 using LMS.API.Models;
+using LMS.Application.Features.Auth.Commands.ChangeUserEmail;
 using LMS.Application.Features.Instructors.Queries.GetMyCourses;
 using LMS.Application.Features.Students.Queries.GetMyCourses;
+using LMS.Application.Features.Students.Queries.GetStudentProfileInCourse;
 using LMS.Application.Features.Users.Commands.AddUserToRole;
 using LMS.Application.Features.Users.Commands.DeleteUserRole;
 using LMS.Application.Features.Users.Queries.GetAllByRoleId;
@@ -105,6 +107,20 @@ public class UsersController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetInstructorCourses()
     {
         var result = await _mediator.Send(new GetInstructorCoursesQuery());
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("student-profile") ]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Get student profile in course", Description = "Retrieves the profile of a student in a specific course.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Student profile retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid query parameters.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetStudentProfileInCourse(int CourseId , int StudentId)
+    {
+        var result = await _mediator.Send(new GetStudentProfileInCourseQuery { CourseId = CourseId, StudentId = StudentId });
         return HandleResponse(this, result);
     }
 }

@@ -37,6 +37,7 @@ public class GetAllCoursesQueryHandler : IRequestHandler<GetAllCoursesQuery, Res
                 Name = c.Name,
                 InstructorName = c.Instructor.FullName,
                 InstructorId = c.InstructorId,
+                ImageUrl = c.ImageStoragePath == null ? null : $"https://ailern-content.b-cdn.net/{c.ImageStoragePath}"
             }).ToListAsync();
 
         return new PaginationResult<GetAllCoursesDto>(

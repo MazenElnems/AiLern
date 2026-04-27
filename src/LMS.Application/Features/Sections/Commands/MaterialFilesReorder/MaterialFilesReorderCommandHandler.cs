@@ -41,11 +41,20 @@ public class MaterialFilesReorderCommandHandler : IRequestHandler<MaterialFilesR
         if (!request.OrderedFilesIds.All(id => files.Any(file => file.Id == id)))
             return DomainErrors.Common.BusinessRule("Invalid Files Reorder Request", "One or more files in the reorder request do not belong to this section.");
 
-        for(int i =0; i < request.OrderedFilesIds.Count; i++)
+        for (int i = 0; i < request.OrderedFilesIds.Count; i++)
         {
             var file = files.First(f => f.Id == request.OrderedFilesIds[i]);
-            file.OrderIndex = i+1;
+            file.OrderIndex = -(i + 1); 
         }
+
+        await _unitOfWork.CommitAsync();
+
+        for (int i = 0; i < request.OrderedFilesIds.Count; i++)
+        {
+            var file = files.First(f => f.Id == request.OrderedFilesIds[i]);
+            file.OrderIndex = i + 1;
+        }
+
 
         await _unitOfWork.CommitAsync();
 

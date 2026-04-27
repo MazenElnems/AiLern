@@ -1,18 +1,22 @@
-using LMS.Application.Commands.Auth.EmailConfirmationCommands;
 using LMS.API.Controllers.Common;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using LMS.Application.Features.Auth.Commands.Login;
-using LMS.Application.Features.Auth.Commands.ResendConfirmEmail;
-using LMS.Application.Features.Auth.Commands.RefreshTokens;
-using LMS.Application.Features.Auth.Commands.RevokeToken;
-using LMS.Application.Features.Auth.Commands.ResetPassword;
-using LMS.Application.Features.Auth.Commands.PasswordResetEmail;
-using Swashbuckle.AspNetCore.Annotations;
 using LMS.API.Models;
+using LMS.Application.Commands.Auth.EmailConfirmationCommands;
 using LMS.Application.Features.Auth.Commands.ChangePassword;
+using LMS.Application.Features.Auth.Commands.ChangePhoto;
+using LMS.Application.Features.Auth.Commands.ChangeUserEmail;
+using LMS.Application.Features.Auth.Commands.ConfirmChangeEmail;
+using LMS.Application.Features.Auth.Commands.DeletePhoto;
+using LMS.Application.Features.Auth.Commands.Login;
+using LMS.Application.Features.Auth.Commands.PasswordResetEmail;
+using LMS.Application.Features.Auth.Commands.RefreshTokens;
 using LMS.Application.Features.Auth.Commands.Register;
+using LMS.Application.Features.Auth.Commands.ResendConfirmEmail;
+using LMS.Application.Features.Auth.Commands.ResetPassword;
+using LMS.Application.Features.Auth.Commands.RevokeToken;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace LMS.API.Controllers;
 
@@ -113,6 +117,34 @@ public class AuthController : ApiBaseController
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
+    [HttpPut("change-email")]
+    [Authorize]
+    [SwaggerOperation(Summary = "Change user email", Description = "Changes the email of a user.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Email change confirmation sent successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "User not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> ChangeEmail(ChangeUserEmailCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("confirm-change-email")]
+    [SwaggerOperation(Summary = "Confirm change user email", Description = "Confirms the email change of a user.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Email change confirmed successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "User not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> ConfirmChangeEmail([FromQuery]ConfirmChangeUserEmailCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
 
     [HttpPost("reset-password")]
     [SwaggerOperation(Summary = "Reset password", Description = "Resets a user's password using a reset token.")]
@@ -134,6 +166,31 @@ public class AuthController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status404NotFound, "Email not found", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
     public async Task<ActionResult<ApiResponse>> ChangePassword(ChangePasswordCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+    [HttpPut("change-photo")]
+    [Authorize]
+    [SwaggerOperation(Summary = "Change photo", Description = "Change photo for logged-in users.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Photo changed successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Email not found", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> ChangePhoto([FromBody]ChangeUserPhotoCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpDelete("delete-photo")]
+    [Authorize]
+    [SwaggerOperation(Summary = "Delete photo", Description = "Delete photo for logged-in users.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Photo deleted     successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Email not found", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> DeletePhoto(DeleteUserPhotoCommand command)
     {
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);

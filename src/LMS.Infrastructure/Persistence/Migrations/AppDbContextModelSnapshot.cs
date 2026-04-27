@@ -160,6 +160,48 @@ namespace LMS.Infrastructure.Migrations
                     b.ToTable("AssignmentSubmissionFiles", (string)null);
                 });
 
+            modelBuilder.Entity("LMS.Domain.Entities.Courses.AIResource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<double>("FileSize")
+                        .HasColumnType("float");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("StoragePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId")
+                        .HasDatabaseName("IX_AIResources_CourseId");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_AIResources_Status");
+
+                    b.ToTable("AIResources", (string)null);
+                });
+
             modelBuilder.Entity("LMS.Domain.Entities.Courses.Course", b =>
                 {
                     b.Property<int>("Id")
@@ -177,6 +219,9 @@ namespace LMS.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("NVARCHAR(MAX)");
+
+                    b.Property<string>("ImageStoragePath")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("InstructorId")
                         .HasColumnType("int");
@@ -261,9 +306,6 @@ namespace LMS.Infrastructure.Migrations
 
                     b.Property<int>("CourseId")
                         .HasColumnType("int");
-
-                    b.Property<int>("SectionNumber")
-                        .HasColumnType("INT");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -616,6 +658,9 @@ namespace LMS.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImageStoragePath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -910,6 +955,17 @@ namespace LMS.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("AssignmentSubmission");
+                });
+
+            modelBuilder.Entity("LMS.Domain.Entities.Courses.AIResource", b =>
+                {
+                    b.HasOne("LMS.Domain.Entities.Courses.Course", "Course")
+                        .WithMany("AIResources")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Courses.Course", b =>
@@ -1217,6 +1273,8 @@ namespace LMS.Infrastructure.Migrations
 
             modelBuilder.Entity("LMS.Domain.Entities.Courses.Course", b =>
                 {
+                    b.Navigation("AIResources");
+
                     b.Navigation("Assignments");
 
                     b.Navigation("Enrollments");

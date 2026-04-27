@@ -31,6 +31,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser,IdentityRole<int>,
     public DbSet<Answer> Answers { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<UserNotification> UserNotifications { get; set; }  
+    public DbSet<AIResource> AIResources { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options):
         base(options)

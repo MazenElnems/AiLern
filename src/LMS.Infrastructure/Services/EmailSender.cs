@@ -1,4 +1,4 @@
-﻿using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Settings;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -24,6 +24,20 @@ internal class EmailSender : IEmailSender
         _emailSettings = emailSettings.Value;
     }
 
+    public async Task SendChangeEmailConfirmationAsync(int userId, string newEmail, string fullName, string token)
+    {
+        var templatePath = Path.Combine(_env.WebRootPath, "EmailTemplates", "ChangeEmailConfirmation.html");
+        var template = await File.ReadAllTextAsync(templatePath);
+
+        var body = template
+            .Replace("{{ConfirmationLink}}", $"http://localhost:5173/confirm-change-email?userId={userId}&newEmail={newEmail}&token={token}")
+            .Replace("{{FullName}}", fullName)
+            .Replace("{{NewEmail}}", newEmail)
+            .Replace("{{ExpiryTime}}", DateTime.UtcNow.AddMinutes(30).ToString("f"));
+
+        await SendAsync(newEmail, fullName, "Change Email Confirmation", body);
+    }
+
     public async Task SendConfirmationEmailAsync(string email, string fullName, string token)
     {
         var templatePath = Path.Combine(_env.WebRootPath, "EmailTemplates", "ConfirmationEmail.html");
@@ -42,7 +56,7 @@ internal class EmailSender : IEmailSender
         var template = await File.ReadAllTextAsync(templatePath);
 
         var body = template
-            .Replace("{{ResetLink}}", $"{_frontEndSettings.Domain}set-password?email={email}&token={token}")
+            .Replace("{{ResetLink}}", $"http://localhost:5173/set-password?email={email}&token={token}")
             .Replace("{{FullName}}", fullName);
 
         await SendAsync(email, fullName, "Forget Password", body);
