@@ -10,4 +10,5 @@ public class GetCourseDto
     public DateTime CreatedAt { get; set; }
     public int InstructorId { get; set; }
     public string InstructorName { get; set; }
+    public string? ImageUrl { get; set; }
 }

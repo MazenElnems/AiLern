@@ -30,7 +30,6 @@ public class SectionUpdateCommandHandler : IRequestHandler<SectionUpdateCommand,
         if (section.Course.InstructorId != userId)
             return DomainErrors.Common.Forbidden("You do not have permission to update this section.");
         section.Title = request.Title;
-        section.SectionNumber = request.SectionNumber;
 
         await _unitOfWork.CommitAsync();
         return Result.Success();

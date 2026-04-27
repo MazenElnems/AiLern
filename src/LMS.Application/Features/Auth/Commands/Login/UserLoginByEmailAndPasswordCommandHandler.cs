@@ -71,6 +71,7 @@ public class UserLoginByEmailAndPasswordCommandHandler : IRequestHandler<UserLog
             ExpiresOn = accessTokenExpiration,
             RefreshToken = refreshToken,
             Role = user.Role,
+            ImageUrl = user.ImageStoragePath == null ? null : $"https://ailern-content.b-cdn.net/{user.ImageStoragePath}"
         };
 
         return Result<GetTokenResponseDto>.Success(response, "login successful");

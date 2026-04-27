@@ -71,6 +71,11 @@ public static class DomainErrors
         public static Error InValidDueDate =>
             Common.BusinessRule("Assignment.InValidDueDate", "Due date cannot be earlier than the current date.");
     }
+    public static class AiResource
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("AIResource", id.ToString());
+    }
     public static class Quiz
     {
         public static Error QuizStarted  =>
@@ -221,6 +226,8 @@ public static class DomainErrors
 
         public static Error CreationFailed(string message) =>
             Common.BusinessRule("User.CreationFailed", message);
+        public static Error InvalidPassword =>
+            Common.BusinessRule("InvalidPassword", "The current password is incorrect.");
     }
 
     public static class Role

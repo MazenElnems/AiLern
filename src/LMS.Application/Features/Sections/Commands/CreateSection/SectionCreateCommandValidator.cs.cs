@@ -12,23 +12,23 @@ public class CreateSectionCommandValidator : AbstractValidator<SectionCreateComm
     {
         _unitOfWork = unitOfWork;
 
-        RuleFor(x => x.SectionNumber)
-            .GreaterThan(0)
-            .WithMessage("Section number must be greater than 0.");
+        //RuleFor(x => x.SectionNumber)
+        //    .GreaterThan(0)
+        //    .WithMessage("Section number must be greater than 0.");
 
-        RuleFor(x => x)
-            .MustAsync(BeUniqueSectionNumber)
-            .WithMessage("Section number already exists in this course.");
+        //RuleFor(x => x)
+        //    .MustAsync(BeUniqueSectionNumber)
+        //    .WithMessage("Section number already exists in this course.");
     }
 
-    private async Task<bool> BeUniqueSectionNumber(
-        SectionCreateCommand command,
-        CancellationToken cancellationToken)
-    {
-        return !await _unitOfWork.Sections
-            .AnyAsync(s =>
-                s.CourseId == command.CourseId &&
-                s.SectionNumber == command.SectionNumber,
-                cancellationToken);
-    }
+    //private async Task<bool> BeUniqueSectionNumber(
+    //    SectionCreateCommand command,
+    //    CancellationToken cancellationToken)
+    //{
+    //    return !await _unitOfWork.Sections
+    //        .AnyAsync(s =>
+    //            s.CourseId == command.CourseId &&
+    //            s.SectionNumber == command.SectionNumber,
+    //            cancellationToken);
+    //}
 }

@@ -24,6 +24,7 @@ public interface IUnitOfWork
     public IAnswersRepository Answers { get; }
     public IBaseRepository<Notification> Notfications { get; }
     public IBaseRepository<UserNotification> UserNotifications { get; }    
+    public IBaseRepository<AIResource> AIResources { get; }    
 
     Task<int> CommitAsync();
     Task<int> CommitAsync(CancellationToken cancellationToken);

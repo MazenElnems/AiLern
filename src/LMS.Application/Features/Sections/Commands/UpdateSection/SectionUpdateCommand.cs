@@ -9,6 +9,5 @@ public class SectionUpdateCommand : IRequest<Result>
     [JsonIgnore]
     public Guid Id { get; set; }
     public string Title { get; set; }
-    public int SectionNumber { get; set; }
 
 }

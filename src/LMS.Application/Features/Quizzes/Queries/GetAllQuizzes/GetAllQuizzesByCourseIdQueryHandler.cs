@@ -62,7 +62,7 @@ public class GetAllQuizzesByCourseIdQueryHandler : IRequestHandler<GetAllQuizzes
                 ShowResultOnClose = q.ShowResultOnClose,
                 MaximumAttempts = q.MaximumAttempts,
                 QuestionsCount = q.Questions.Count(),
-                StudentAttemptCount = user.IsInRole(UserRoles.Student) ? q.Attempts.Count(a => a.StudentId == user.Id) : null,
+                StudentAttemptCount = user.IsInRole(UserRoles.Student) ? q.Attempts.Count(a => a.StudentId == user.Id) : q.Attempts.Count(),
                 HasActiveAttempt = q.Attempts.Any(a => a.StudentId == user.Id && a.Status == AttemptStatus.InProgress)
             })
             .Skip(request.PageSize * (request.PageNo - 1))
