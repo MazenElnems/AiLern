@@ -4,6 +4,7 @@ namespace LMS.Application.Features.Attempts.Shared.DTO;
 
 public class AnswerDto
 {
+    public Guid QuestionId { get; set; }
     public string QuestionText { get; set; }
     public QuestionType Type { get; set; }
     public string? Answer { get; set; } // for written answer

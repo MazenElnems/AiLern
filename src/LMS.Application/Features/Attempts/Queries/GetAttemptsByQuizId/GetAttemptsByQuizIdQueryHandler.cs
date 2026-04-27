@@ -59,14 +59,13 @@ public class GetAttemptsByQuizIdQueryHandler : IRequestHandler<GetAttemptsByQuiz
             AvailableFrom = quiz.AvailableFrom,
             AvailableUntil = quiz.AvailableUntil,
             ShowResultOnClose = quiz.ShowResultOnClose,
-            Attempts = attempts.Select(a => new AttemptMetaData
+            Attempts = attempts.OrderBy(a => a.AttemptNumber).Select(a => new AttemptMetaData
             {
                 Id = a.Id,
                 AttemptNumber = a.AttemptNumber,
                 StartAt = a.StartAt,
                 SubmittedAt = a.SubmittedAt,
                 AttemptEndTime = a.AttemptEndTime,
-                TimeSpent = a.TimeSpent,
                 Status = a.Status,
                 Score = quiz.AvailableUntil < DateTime.UtcNow && (a.Status == AttemptStatus.Reviewed || quiz.ShowResultOnClose) ? a.Score : null
             }).ToList()

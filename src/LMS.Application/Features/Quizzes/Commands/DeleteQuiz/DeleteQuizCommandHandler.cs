@@ -4,6 +4,7 @@ using LMS.Domain.Errors;
 using LMS.Domain.Entities.Quizzes;
 using MediatR;
 using LMS.Application.Contracts.UnitOfWork;
+using LMS.Domain.Enums;
 
 namespace LMS.Application.Features.Quizzes.Commands.DeleteQuiz;
 
@@ -31,13 +32,13 @@ public class DeleteQuizCommandHandler : IRequestHandler<DeleteQuizCommand, Resul
         if (quiz.Course.InstructorId != instructorId)
             return DomainErrors.Quiz.NotOwned;
 
-        if(quiz.AvailableFrom < DateTime.UtcNow)
+        if(quiz.AvailableFrom < DateTime.UtcNow && quiz.Status == QuizStatus.Published)
             return DomainErrors.Quiz.CannotDeleteQuizDuration;
 
         _unitOfWork.Quizzes.Delete(quiz);
 
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
 
-        return Result.Success();
+        return Result.Success("Quiz deleted successfully.");
     }
 }

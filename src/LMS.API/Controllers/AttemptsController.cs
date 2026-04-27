@@ -108,13 +108,5 @@ public class AttemptsController : ApiBaseController
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
-
-    [HttpGet("{id}/my-attempts")]
-    [Authorize(Roles = UserRoles.Student)]
-    public async Task<ActionResult<ApiResponse>> GetAttemptsByQuizId(Guid id)
-    {
-        var result = await _mediator.Send(new GetAttemptsByQuizIdQuery(id));
-        return HandleResponse(this, result);
-    }
 }
 

@@ -1,7 +1,5 @@
 using AutoMapper;
 using LMS.Application.Features.Attempts.Shared.DTO;
-using LMS.Application.Features.Quizzes.Shared.DTO;
-using LMS.Application.Features.Quizzes.Shared.Requests;
 using LMS.Domain.Entities.Quizzes;
 
 namespace LMS.Application.Features.Attempts.Shared.Mappings;
@@ -12,9 +10,6 @@ public class AttemptProfile : Profile
     {
         CreateMap<Attempt, AttemptResultDto>()
             .ForMember(dest => dest.Answers, opt => opt.MapFrom(src => src.Answers.OrderBy(a => a.Question.Order)));
-
-        CreateMap<Answer, AnswerDto>()
-            .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Question.Options.OrderBy(o => o.OptionNumber)));
 
         CreateMap<Option, AttemptOptionDto>()
             .ForMember(dto => dto.Option, opt => opt.MapFrom(src => src.OptionText))
@@ -37,18 +32,18 @@ public class AttemptProfile : Profile
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Question.Type))
             .ForMember(dest => dest.Instructions, opt => opt.MapFrom(src => src.Question.Instructions))
             .ForMember(dest => dest.Explanation, opt => opt.MapFrom(src => src.Question.Explanation))
-            .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.Feedback))
-            .ForMember(dest => dest.Answer, opt => opt.MapFrom(src => src.Question.Answer))
             .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Question.Order))
             .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.Question.Mark))
             .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.Mark))
-            .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Question.Options.Select(o => new OptionAnswerDto
-            {
-                OptionText = o.OptionText,
-                IsCorrect = o.IsCorrect,
-                Order = o.OptionNumber,
-                IsSelected = o.OptionId == src.OptionId
-            })));
+            .ForMember(dest => dest.Answer, opt => opt.MapFrom(src => src.WrittenAnswer))
+            .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Question.Options.OrderBy(o => o.OptionNumber)
+                .Select(o => new OptionAnswerDto
+                {
+                    OptionText = o.OptionText,
+                    IsCorrect = o.IsCorrect,
+                    Order = o.OptionNumber,
+                    IsSelected = o.OptionId == src.OptionId
+                })));
 
         CreateMap<Attempt, AttemptResultDto>()
             .ForMember(a => a.AttemptId, opt => opt.MapFrom(src => src.Id))

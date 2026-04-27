@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using LMS.Application.Common.Behaviors;
+using LMS.Application.Common.Behaviours;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Assignments.Shared.DTO;
 using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
@@ -30,8 +30,9 @@ public static class DependencyInjection
             cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
 
             // Pipline Behavior
-            cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
-            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            cfg.AddOpenBehavior(typeof(BlockAccessDuringQuizBehaviour<,>));   // 1
+            cfg.AddOpenBehavior(typeof(LoggingBehaviour<,>));                // 2
+            cfg.AddOpenBehavior(typeof(ValidationBehaviour<,>));             // 3
         });
 
         services.Configure<ApplicationDomain>(configuration.GetSection("Domain"));

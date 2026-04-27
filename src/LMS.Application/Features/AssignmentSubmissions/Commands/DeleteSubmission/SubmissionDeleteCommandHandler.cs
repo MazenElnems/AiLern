@@ -31,18 +31,18 @@ public class SubmissionDeleteCommandHandler : IRequestHandler<SubmissionDeleteCo
         var submission = await _unitOfWork.AssignmentSubmissions.GetAsync(a=>a.Id == request.Id,
             includeProperties: [nameof(AssignmentSubmission.Files)]);
         if (submission is null)
-            return Result.Failure(DomainErrors.AssignmentSubmission.NotFound(request.Id.ToString()));
+            return DomainErrors.AssignmentSubmission.NotFound(request.Id.ToString());
         var assignment = await _unitOfWork.Assignments.GetByIdAsync(submission.AssignmentId);
         if (assignment is null)
-            return Result.Failure(DomainErrors.Assignment.NotFound(submission.AssignmentId));
+            return DomainErrors.Assignment.NotFound(submission.AssignmentId);
         var user = _userContext.GetCurrentUser();
         if (submission.StudentId != user.Id || submission.Feedback != null)
         {
-            return Result.Failure(DomainErrors.AssignmentSubmission.DeleteForbidden);
+            return DomainErrors.AssignmentSubmission.DeleteForbidden;
         }
         if (assignment.AllowLateSubmission == false && assignment.DueDate <= DateTime.UtcNow)
         {
-            return Result.Failure(DomainErrors.AssignmentSubmission.DeleteAfterDeadline);
+            return DomainErrors.AssignmentSubmission.DeleteAfterDeadline;
         }
         var filePaths = submission.Files.Select(f => f.StoragePath);
 
