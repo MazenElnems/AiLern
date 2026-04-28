@@ -12,7 +12,5 @@ public class SectionProfile : Profile
         CreateMap<SectionCreateCommand, Section>();
 
         CreateMap<Section, SectionDto>();
-        CreateMap<Section, CourseSectionsDto>()
-            .ForMember(dest => dest.CourseName, opt => opt.MapFrom(src => src.Course.Name));
     }
 }

@@ -6,6 +6,7 @@ using LMS.Application.Features.Sections.Commands.DeleteMaterialFile;
 using LMS.Application.Features.Sections.Commands.DeleteSection;
 using LMS.Application.Features.Sections.Commands.MaterialFilesReorder;
 using LMS.Application.Features.Sections.Commands.RequestPreSignedUrl;
+using LMS.Application.Features.Sections.Commands.UpdateProgress;
 using LMS.Application.Features.Sections.Commands.UpdateSection;
 using LMS.Application.Features.Sections.Queries.GetSection;
 using LMS.Domain.Constants;
@@ -92,6 +93,14 @@ public class SectionsController : ApiBaseController
     {
         command.sectionId = id;
         var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("{id}/progress")]
+    [Authorize(Roles = UserRoles.Student)]
+    public async Task<ActionResult<ApiResponse>> UpdateSectionProgress(Guid id, [FromQuery] bool completed)
+    {
+        var result = await _mediator.Send(new UpdateSectionProgressCommand(id, completed));
         return HandleResponse(this, result);
     }
 }

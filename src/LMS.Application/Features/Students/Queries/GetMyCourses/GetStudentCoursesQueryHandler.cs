@@ -36,7 +36,12 @@ public class GetStudentCoursesQueryHandler : IRequestHandler<GetStudentCoursesQu
             Name = c.Name,
             Description = c.Description,
             InstructorId = c.InstructorId,
-            InstructorName = c.Instructor.FullName
+            InstructorName = c.Instructor.FullName,
+            Progress = c.Sections.Count() == 0
+                ? 0
+                : (int) (c.Sections.Count(s => s.SectionProgresses.Any(p => p.IsCompleted && p.StudentId == userId)) * 100M
+                    /
+                  c.Sections.Count()) 
         }).ToListAsync();
 
         return new PaginationResult<GetStudentCoursesDto>(
