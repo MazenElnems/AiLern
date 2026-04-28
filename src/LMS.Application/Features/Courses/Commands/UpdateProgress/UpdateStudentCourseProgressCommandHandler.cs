@@ -2,6 +2,7 @@
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Courses;
+using LMS.Domain.Enums;
 using LMS.Domain.Errors;
 using MediatR;
 
@@ -20,55 +21,41 @@ public class UpdateStudentCourseProgressCommandHandler : IRequestHandler<UpdateS
 
     public async Task<Result> Handle(UpdateStudentCourseProgressCommand request, CancellationToken cancellationToken)
     {
-        //var studentId = _userContext.GetCurrentUser().Id;
+        var studentId = _userContext.GetCurrentUser().Id;
 
-        //if (!await _unitOfWork.Courses.AnyAsync(c => c.Id == request.CourseId))
-        //    return DomainErrors.Course.NotFound(request.CourseId);
+        if(!await _unitOfWork.Courses.AnyAsync(c => c.Id == request.CourseId))
+            return DomainErrors.Course.NotFound(request.CourseId);
 
-        //if (!await _unitOfWork.Enrollments.IsEnrolledAsync(request.CourseId, studentId))
-        //    return DomainErrors.Course.NotEnrolled;
+        if(!await _unitOfWork.Enrollments.IsEnrolledAsync(request.CourseId, studentId))
+            return DomainErrors.Course.NotEnrolled;
 
-        //var totalSections = await _unitOfWork.Sections.CountAsync(s => s.CourseId == request.CourseId);
-        //var completedSections = totalSections == 0
-        //    ? 0
-        //    : Math.Min(request.CompletedSections, totalSections);
-        //var percent = totalSections == 0
-        //    ? 0
-        //    : (double)completedSections / totalSections * 100.0;
-        //var isCompleted = totalSections > 0 && completedSections == totalSections;
+        var courseProgress = await _unitOfWork.CourseProgress
+            .GetAsync(p => p.StudentId == studentId && p.CourseId == request.CourseId);
 
-        //var progress = await _unitOfWork.Progresses.GetAsync(
-        //    p => p.CourseId == request.CourseId && p.StudentId == studentId);
+        if(courseProgress == null)
+        {
+            await _unitOfWork.CourseProgress.InsertAsync(new CourseProgress
+            {
+                CourseId = request.CourseId,
+                StudentId = studentId,
+                LastOpenedFileId = request.LastOpenedFileId,
+                LastWatchedTime = request.LastWatchedTime,
+                LastPageNumber = request.LastPageNumber,
+                Type = request.LastWatchedTime.HasValue ? LearningType.Video : LearningType.File,
+                UpdatedAt = DateTime.UtcNow
+            });
+        }
+        else
+        {
+            courseProgress.LastOpenedFileId = request.LastOpenedFileId;
+            courseProgress.LastWatchedTime = request.LastWatchedTime;
+            courseProgress.LastPageNumber = request.LastPageNumber;
+            courseProgress.Type = request.LastWatchedTime.HasValue ? LearningType.Video : LearningType.File;
+            courseProgress.UpdatedAt = DateTime.UtcNow;
+        }
 
-        //if (progress == null)
-        //{
-        //    progress = new CourseProgress
-        //    {
-        //        CourseId = request.CourseId,
-        //        StudentId = studentId,
-        //        IsCompleted = isCompleted,
-        //        UpdatedAt = DateTime.UtcNow,
-        //        Percent = percent,
-        //        LastPageNumber = request.LastPageNumber,
-        //        LastWatchedTime = request.LastWatchedTime,
-        //        LastOpenedFileId = request.LastLearningItemId,
-        //        Type = request.Type
-        //    };
-        //    await _unitOfWork.Progresses.InsertAsync(progress);
-        //}
-        //else
-        //{
-        //    progress.IsCompleted = isCompleted;
-        //    progress.UpdatedAt = DateTime.UtcNow;
-        //    progress.Percent = percent;
-        //    progress.LastPageNumber = request.LastPageNumber;
-        //    progress.LastWatchedTime = request.LastWatchedTime;
-        //    progress.LastOpenedFileId = request.LastLearningItemId;
-        //    progress.Type = request.Type;
-        //}
+        await _unitOfWork.CommitAsync(cancellationToken);
 
-        //await _unitOfWork.CommitAsync(cancellationToken);
         return Result.Success("Progress updated successfully");
-
     }
 }

@@ -25,7 +25,8 @@ internal class UnitOfWork : IUnitOfWork
     public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
     public IAttemptRepository Attempts { get; }
     public IAnswersRepository Answers { get; }
-    public IBaseRepository<CourseProgress> Progresses { get; }
+    public IBaseRepository<CourseProgress> CourseProgress { get; }
+    public IBaseRepository<SectionProgress> SectionProgress { get; }
     public IBaseRepository<Notification> Notifications { get; }
     public IBaseRepository<UserNotification> UserNotifications { get; }
 
@@ -46,7 +47,8 @@ internal class UnitOfWork : IUnitOfWork
         QuestionGenerationFiles = new BaseRepository<QuestionGenerationFiles>(_context);
         Attempts = new AttemptRepository(_context);
         Answers = new AnswersRepository(_context);
-        Progresses = new BaseRepository<CourseProgress>(_context);
+        CourseProgress = new BaseRepository<CourseProgress>(_context);
+        SectionProgress = new BaseRepository<SectionProgress>(_context);
         Notifications = new BaseRepository<Notification>(_context);
         UserNotifications = new BaseRepository<UserNotification>(_context);
     }
@@ -55,4 +57,3 @@ internal class UnitOfWork : IUnitOfWork
 
     public Task<int> CommitAsync(CancellationToken cancellationToken) => _context.SaveChangesAsync(cancellationToken);
 }
-

@@ -22,7 +22,8 @@ public interface IUnitOfWork
     public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
     public IAttemptRepository Attempts { get; }
     public IAnswersRepository Answers { get; }
-    public IBaseRepository<CourseProgress> Progresses { get; }
+    public IBaseRepository<CourseProgress> CourseProgress { get; }
+    public IBaseRepository<SectionProgress> SectionProgress { get;  }       
     public IBaseRepository<Notification> Notifications { get; }
     public IBaseRepository<UserNotification> UserNotifications { get; }
 

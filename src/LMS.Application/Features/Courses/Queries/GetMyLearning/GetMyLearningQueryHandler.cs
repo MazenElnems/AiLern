@@ -2,7 +2,7 @@ using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
-using LMS.Domain.Enums;
+using LMS.Application.Features.Courses.Shared.DTO;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,45 +20,35 @@ public class GetMyLearningQueryHandler
         _userContext = userContext;
     }
 
-    public async Task<Result<PaginationResult<GetMyLearningDto>>> Handle(
-        GetMyLearningQuery request,
-        CancellationToken cancellationToken)
+    public async Task<Result<PaginationResult<GetMyLearningDto>>> Handle(GetMyLearningQuery request, CancellationToken cancellationToken)
     {
-        //var userId = _userContext.GetCurrentUser().Id;
+        var studentId = _userContext.GetCurrentUser().Id;
 
-        //var ordered = _unitOfWork.Enrollments.Query
-        //    .AsNoTracking()
-        //    .Where(e => e.StudentId == userId)
-        //    .Select(e => new
-        //    {
-        //        e.CourseId,
-        //        Name = e.Course.Name,
-        //        e.EnrolledAt,
-        //        Progress = e.Course.Progresses.Where(p => p.StudentId == userId).FirstOrDefault()
-        //    })
-        //    .OrderByDescending(x => x.Progress != null ? x.Progress.UpdatedAt : x.EnrolledAt);
+        var query = _unitOfWork.CourseProgress.Query
+            .Where(p => p.StudentId == studentId);
 
-        //var totalResult = await ordered.CountAsync(cancellationToken);
+        var totalResult = await query.CountAsync(cancellationToken);
 
-        //var items = await ordered
-        //    .Skip((request.PageNo - 1) * request.PageSize)
-        //    .Take(request.PageSize)
-        //    .Select(x => new GetMyLearningDto
-        //    {
-        //        CourseId = x.CourseId,
-        //        Name = x.Name,
-        //        Percent = x.Progress != null ? x.Progress.Percent : 0,
-        //        LastLearningItemId = x.Progress != null ? x.Progress.LastLearningItemId : null,
-        //        LastPageNumber = x.Progress != null ? x.Progress.LastPageNumber : null,
-        //        LastWatchedTime = x.Progress != null ? x.Progress.LastWatchedTime : null,
-        //        Type = x.Progress != null ? x.Progress.Type : LearningType.None
-        //    })
-        //    .ToListAsync(cancellationToken);
+        var items = await query
+            .OrderByDescending(p => p.UpdatedAt)
+            .Select(p => new GetMyLearningDto
+            {
+                CourseId = p.CourseId,
+                LastLearningItemId = p.LastOpenedFileId,
+                LastPageNumber = p.LastPageNumber,
+                LastWatchedTime = p.LastWatchedTime,
+                Type = p.Type,
+                Name = p.Course.Name
+            })
+            .Skip((request.PageNo - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToListAsync();
 
         return new PaginationResult<GetMyLearningDto>(
             request.PageNo,
             request.PageSize,
-            0,
-            new List<GetMyLearningDto>());
+            totalResult,
+            items
+        );
     }
 }

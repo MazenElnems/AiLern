@@ -7,13 +7,10 @@ using System.Text.Json.Serialization;
 namespace LMS.Application.Features.Courses.Commands.UpdateProgress;
 
 public record UpdateStudentCourseProgressCommand(
-    int CompletedSections,
     int? LastWatchedTime,
     int? LastPageNumber,
-    Guid? LastLearningItemId,
-    LearningType Type
-
-    ) : IRequest<Result>, ICourseContentRequest<Result>
+    Guid? LastOpenedFileId
+    ) : IRequest<Result>
 {
     [JsonIgnore]
     public int CourseId { get; set; }

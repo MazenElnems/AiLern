@@ -57,19 +57,6 @@ public class CoursesController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpGet("my-learning")]
-    [Authorize(Roles = UserRoles.Student)]
-    [SwaggerOperation(Summary = "Get my learning", Description = "Returns the current student's enrolled courses with progress, ordered by last progress update.")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Learning items retrieved successfully.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetMyLearning(int pageNo = 1, int pageSize = 10)
-    {
-        var result = await _mediator.Send(new GetMyLearningQuery(pageNo, pageSize));
-        return HandleResponse(this, result);
-    }
-
     [HttpGet("{id}")]
     [Authorize]
     [SwaggerOperation(Summary = "Get course by ID", Description = "Retrieves course details by ID.")]
@@ -128,6 +115,7 @@ public class CoursesController : ApiBaseController
     }
 
     [HttpGet("{id}/students")]
+    [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Get enrolled students", Description = "Lists students enrolled in a course.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Students retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -173,6 +161,19 @@ public class CoursesController : ApiBaseController
     {
         command.CourseId = id;
         var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("my-learning")]
+    [Authorize(Roles = UserRoles.Student)]
+    [SwaggerOperation(Summary = "Get my learning", Description = "Returns the current student's enrolled courses with progress, ordered by last progress update.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Learning items retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetMyLearning(int pageNo = 1, int pageSize = 5)
+    {
+        var result = await _mediator.Send(new GetMyLearningQuery(pageNo, pageSize));
         return HandleResponse(this, result);
     }
 }

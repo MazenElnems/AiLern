@@ -12,9 +12,6 @@ public class ProgressConfiguration : IEntityTypeConfiguration<CourseProgress>
 
         builder.HasKey(p => new { p.CourseId, p.StudentId });
 
-        builder.Property(p => p.IsCompleted)
-               .IsRequired();
-
         builder.Property(p => p.Type)
                .IsRequired()
                .HasConversion<string>(); 
