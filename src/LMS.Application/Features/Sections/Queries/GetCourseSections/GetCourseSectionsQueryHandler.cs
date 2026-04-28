@@ -46,8 +46,6 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
         if (user.IsInRole(UserRoles.Student) && !await _unitOfWork.Enrollments.IsEnrolledAsync(request.CourseId, user.Id))
             return DomainErrors.Course.NotEnrolled;
 
-        var result = new List<CourseSectionsDto>();
-
         var dto = course.Sections.Select(s =>
         {
             var sectionDto = _mapper.Map<CourseSectionsDto>(s);

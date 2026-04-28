@@ -5,10 +5,12 @@ using LMS.Application.Features.Courses.Commands.CreateEnrollment;
 using LMS.Application.Features.Courses.Commands.DeleteCourse;
 using LMS.Application.Features.Courses.Commands.DeleteEnrollment;
 using LMS.Application.Features.Courses.Commands.UpdateCourse;
+using LMS.Application.Features.Courses.Commands.UpdateProgress;
 using LMS.Application.Features.Courses.Queries.GetAllCourses;
 using LMS.Application.Features.Courses.Queries.GetById;
 using LMS.Application.Features.Courses.Queries.GetCoursesByInstructorId;
 using LMS.Application.Features.Courses.Queries.GetEnrolledStudents;
+using LMS.Application.Features.Courses.Queries.GetMyLearning;
 using LMS.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -52,6 +54,19 @@ public class CoursesController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetAll(int pageNo = 1, int pageSize = 10)
     {
         var result = await _mediator.Send(new GetAllCoursesQuery(pageNo, pageSize));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("my-learning")]
+    [Authorize(Roles = UserRoles.Student)]
+    [SwaggerOperation(Summary = "Get my learning", Description = "Returns the current student's enrolled courses with progress, ordered by last progress update.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Learning items retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetMyLearning(int pageNo = 1, int pageSize = 10)
+    {
+        var result = await _mediator.Send(new GetMyLearningQuery(pageNo, pageSize));
         return HandleResponse(this, result);
     }
 
@@ -106,7 +121,7 @@ public class CoursesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Course or student not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> DeleteEnrollment(int id,int studentId)
+    public async Task<ActionResult<ApiResponse>> DeleteEnrollment(int id, int studentId)
     {
         var result = await _mediator.Send(new DeleteEnrollmentCommand(id, studentId));
         return HandleResponse(this, result);
@@ -118,7 +133,7 @@ public class CoursesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetEnrolledStudents(int id, int pageNo = 1, int pageSize = 10, string searchString = "")    
+    public async Task<ActionResult<ApiResponse>> GetEnrolledStudents(int id, int pageNo = 1, int pageSize = 10, string searchString = "")
     {
         var result = await _mediator.Send(new GetEnrolledStudentsQuery(id, pageNo, pageSize, searchString));
         return HandleResponse(this, result);
@@ -133,7 +148,7 @@ public class CoursesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> EnrollStudent(int studentId,int courseId)
+    public async Task<ActionResult<ApiResponse>> EnrollStudent(int studentId, int courseId)
     {
         var result = await _mediator.Send(new EnrollCourseCommand(studentId, courseId));
         return HandleResponse(this, result);
@@ -149,6 +164,15 @@ public class CoursesController : ApiBaseController
     {
         var query = new GetCoursesByInstructorIdQuery(id);
         var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("{id}/progress")]
+    [Authorize(Roles = UserRoles.Student)]
+    public async Task<ActionResult<ApiResponse>> UpdateProgress(int id, UpdateStudentCourseProgressCommand command)
+    {
+        command.CourseId = id;
+        var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
 }

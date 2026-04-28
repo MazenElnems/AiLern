@@ -8,5 +8,6 @@ public class CourseSectionsDto
     public string CourseName { get; set; }
     public DateTime UploadDate { get; set; }
     public int OrderIndex { get; set; }
+    public bool IsCompleted { get; set; }
     public List<SectionFileDto> SectionFiles { get; set; } = new();
 }

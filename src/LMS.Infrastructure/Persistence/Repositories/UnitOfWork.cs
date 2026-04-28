@@ -25,7 +25,8 @@ internal class UnitOfWork : IUnitOfWork
     public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
     public IAttemptRepository Attempts { get; }
     public IAnswersRepository Answers { get; }
-    public IBaseRepository<Notification> Notfications { get; }
+    public IBaseRepository<CourseProgress> Progresses { get; }
+    public IBaseRepository<Notification> Notifications { get; }
     public IBaseRepository<UserNotification> UserNotifications { get; }
 
     public UnitOfWork(AppDbContext context)
@@ -45,7 +46,8 @@ internal class UnitOfWork : IUnitOfWork
         QuestionGenerationFiles = new BaseRepository<QuestionGenerationFiles>(_context);
         Attempts = new AttemptRepository(_context);
         Answers = new AnswersRepository(_context);
-        Notfications = new BaseRepository<Notification>(_context);
+        Progresses = new BaseRepository<CourseProgress>(_context);
+        Notifications = new BaseRepository<Notification>(_context);
         UserNotifications = new BaseRepository<UserNotification>(_context);
     }
 

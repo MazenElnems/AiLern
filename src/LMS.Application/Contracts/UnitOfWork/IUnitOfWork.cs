@@ -22,8 +22,9 @@ public interface IUnitOfWork
     public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
     public IAttemptRepository Attempts { get; }
     public IAnswersRepository Answers { get; }
-    public IBaseRepository<Notification> Notfications { get; }
-    public IBaseRepository<UserNotification> UserNotifications { get; }    
+    public IBaseRepository<CourseProgress> Progresses { get; }
+    public IBaseRepository<Notification> Notifications { get; }
+    public IBaseRepository<UserNotification> UserNotifications { get; }
 
     Task<int> CommitAsync();
     Task<int> CommitAsync(CancellationToken cancellationToken);
