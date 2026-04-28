@@ -6,6 +6,7 @@ using LMS.API.Models;
 using LMS.Application;
 using LMS.Infrastructure;
 using LMS.Infrastructure.Jobs;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System.Text.Json.Serialization;
@@ -39,7 +40,10 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         return new BadRequestObjectResult(response);
     };
 });
-
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromMinutes(30); 
+});
 builder.Services
     .ConfigureHttpClient()
     .AddCorsConfigurations()

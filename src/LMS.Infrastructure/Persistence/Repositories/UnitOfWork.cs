@@ -27,8 +27,9 @@ internal class UnitOfWork : IUnitOfWork
     public IAnswersRepository Answers { get; }
     public IBaseRepository<CourseProgress> CourseProgress { get; }
     public IBaseRepository<SectionProgress> SectionProgress { get; }
-    public IBaseRepository<Notification> Notifications { get; }
     public IBaseRepository<UserNotification> UserNotifications { get; }
+    public IBaseRepository<AIResource> AIResources { get; }
+    public IBaseRepository<Notification> Notfications { get; }
 
     public UnitOfWork(AppDbContext context)
     {
@@ -49,8 +50,9 @@ internal class UnitOfWork : IUnitOfWork
         Answers = new AnswersRepository(_context);
         CourseProgress = new BaseRepository<CourseProgress>(_context);
         SectionProgress = new BaseRepository<SectionProgress>(_context);
-        Notifications = new BaseRepository<Notification>(_context);
+        Notfications = new BaseRepository<Notification>(_context);
         UserNotifications = new BaseRepository<UserNotification>(_context);
+        AIResources = new BaseRepository<AIResource>(_context);
     }
 
     public async Task<int> CommitAsync() => await _context.SaveChangesAsync();

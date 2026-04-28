@@ -2,6 +2,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Settings;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -20,12 +21,13 @@ public class WasabiService : IWasabiService
         _logger = logger;
     }
 
-    public async Task<bool> FileExists(string key)
+    public async Task<bool> FileExists(string key, bool secret = true)
     {
         try
         {
             _logger.LogInformation("Checking if file exists in Wasabi: {Key}", key);
-            await _s3Client.GetObjectMetadataAsync(_wasabiSettings.BucketName, key);
+            var BucketName = secret ? _wasabiSettings.BucketName : _wasabiSettings.ContentBucketName;
+            await _s3Client.GetObjectMetadataAsync(BucketName, key);
             _logger.LogInformation("File exists in Wasabi: {Key}", key);
             return true;
         }
@@ -35,12 +37,12 @@ public class WasabiService : IWasabiService
         }
     }
 
-    public async Task<string> GeneratePresignedUploadUrlAsync(string key, string contentType, int expirationMinutes = 15)
+    public async Task<string> GeneratePresignedUploadUrlAsync(string key, string contentType, int expirationMinutes = 15,bool secret = true)
     {
         _logger.LogInformation("Generating pre-signed URL for upload to Wasabi: {Key}", key);
         var request = new GetPreSignedUrlRequest
         {
-            BucketName = _wasabiSettings.BucketName,
+            BucketName = secret ? _wasabiSettings.BucketName : _wasabiSettings.ContentBucketName,
             Key = key,
             Verb = HttpVerb.PUT,
             Expires = DateTime.UtcNow.AddMinutes(expirationMinutes),
@@ -50,14 +52,14 @@ public class WasabiService : IWasabiService
         return await _s3Client.GetPreSignedURLAsync(request);
     }
 
-    public async Task DeleteFileAsync(string key, CancellationToken cancellationToken)
+    public async Task DeleteFileAsync(string key, CancellationToken cancellationToken, bool secret = true)
     {
         try
         {
             _logger.LogInformation("Deleting file from Wasabi: {Key}", key);
             var request = new DeleteObjectRequest
             {
-                BucketName = _wasabiSettings.BucketName,
+                BucketName = secret ? _wasabiSettings.BucketName : _wasabiSettings.ContentBucketName,
                 Key = key
             };
 

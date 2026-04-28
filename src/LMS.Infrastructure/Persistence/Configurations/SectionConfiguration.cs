@@ -16,9 +16,6 @@ public class SectionConfiguration : IEntityTypeConfiguration<Section>
             .HasColumnType("NVARCHAR(200)")
             .IsRequired();
 
-        builder.Property(s => s.SectionNumber)
-            .HasColumnType("INT")
-            .IsRequired();
 
         builder.HasOne(s => s.Course)
             .WithMany(c =>c.Sections)

@@ -1,12 +1,12 @@
 ﻿using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Entities.Users;
-using LMS.Domain.Enums;
 
 namespace LMS.Domain.Entities.Courses;
 
 public class Course
 {
+    public string? ImageStoragePath { get; set; }
     public int Id { get; set; }
     public string Code { get; set; }
     public string Name { get; set; }
@@ -22,5 +22,6 @@ public class Course
     public List<Assignment> Assignments { get; set; } = new();
     public List<Section> Sections { get; set; } = new();
     public List<Quiz> Quizzes { get; set; } = new();
+    public List<AIResource> AIResources { get; set; } = new();
     public List<CourseProgress> Progresses { get; set; } = new();
 }

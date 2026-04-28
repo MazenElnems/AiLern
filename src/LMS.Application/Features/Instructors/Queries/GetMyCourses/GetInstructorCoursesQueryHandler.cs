@@ -30,6 +30,11 @@ public class GetInstructorCoursesQueryHandler : IRequestHandler<GetInstructorCou
             var instructorId = _userContext.GetCurrentUser().Id;
             var courses = await _unitOfWork.Courses.FilterAsync(c => c.InstructorId == instructorId);
             var dto = _mapper.Map<List<GetInstructorCoursesDto>>(courses);
+            foreach(var d in dto)
+            {
+                d.TotalStudents = await _unitOfWork.Enrollments.CountAsync(e => e.CourseId == d.Id);
+                d.TotalSections = await _unitOfWork.Sections.CountAsync(s => s.CourseId == d.Id);
+            }
             return Result<List<GetInstructorCoursesDto>>.Success(dto);
         }
         catch (Exception ex)

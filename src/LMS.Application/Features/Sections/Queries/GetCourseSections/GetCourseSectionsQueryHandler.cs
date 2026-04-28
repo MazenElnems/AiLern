@@ -58,8 +58,7 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
                     OrderIndex = f.OrderIndex,
                     FileUrl = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl, _bunnyOptions.Token,
                                     _bunnyOptions.Token, TimeSpan.FromMinutes(60))
-                }).ToList(),
-                SectionNumber = s.SectionNumber,
+                }).OrderBy(f => f.OrderIndex).ToList(),
                 IsCompleted = s.SectionProgresses.Any(p => p.StudentId == currentUser.Id && p.SectionId == s.Id && p.IsCompleted),
             }).ToListAsync();
 

@@ -9,4 +9,7 @@ public class GetInstructorCoursesDto
     public string? Description { get; set; }
     public DateTime CreatedAt { get; set; }
     public int InstructorId { get; set; }
+    public int TotalStudents { get; set; }
+    public int TotalSections { get; set; }
+    public string? ImageUrl { get; set; }
 }
