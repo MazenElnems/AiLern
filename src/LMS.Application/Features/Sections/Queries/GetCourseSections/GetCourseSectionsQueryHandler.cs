@@ -44,6 +44,7 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
 
         var sections = await _unitOfWork.Sections.Query
             .Where(s => s.CourseId == request.CourseId)
+            .OrderBy(s => s.SectionNumber)
             .Select(s => new CourseSectionsDto
             {
                 Id = s.Id,
@@ -59,7 +60,9 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
                     FileUrl = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl, _bunnyOptions.Token,
                                     _bunnyOptions.Token, TimeSpan.FromMinutes(60))
                 }).OrderBy(f => f.OrderIndex).ToList(),
-                IsCompleted = s.SectionProgresses.Any(p => p.StudentId == currentUser.Id && p.SectionId == s.Id && p.IsCompleted),
+                IsCompleted = currentUser.IsInRole(UserRoles.Instructor)
+                    ? false
+                    : s.SectionProgresses.Any(p => p.StudentId == currentUser.Id && p.IsCompleted),
             }).ToListAsync();
 
         return sections;
