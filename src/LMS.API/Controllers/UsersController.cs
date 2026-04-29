@@ -7,6 +7,7 @@ using LMS.Application.Features.Students.Queries.GetStudentProfileInCourse;
 using LMS.Application.Features.Users.Commands.AddUserToRole;
 using LMS.Application.Features.Users.Commands.DeleteUserRole;
 using LMS.Application.Features.Users.Queries.GetAllByRoleId;
+using LMS.Application.Features.Users.Queries.GetMe;
 using LMS.Application.Features.Users.Queries.GetUserById;
 using LMS.Domain.Constants;
 using LMS.Domain.Enums;
@@ -123,4 +124,13 @@ public class UsersController : ApiBaseController
         var result = await _mediator.Send(new GetStudentProfileInCourseQuery { CourseId = CourseId, StudentId = StudentId });
         return HandleResponse(this, result);
     }
+
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse>> GetMe()
+    {
+        var result = await _mediator.Send(new GetMeQuery());
+        return HandleResponse(this, result);
+    }
+
 }

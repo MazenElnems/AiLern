@@ -151,7 +151,7 @@ public class QuizzesController : ApiBaseController
 
     [HttpGet("{id}/submissions")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> GetSubmissionsByQuizId(Guid id, AttemptStatus status, int pageNo = 1, int pageSize = 10)
+    public async Task<ActionResult<ApiResponse>> GetSubmissionsByQuizId(Guid id, AttemptStatus? status, int pageNo = 1, int pageSize = 10)
     {
         var result = await _mediator.Send(new GetSubmissionsByQuizIdQuery(id, pageNo, pageSize, status));
         return HandleResponse(this, result);
