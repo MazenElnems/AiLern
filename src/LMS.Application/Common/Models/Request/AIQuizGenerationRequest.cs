@@ -1,7 +1,7 @@
 ﻿using LMS.Domain.Enums;
 using System.Text.Json.Serialization;
 
-namespace LMS.Infrastructure.ExternalServices.AIService.Requests;
+namespace LMS.Application.Common.Models.Request;
 
 public class AIQuizGenerationRequest
 {

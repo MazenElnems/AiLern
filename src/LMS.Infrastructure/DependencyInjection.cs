@@ -9,7 +9,6 @@ using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.Settings;
 using LMS.Domain.Entities.Users;
 using LMS.Infrastructure.ExternalServices.AIService;
-using LMS.Infrastructure.ExternalServices.AIService.Contracts;
 using LMS.Infrastructure.Jobs;
 using LMS.Infrastructure.Persistence;
 using LMS.Infrastructure.Persistence.Repositories;
@@ -45,6 +44,7 @@ public static class DependencyInjection
         services.AddScoped<IGenerateQuestionsJob, GenerateQuestionsJob>();
         services.AddScoped<IAutoSubmitAttemptJob, AutoSubmitAttemptJob>();
         services.AddScoped<ICalculateStudentScoreJob, CalculateStudentScoreJob>();
+        services.AddScoped<IPrepareDocumentsForAIJob, PrepareDocumentsForAIJob>();
         services.AddScoped<IAIService, AIService>();
         services.AddScoped<IAnswersRepository, AnswersRepository>();
         services.AddScoped<IUserRegistrationService, UserRegistrationService>();

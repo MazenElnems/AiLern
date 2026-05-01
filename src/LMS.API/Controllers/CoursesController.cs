@@ -20,6 +20,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using LMS.Application.Features.Courses.Queries.GetAIResourceStatus;
 
 namespace LMS.API.Controllers;
 
@@ -238,6 +239,14 @@ public class CoursesController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetMyLearning(int pageNo = 1, int pageSize = 5)
     {
         var result = await _mediator.Send(new GetMyLearningQuery(pageNo, pageSize));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("{id}/ai-status")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> GetAIStatus(int id)
+    {
+        var result = await _mediator.Send(new GetAIResourceStatusQuery (id));
         return HandleResponse(this, result);
     }
 }

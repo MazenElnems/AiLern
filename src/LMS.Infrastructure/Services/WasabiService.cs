@@ -37,6 +37,21 @@ public class WasabiService : IWasabiService
         }
     }
 
+    public async Task<string> GeneratePresignedDownloadUrlAsync(string key, int expirationMinutes = 15, bool secret = true)
+    {
+        _logger.LogInformation("Generating pre-signed URL for download from Wasabi: {Key}", key);
+
+        var request = new GetPreSignedUrlRequest
+        {
+            BucketName = secret ? _wasabiSettings.BucketName : _wasabiSettings.ContentBucketName,
+            Key = key,
+            Verb = HttpVerb.GET,
+            Expires = DateTime.UtcNow.AddMinutes(expirationMinutes)
+        };
+
+        return await _s3Client.GetPreSignedURLAsync(request);
+    }
+
     public async Task<string> GeneratePresignedUploadUrlAsync(string key, string contentType, int expirationMinutes = 15,bool secret = true)
     {
         _logger.LogInformation("Generating pre-signed URL for upload to Wasabi: {Key}", key);

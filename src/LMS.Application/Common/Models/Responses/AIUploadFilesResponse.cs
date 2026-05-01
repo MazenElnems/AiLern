@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace LMS.Infrastructure.ExternalServices.AIService.Responses;
+namespace LMS.Application.Common.Models.Responses;
 
 public class AIUploadFilesResponse
 {

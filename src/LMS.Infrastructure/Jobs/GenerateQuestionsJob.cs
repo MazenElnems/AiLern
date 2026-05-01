@@ -1,11 +1,10 @@
 using AutoMapper;
+using LMS.Application.Common.Models.Request;
 using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.Jobs;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
-using LMS.Infrastructure.ExternalServices.AIService.Contracts;
-using LMS.Infrastructure.ExternalServices.AIService.Requests;
 using Microsoft.Extensions.Logging;
 
 namespace LMS.Infrastructure.Jobs;

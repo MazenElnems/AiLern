@@ -75,6 +75,9 @@ public static class DomainErrors
     {
         public static Error NotFound(Guid id) =>
             Common.NotFound("AIResource", id.ToString());
+
+        public static Error ErrorWhileDeletingFile => 
+            Common.Conflict("AIResource", "Error occurred while deleting the AI resource.");
     }
     public static class Quiz
     {

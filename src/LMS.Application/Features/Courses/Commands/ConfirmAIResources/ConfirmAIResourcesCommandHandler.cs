@@ -1,5 +1,6 @@
 ﻿using LMS.Application.Common.Results;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.Jobs;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Courses;
@@ -13,14 +14,18 @@ public class ConfirmAIResourcesCommandHandler : IRequestHandler<ConfirmAIResourc
 {
     private readonly IUserContext _user;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IBackgroundJobService _backgroundJobService;
+    private readonly IPrepareDocumentsForAIJob _prepareDocumentsForAIJob;
 
 
-    public ConfirmAIResourcesCommandHandler(IUserContext user, IUnitOfWork unitOfWork)
+    public ConfirmAIResourcesCommandHandler(IUserContext user, IUnitOfWork unitOfWork, IBackgroundJobService backgroundJobService, IPrepareDocumentsForAIJob prepareDocumentsForAIJob)
     {
         _user = user;
         _unitOfWork = unitOfWork;
-
+        _backgroundJobService = backgroundJobService;
+        _prepareDocumentsForAIJob = prepareDocumentsForAIJob;
     }
+
     public async Task<Result<List<string>>> Handle(ConfirmAIResourcesCommand request, CancellationToken cancellationToken)
     {
         var userId = _user.GetCurrentUser().Id;
@@ -34,12 +39,12 @@ public class ConfirmAIResourcesCommandHandler : IRequestHandler<ConfirmAIResourc
             return DomainErrors.Course.NotOwned;
         }
         var unSuccessfulAIResources = new List<string>();
-        var aiResources = course.AIResources.Where(ar => ar.Status != UploadStatus.Completed).ToList();
+        var aiResources = course.AIResources.Where(ar => ar.UploadStatus != UploadStatus.Completed).ToList();
         foreach (var aiResource in aiResources)
         {
             if (request.AiResourceIds.Contains(aiResource.Id))
             {
-                aiResource.Status = UploadStatus.Completed;
+                aiResource.UploadStatus = UploadStatus.Completed;
             }
             else
             {
@@ -48,7 +53,8 @@ public class ConfirmAIResourcesCommandHandler : IRequestHandler<ConfirmAIResourc
             }
         }
         await _unitOfWork.CommitAsync();
-        return unSuccessfulAIResources;
 
+        _backgroundJobService.Enqueue(() => _prepareDocumentsForAIJob.ExecuteAsync(request.CourseId, cancellationToken));
+        return unSuccessfulAIResources;
     }
 }
