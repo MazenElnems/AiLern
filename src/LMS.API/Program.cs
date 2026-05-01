@@ -5,6 +5,7 @@ using LMS.API.Middleware;
 using LMS.API.Models;
 using LMS.Application;
 using LMS.Infrastructure;
+using LMS.Infrastructure.Hubs;
 using LMS.Infrastructure.Jobs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -92,5 +93,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<AIResourcesHub>("/hubs/ai-resources");
 
 app.Run();

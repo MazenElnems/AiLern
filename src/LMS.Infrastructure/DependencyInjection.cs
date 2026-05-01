@@ -5,6 +5,7 @@ using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.Identity;
 using LMS.Application.Contracts.Jobs;
 using LMS.Application.Contracts.Repositories;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.Settings;
 using LMS.Domain.Entities.Users;
@@ -48,6 +49,7 @@ public static class DependencyInjection
         services.AddScoped<IAIService, AIService>();
         services.AddScoped<IAnswersRepository, AnswersRepository>();
         services.AddScoped<IUserRegistrationService, UserRegistrationService>();
+        services.AddScoped<IAIStatusNotifier, AIStatusNotifier>();
 
         services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
