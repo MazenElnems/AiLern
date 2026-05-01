@@ -22,7 +22,7 @@ public class PrepareDocumentsForAIJob : IPrepareDocumentsForAIJob
     public async Task ExecuteAsync(int courseId, CancellationToken cancellationToken)
     {
         var docResources = await _unitOfWork.AIResources.Query
-            .Where(f => f.CourseId == courseId)
+            .Where(f => f.CourseId == courseId && f.UploadStatus == UploadStatus.Completed && f.AIStatus != AIStatus.Completed)
             .ToListAsync(cancellationToken);
 
         var aIUploadDocsRequest = new List<AIUploadDocsRequest>();

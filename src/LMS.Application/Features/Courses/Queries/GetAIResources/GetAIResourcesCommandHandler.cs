@@ -47,7 +47,9 @@ public class GetAIResourcesCommandHandler : IRequestHandler<GetAIResourcesComman
                 FileUrl = f.StoragePath,
                 FileName = f.FileName,
                 FileSize = f.FileSize,
-                ContentType = f.FileType
+                ContentType = f.FileType,
+                AIStatus = f.AIStatus,
+                UploadStatus = f.UploadStatus
             }).ToListAsync(cancellationToken);
         aiResources.ForEach(r =>
         {

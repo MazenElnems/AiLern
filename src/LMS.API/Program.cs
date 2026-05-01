@@ -41,10 +41,14 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         return new BadRequestObjectResult(response);
     };
 });
+
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
     options.TokenLifespan = TimeSpan.FromMinutes(30); 
 });
+
+builder.Services.AddSignalR();
+
 builder.Services
     .ConfigureHttpClient()
     .AddCorsConfigurations()
@@ -94,6 +98,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapHub<AIResourcesHub>("/hubs/ai-resources");
+app.MapHub<AIResourcesHub>("/hubs/ai-resources")
+    .RequireAuthorization();
 
 app.Run();
