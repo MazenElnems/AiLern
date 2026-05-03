@@ -9,8 +9,6 @@ using LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
 using LMS.Application.Features.Quizzes.Commands.UpdateQuizStatus;
 using LMS.Application.Features.Quizzes.Commands.UpsertQuestions;
 using LMS.Application.Features.Quizzes.Queries.GetAllQuizzes;
-using LMS.Application.Features.Quizzes.Queries.GetJob;
-using LMS.Application.Features.Quizzes.Queries.GetQuestionGenerationFiles;
 using LMS.Application.Features.Quizzes.Queries.GetQuiz;
 using LMS.Application.Features.Quizzes.Queries.GetSubmissionsByQuizId;
 using LMS.Application.Features.Quizzes.Shared.Requests;
@@ -117,35 +115,19 @@ public class QuizzesController : ApiBaseController
 
     [HttpPost("{quizId}/generate-by-ai")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> GenerateByAi([FromRoute] Guid quizId, [FromForm] GenerateQuestionByAIRequest request)
+    public async Task<ActionResult<ApiResponse>> GenerateByAi(Guid quizId, GenerateQuestionByAIRequest request)
     {
-        var command = _mapper.Map<GenerateQuestionsCommand>(request);
-        command.QuizId = quizId;
+        var command = new GenerateQuestionsCommand(
+            quizId,
+            request.FileIds,
+            request.Topics,
+            request.QuestionsCount,
+            request.QuestionTypeCounts,
+            request.QuestionDifficultyPercents,
+            request.Query
+        );
+
         var result = await _mediator.Send(command);
-        return HandleResponse(this, result);
-    }
-
-    [HttpGet("job/{id}")]
-    [Authorize(Roles = UserRoles.Instructor)]
-    [SwaggerOperation(Summary = "Get job", Description = "Get an job by id.")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Job retrieved successfully.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status404NotFound, "job not found.", typeof(ApiResponse))]
-    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetJobById(Guid id, [FromQuery] GetJobByIdQuery query)
-    {
-        query.Id = id;
-        var result = await _mediator.Send(query);
-        return HandleResponse(this, result);
-    }
-
-    [HttpGet("{id}/generate-questions-files")]
-    [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> GetQuestionGenerationFiles(Guid id)
-    {
-        var result = await _mediator.Send(new GetQuestionGenerationFilesQuery(id));
         return HandleResponse(this, result);
     }
 

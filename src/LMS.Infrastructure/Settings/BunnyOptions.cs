@@ -1,4 +1,4 @@
-﻿namespace LMS.Application.Settings;
+﻿namespace LMS.Infrastructure.Settings;
 
 public class BunnyOptions
 {

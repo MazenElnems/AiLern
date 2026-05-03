@@ -75,6 +75,8 @@ recurringJobManager.AddOrUpdate(
 
 app.UseGlobalExceptionHandler();
 
+app.UseAuthResponseHandler();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -98,7 +100,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapHub<AIResourcesHub>("/hubs/ai-resources")
+app.MapHub<AIServiceHub>("/hubs/ai-resources")
     .RequireAuthorization();
 
 app.Run();

@@ -21,8 +21,6 @@ internal class UnitOfWork : IUnitOfWork
     public IBaseRepository<AssignmentSubmission> AssignmentSubmissions { get; }
     public IQuizRepository Quizzes { get; }
     public IQuestionsRepository Questions { get; }
-    public IBaseRepository<AIQuestionGenerationJob> QuestionGenerationJobs { get; }
-    public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
     public IAttemptRepository Attempts { get; }
     public IAnswersRepository Answers { get; }
     public IBaseRepository<CourseProgress> CourseProgress { get; }
@@ -44,8 +42,6 @@ internal class UnitOfWork : IUnitOfWork
         AssignmentSubmissions = new BaseRepository<AssignmentSubmission>(_context);
         Quizzes = new QuizRepository(_context);
         Questions = new QuestionsRepository(_context);
-        QuestionGenerationJobs = new BaseRepository<AIQuestionGenerationJob>(_context);
-        QuestionGenerationFiles = new BaseRepository<QuestionGenerationFiles>(_context);
         Attempts = new AttemptRepository(_context);
         Answers = new AnswersRepository(_context);
         CourseProgress = new BaseRepository<CourseProgress>(_context);

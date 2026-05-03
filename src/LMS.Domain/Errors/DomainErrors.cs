@@ -78,6 +78,7 @@ public static class DomainErrors
 
         public static Error ErrorWhileDeletingFile => 
             Common.Conflict("AIResource", "Error occurred while deleting the AI resource.");
+
     }
     public static class Quiz
     {

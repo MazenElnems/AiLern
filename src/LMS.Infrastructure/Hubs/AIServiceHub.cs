@@ -3,11 +3,11 @@ using Microsoft.Extensions.Logging;
 
 namespace LMS.Infrastructure.Hubs;
 
-public class AIResourcesHub : Hub
+public class AIServiceHub : Hub
 {
-    private readonly ILogger<AIResourcesHub> _logger;
+    private readonly ILogger<AIServiceHub> _logger;
 
-    public AIResourcesHub(ILogger<AIResourcesHub> logger)
+    public AIServiceHub(ILogger<AIServiceHub> logger)
     {
         _logger = logger;
     }

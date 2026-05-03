@@ -7,13 +7,13 @@ using LMS.Application.Contracts.Jobs;
 using LMS.Application.Contracts.Repositories;
 using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
-using LMS.Application.Settings;
 using LMS.Domain.Entities.Users;
 using LMS.Infrastructure.ExternalServices.AIService;
 using LMS.Infrastructure.Jobs;
 using LMS.Infrastructure.Persistence;
 using LMS.Infrastructure.Persistence.Repositories;
 using LMS.Infrastructure.Services;
+using LMS.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -42,19 +42,19 @@ public static class DependencyInjection
         services.AddScoped<IBackgroundJobService, HangfireJobService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-        services.AddScoped<IGenerateQuestionsJob, GenerateQuestionsJob>();
         services.AddScoped<IAutoSubmitAttemptJob, AutoSubmitAttemptJob>();
         services.AddScoped<ICalculateStudentScoreJob, CalculateStudentScoreJob>();
         services.AddScoped<IPrepareDocumentsForAIJob, PrepareDocumentsForAIJob>();
         services.AddScoped<IAIService, AIService>();
         services.AddScoped<IAnswersRepository, AnswersRepository>();
         services.AddScoped<IUserRegistrationService, UserRegistrationService>();
-        services.AddScoped<IAIStatusNotifier, AIStatusNotifier>();
+        services.AddScoped<IAIServiceNotifier, AIServiceNotifier>();
 
         services.Configure<BunnyOptions>(configuration.GetSection("BunnyCDN"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.Configure<FrontEndSettings>(configuration.GetSection("FrontEndSettings"));
         services.Configure<AIServiceSettings>(configuration.GetSection("AIServiceSettings"));
+        services.Configure<WebhookSettings>(configuration.GetSection("WebhookSettings"));
 
         // AutoMapper
         services.AddAutoMapper(cfg => { } ,

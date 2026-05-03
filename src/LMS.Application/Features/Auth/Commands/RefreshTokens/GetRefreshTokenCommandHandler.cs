@@ -1,41 +1,21 @@
 using LMS.Application.Common.Results.Generic;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using LMS.Application.Features.Auth.Commands.Login;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
 using LMS.Application.Features.Auth.Shared.DTO;
 using LMS.Application.Contracts.Identity;
-using LMS.Application.Settings;
 using LMS.Application.Contracts.UnitOfWork;
 
 namespace LMS.Application.Features.Auth.Commands.RefreshTokens;
 
-public class GetRefreshTokenCommandHandler : IRequestHandler<GetRefreshTokenCommand, Result<GetTokenResponseDto>>
+public class GetRefreshTokenCommandHandler(
+    IUnitOfWork unitOfWork,
+    IRefreshTokenService refreshTokenService,
+    IJwtTokenService jwtTokenService) : IRequestHandler<GetRefreshTokenCommand, Result<GetTokenResponseDto>>
 {
-    private readonly RefreshTokenOptions _refreshToken;
-    private readonly JwtOptions _jwt;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IRefreshTokenService _refreshTokenService;
-    private readonly IJwtTokenService _jwtTokenService;
-
-    public GetRefreshTokenCommandHandler(
-        UserManager<ApplicationUser> userManager,
-        ILogger<UserLoginByEmailAndPasswordCommandHandler> logger,
-        IOptions<RefreshTokenOptions> refreshToken,
-        IUnitOfWork unitOfWork,
-        IRefreshTokenService refreshTokenService,
-        IJwtTokenService jwtTokenService,
-        IOptions<JwtOptions> jwt)
-    {
-        _refreshToken = refreshToken.Value;
-        _unitOfWork = unitOfWork;
-        _refreshTokenService = refreshTokenService;
-        _jwtTokenService = jwtTokenService;
-        _jwt = jwt.Value;
-    }
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
+    private readonly IJwtTokenService _jwtTokenService = jwtTokenService;
 
     public async Task<Result<GetTokenResponseDto>> Handle(GetRefreshTokenCommand request, CancellationToken cancellationToken)
     {
@@ -49,21 +29,20 @@ public class GetRefreshTokenCommandHandler : IRequestHandler<GetRefreshTokenComm
 
         var user = oldRefreshToken.User;
 
-        var accessTokenExpiration = DateTime.UtcNow.AddMinutes(_jwt.DurationInMinutes);
-        var accessToken = await _jwtTokenService.GenerateTokenAsync(user, accessTokenExpiration);
-        var newRefreshToken = _refreshTokenService.GenerateRefreshToken();
+        var (accessToken, accessTokenExpiration) = await _jwtTokenService.GenerateTokenAsync(user);
+        var (newRefreshToken, newRefreshTokenExpiration) = _refreshTokenService.GenerateRefreshToken();
 
         await _unitOfWork.RefreshTokens.InsertAsync(new RefreshToken
         {
             Id = Guid.NewGuid(),
             Token = newRefreshToken,
             CreatedOn = DateTime.UtcNow,
-            ExpiresOn = DateTime.UtcNow.AddDays(_refreshToken.DurationInDays),
+            ExpiresOn = newRefreshTokenExpiration,
             UserId = user.Id,
         });
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
 
-        GetTokenResponseDto response = new GetTokenResponseDto
+        GetTokenResponseDto response = new()
         {
             UserName = user.UserName!,
             Email = user.Email!,

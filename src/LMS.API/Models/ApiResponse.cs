@@ -26,7 +26,7 @@ public class ApiResponse
     public static ApiResponse NotFound(string? message)
         => new(false, StatusCodes.Status404NotFound, message, null, null);
 
-    public static ApiResponse Unauthorized(string? message = "Unauthorized")
+    public static ApiResponse Unauthorized(string? message = "unauthenticated")
         => new(false, StatusCodes.Status401Unauthorized, message, null, null);
 
     public static ApiResponse Forbidden(string? message = "Forbidden")
@@ -35,6 +35,6 @@ public class ApiResponse
     public static ApiResponse Conflict(string message)
         => new(false, StatusCodes.Status409Conflict, message, null, null);
 
-    public static ApiResponse InternalError(string? message)
-        => new(false, StatusCodes.Status500InternalServerError, message, null, null);
+    public static ApiResponse InternalError(string? message, int statusCode = StatusCodes.Status500InternalServerError)
+        => new(false, statusCode, message, null, null);
 }

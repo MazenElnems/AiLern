@@ -2,32 +2,20 @@
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Contracts.ExternalServices;
 using LMS.Domain.Exceptions;
+using LMS.Infrastructure.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.Net.Http.Headers;
+using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace LMS.Infrastructure.ExternalServices.AIService;
 
-public class AIService : IAIService
+public class AIService(IHttpClientFactory factory, ILogger<AIService> logger, IOptions<AIServiceSettings> aiServiceOptions, IOptions<WebhookSettings> webhookSettings) : IAIService
 {
-    private readonly IHttpClientFactory _factory;
-    private readonly ILogger<AIService> _logger;
-
-    private readonly Dictionary<string, string> _mineTypes = new Dictionary<string, string>
-    {
-        { ".txt", "text/plain" },
-        { ".pdf", "application/pdf" },
-        { ".doc", "application/msword" },
-        { ".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }
-    };
-
-    public AIService(IHttpClientFactory factory, ILogger<AIService> logger)
-    {
-        _factory = factory;
-        _logger = logger;
-    }
+    private readonly IHttpClientFactory _factory = factory;
+    private readonly ILogger<AIService> _logger = logger;
+    private readonly AIServiceSettings _aiServiceSettings = aiServiceOptions.Value;
+    private readonly WebhookSettings _webhookSettings = webhookSettings.Value;
 
     public async Task<AIDeleteProjectResponse> DeleteFileAsync(string projectId, CancellationToken cancellationToken)
     {
@@ -38,7 +26,7 @@ public class AIService : IAIService
             using var client = _factory.CreateClient("AIService");
 
             response = await client.DeleteAsync(
-                $"/api/v1/professor/project/{projectId}",
+                $"{_aiServiceSettings.DeleteEndpoint}/{projectId}",
                 cancellationToken
             );
 
@@ -49,32 +37,33 @@ public class AIService : IAIService
 
             return result;
         }
-        catch (TaskCanceledException ex)    // Timeout
+        catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
         {
             _logger.LogError(
                 ex,
                 "Timeout occurred while requesting {AIServiceEndpoint} endpoint of AI Service.",
-                $"DELETE: /api/v1/professor/project/{projectId}"
+                $"DELETE: {_aiServiceSettings.DeleteEndpoint}/{projectId}"
             );
 
-            throw;
+            throw new AIServiceTimeoutException("The AI service did not respond in time. Please try again later.", ex);
         }
-        catch(HttpRequestException ex)  // 4xx & 5xx 
+        catch (HttpRequestException ex)
         {
             _logger.LogError(
                 ex,
                 "HTTP request error occurred while requesting {AIServiceEndpoint} endpoint of AI Service. Status Code: {StatusCode}",
-                $"DELETE: /api/v1/professor/project/{projectId}",
+                $"DELETE: {_aiServiceSettings.DeleteEndpoint}/{projectId}",
                 response.StatusCode
             );
-            throw;
+
+            throw new AIServiceUnAvailableException("The AI service did not respond in time. Please try again later.", ex);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logger.LogError(
                 ex,
                 "Error occurred while requesting {AIServiceEndpoint} endpoint of AI Service.",
-                $"DELETE: /api/v1/professor/project/{projectId}"
+                $"DELETE: {_aiServiceSettings.DeleteEndpoint}/{projectId}"
             );
             throw;
         }
@@ -86,56 +75,49 @@ public class AIService : IAIService
         {
             using var client = _factory.CreateClient("AIService");
 
+            var webhookUrl = $"{_webhookSettings.BaseUrl}/{_webhookSettings.Endpoints["QuestionsGenerated"]}";
+
+            client.DefaultRequestHeaders.Add(
+                "X-QuestionGenerated-WebHook",
+                webhookUrl
+            );
+
             var response = await client.PostAsJsonAsync(
-                "/api/v1/data/QA_enhance",
+                $"{_aiServiceSettings.QAEndpoint}",
                 quizGenerationRequest,
                 AIServiceJsonOptions.Default,
                 cancellationToken
             );
-
-            var json = JsonSerializer.Serialize(quizGenerationRequest, AIServiceJsonOptions.Default);
-
-            Console.WriteLine(json);
 
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<AIQuizGenerationResonse>(AIServiceJsonOptions.Default, cancellationToken)
                    ?? throw new Exception("Failed to deserialize response");
         }
-        catch (Exception ex)
+        catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
         {
-            _logger.LogError(ex, "Error happened while requesting {AIServiceEndpoint} endpoint of AI Service.", "/api/v1/data/QA_enhance");
-            throw;
-        }
-    }
-
-    public async Task<AIUploadFilesResponse> UploadFileAsync(string projectId, string filename, Stream fileStream, CancellationToken cancellationToken)
-    {
-        try
-        {
-            using var client = _factory.CreateClient("AIService");
-
-            var formDataContent = new MultipartFormDataContent();
-
-            var fileContent = new StreamContent(fileStream);
-            fileContent.Headers.ContentType = new MediaTypeHeaderValue(_mineTypes[Path.GetExtension(filename)]);
-
-            formDataContent.Add(fileContent, "file", filename);
-
-            var response = await client.PostAsync(
-                $"/api/v1/professor/upload_docs/{projectId}",
-                formDataContent,
-                cancellationToken
+            _logger.LogError(
+                ex,
+                "Timeout occurred while requesting {AIServiceEndpoint} endpoint of AI Service.",
+                $"{_aiServiceSettings.QAEndpoint}"
             );
 
-            response.EnsureSuccessStatusCode();
+            throw new AIServiceTimeoutException("The AI service did not respond in time. Please try again later.", ex);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(
+                ex,
+                "HTTP request error occurred while requesting {AIServiceEndpoint} endpoint of AI Service. Status Code: {StatusCode}",
+                $"{_aiServiceSettings.QAEndpoint}",
+                ex.StatusCode
+            );
 
-            return await response.Content.ReadFromJsonAsync<AIUploadFilesResponse>(AIServiceJsonOptions.Default ,cancellationToken) 
-               ?? throw new Exception("Failed to deserialize response");
+            throw new AIServiceUnAvailableException("The AI service did not respond in time. Please try again later.", ex);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error happened while requesting {AIServiceEndpoint} endpoint of AI Service.", "/api/v1/professor/upload_docs");
+            _logger.LogError(ex, "Error happened while requesting {AIServiceEndpoint} endpoint of AI Service.", $"{_aiServiceSettings.QAEndpoint}");
             throw;
         }
     }
@@ -149,10 +131,15 @@ public class AIService : IAIService
         {
             using var client = _factory.CreateClient("AIService");
 
-            response.Headers.Add("X-WebHook-UpdateFileStatus", "api/webhooks/ai/upload-result");
+            var webhookUrl = $"{_webhookSettings.BaseUrl}/{_webhookSettings.Endpoints["DocumentsUploaded"]}";
+
+            client.DefaultRequestHeaders.Add(
+                "X-WebHook-UpdateFileStatus",
+                webhookUrl
+            );
 
             response = await client.PostAsJsonAsync(
-                "/api/v1/professor/upload_docs_from_presigned_urls",
+                $"{_aiServiceSettings.UploadEndpoint}",
                 uploadDocsRequest,
                 AIServiceJsonOptions.Default,
                 cancellationToken
@@ -165,28 +152,30 @@ public class AIService : IAIService
 
             return result;
         }
-        catch(TimeoutException ex)
+        catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
         {
             _logger.LogError(
                 ex,
                 "Timeout occurred while requesting {AIServiceEndpoint} endpoint of AI Service.",
-                "/api/v1/professor/upload_docs_from_presigned_urls"
+                $"{_aiServiceSettings.UploadEndpoint}"
             );
-            throw;
+
+            throw new AIServiceTimeoutException("The AI service did not respond in time. Please try again later.", ex);
         }
-        catch(HttpRequestException ex)
+        catch (HttpRequestException ex)
         {
             _logger.LogError(
                 ex,
                 "HTTP request error occurred while requesting {AIServiceEndpoint} endpoint of AI Service. Status: {HttpStatusCode}",
-                "/api/v1/professor/upload_docs_from_presigned_urls",
+                $"{_aiServiceSettings.UploadEndpoint}",
                 response.StatusCode
             );
-            throw;
+
+            throw new AIServiceUnAvailableException("The AI service is unavailable. Please try again later.", ex);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error happened while requesting {AIServiceEndpoint} endpoint of AI Service.", "/api/v1/professor/upload_docs_from_presigned_urls");
+            _logger.LogError(ex, "Error happened while requesting {AIServiceEndpoint} endpoint of AI Service.", $"{_aiServiceSettings.UploadEndpoint}");
             throw;
         }
     }

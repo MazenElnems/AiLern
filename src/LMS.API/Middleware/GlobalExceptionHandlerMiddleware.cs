@@ -1,4 +1,5 @@
 ﻿using LMS.API.Models;
+using LMS.Domain.Exceptions;
 
 namespace LMS.API.Middleware;
 
@@ -19,6 +20,26 @@ public class GlobalExceptionHandlerMiddleware
         {
             await _next(httpContext);
         }
+        catch(AIServiceUnAvailableException ex)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+            _logger.LogError("AI Service Unavailable Exception Was Thrown {@StackTrace} {@Exception}",
+                ex.StackTrace,
+                ex.Source
+            );
+
+            await httpContext.Response.WriteAsJsonAsync(ApiResponse.InternalError("AI Service Unavailable Exception", StatusCodes.Status503ServiceUnavailable));
+        }
+        catch(AIServiceTimeoutException ex)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status504GatewayTimeout;
+            _logger.LogError("AI Service Timeout Exception Was Thrown {@StackTrace} {@Exception}",
+                ex.StackTrace,
+                ex.Source
+            );
+
+            await httpContext.Response.WriteAsJsonAsync(ApiResponse.InternalError("AI Service Timeout Exception", StatusCodes.Status504GatewayTimeout));
+        }
         catch (Exception ex)
         {
             httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
@@ -27,7 +48,7 @@ public class GlobalExceptionHandlerMiddleware
                 ex.Source
             );
 
-            await httpContext.Response.WriteAsJsonAsync(ApiResponse.InternalError("something went wrong."));
+            await httpContext.Response.WriteAsJsonAsync(ApiResponse.InternalError("something went wrong.", StatusCodes.Status500InternalServerError));
         }
     }
 }

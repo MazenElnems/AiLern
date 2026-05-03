@@ -10,9 +10,9 @@ public class ProcessAIUploadWebhookCommandHandler : IRequestHandler<ProcessAIUpl
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ProcessAIUploadWebhookCommandHandler> _logger;
-    private readonly IAIStatusNotifier _aiStatusNotifier;
+    private readonly IAIServiceNotifier _aiStatusNotifier;
 
-    public ProcessAIUploadWebhookCommandHandler(IUnitOfWork unitOfWork, ILogger<ProcessAIUploadWebhookCommandHandler> logger, IAIStatusNotifier aiStatusNotifier)
+    public ProcessAIUploadWebhookCommandHandler(IUnitOfWork unitOfWork, ILogger<ProcessAIUploadWebhookCommandHandler> logger, IAIServiceNotifier aiStatusNotifier)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;

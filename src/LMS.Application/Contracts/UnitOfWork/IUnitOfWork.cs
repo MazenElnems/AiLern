@@ -18,8 +18,6 @@ public interface IUnitOfWork
     public IBaseRepository<Section> Sections { get; }
     public IQuizRepository Quizzes { get; }
     public IQuestionsRepository Questions { get; }
-    public IBaseRepository<AIQuestionGenerationJob> QuestionGenerationJobs { get; }
-    public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
     public IAttemptRepository Attempts { get; }
     public IAnswersRepository Answers { get; }
     public IBaseRepository<Notification> Notfications { get; }

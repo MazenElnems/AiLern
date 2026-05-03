@@ -1,7 +1,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using LMS.Application.Contracts.ExternalServices;
-using LMS.Application.Settings;
+using LMS.Infrastructure.Settings;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
