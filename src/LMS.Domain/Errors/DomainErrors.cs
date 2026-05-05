@@ -247,6 +247,8 @@ public static class DomainErrors
             Common.BusinessRule("User.CreationFailed", message);
         public static Error InvalidPassword =>
             Common.BusinessRule("InvalidPassword", "The current password is incorrect.");
+        public static Error EmailNotFound =>
+            Common.BusinessRule("User.EmailNotFound", "No account found with this email."); 
     }
 
     public static class Role
@@ -279,7 +281,7 @@ public static class DomainErrors
             Common.BusinessRule("Auth.EmailConfirmationFailed", "Email confirmation failed.");
 
         public static Error PasswordResetFailed =>
-            Common.BusinessRule("Auth.PasswordResetFailed", "Can't reset the password, please try again.");
+            Common.BusinessRule("Auth.PasswordResetFailed", "New password must be different from the old password.");
 
         public static Error ChangePasswordFailed(string message) =>
             Common.BusinessRule("Auth.ChangePasswordFailed", message);

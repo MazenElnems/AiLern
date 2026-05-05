@@ -7,7 +7,7 @@ public class ChangeUserPhotoCommandValidator : AbstractValidator<ChangeUserPhoto
     public ChangeUserPhotoCommandValidator()
     {
         RuleFor(x => x.Image)
-    .NotNull().WithMessage("Image is required.");
+            .NotNull().WithMessage("Image is required.");
 
         RuleFor(x => x.Image.FileSize)
             .LessThanOrEqualTo(2 * 1024 * 1024) 
