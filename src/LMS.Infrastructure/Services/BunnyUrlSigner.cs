@@ -1,15 +1,19 @@
 ﻿using LMS.Application.Contracts.ExternalServices;
+using LMS.Infrastructure.Settings;
+using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace LMS.Infrastructure.Services;
 
-public class BunnyUrlSigner : IBunnyUrlSigner
+public class BunnyUrlSigner(IOptions<BunnyOptions> bunnyOptions) : IBunnyUrlSigner
 {
-    public string GenerateSignedUrl(string baseUrl, string tokenKey, string filePath, TimeSpan validFor)
+    private readonly BunnyOptions _bunnyOptions = bunnyOptions.Value;
+
+    public string GenerateSignedUrl(string filePath, TimeSpan validFor)
     {
         var normalizedPath = filePath.StartsWith('/') ? filePath : "/" + filePath;
-        var baseTrimmed = baseUrl.TrimEnd('/');
+        var baseTrimmed = _bunnyOptions.BaseUrl.TrimEnd('/');
         var uri = new Uri(baseTrimmed + normalizedPath);
 
         var expires = DateTimeOffset.UtcNow.Add(validFor).ToUnixTimeSeconds().ToString();
@@ -17,7 +21,7 @@ public class BunnyUrlSigner : IBunnyUrlSigner
 
         // message = signaturePath + expires
         var message = string.Concat(signaturePath, expires);
-        var token = "HS256-" + HmacSha256Base64Url(tokenKey, message);
+        var token = "HS256-" + HmacSha256Base64Url(_bunnyOptions.Token, message);
 
         var origin = $"{uri.Scheme}://{uri.Authority}";
         return $"{origin}{signaturePath}?token={token}&expires={expires}";

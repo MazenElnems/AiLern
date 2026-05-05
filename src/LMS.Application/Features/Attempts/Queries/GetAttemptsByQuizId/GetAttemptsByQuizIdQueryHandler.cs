@@ -32,7 +32,7 @@ public class GetAttemptsByQuizIdQueryHandler : IRequestHandler<GetAttemptsByQuiz
                 q.Title,
                 q.Status,
                 q.CourseId,
-                TotalPoints = q.Questions.Sum(q => q.Mark),
+                TotalPoints = q.Questions.Where(qu => !qu.IsAIGenerated || qu.IsAccepted == true).Sum(qu => qu.Mark),
                 q.AvailableFrom,
                 q.AvailableUntil,
                 q.ShowResultOnClose

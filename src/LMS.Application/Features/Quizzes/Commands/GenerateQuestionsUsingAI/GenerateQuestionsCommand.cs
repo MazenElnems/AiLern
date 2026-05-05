@@ -1,18 +1,15 @@
-﻿using LMS.Application.Common.Results.Generic;
+﻿using LMS.Application.Common.Results;
 using LMS.Domain.Enums;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 
 namespace LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
 
-public class GenerateQuestionsCommand : IRequest<Result<Guid>>
-{
-    public Guid QuizId { get; set; }
-    public List<Guid> FileIds { get; set; }
-    public int MCQ { get; set; }
-    public List<IFormFile> NewUploadedFiles { get; set; }
-    public int QuestionsCount { get; set; }
-    public Dictionary<QuestionType, int> QuestionTypeCounts { get; set; }
-    public Dictionary<QuestionDifficultyLevels, float> QuestionDifficultyPercents { get; set; }
-    public string? Query { get; set; }
-}
+public record GenerateQuestionsCommand(
+    Guid QuizId,
+    List<Guid> FileIds,
+    List<string> Topics,
+    int QuestionsCount,
+    Dictionary<QuestionType, int> QuestionTypeCounts,
+    Dictionary<QuestionDifficultyLevels, float> QuestionDifficultyPercents,
+    string? Query
+) : IRequest<Result>;

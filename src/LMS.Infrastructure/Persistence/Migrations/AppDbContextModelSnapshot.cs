@@ -166,6 +166,9 @@ namespace LMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("AIStatus")
+                        .HasColumnType("int");
+
                     b.Property<int>("CourseId")
                         .HasColumnType("int");
 
@@ -182,21 +185,21 @@ namespace LMS.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("StoragePath")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("UploadStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId")
                         .HasDatabaseName("IX_AIResources_CourseId");
 
-                    b.HasIndex("Status")
+                    b.HasIndex("UploadStatus")
                         .HasDatabaseName("IX_AIResources_Status");
 
                     b.ToTable("AIResources", (string)null);
@@ -383,37 +386,6 @@ namespace LMS.Infrastructure.Migrations
                     b.ToTable("UserNotifications", (string)null);
                 });
 
-            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.AIQuestionGenerationJob", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Error")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HangfireJobId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("QuizId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuizId");
-
-                    b.ToTable("QuestionGenerationJobs");
-                });
-
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Answer", b =>
                 {
                     b.Property<Guid>("AttemptId")
@@ -540,6 +512,12 @@ namespace LMS.Infrastructure.Migrations
                     b.Property<string>("Instructions")
                         .HasColumnType("NVARCHAR(2000)");
 
+                    b.Property<bool>("IsAIGenerated")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsAccepted")
+                        .HasColumnType("bit");
+
                     b.Property<double>("Mark")
                         .HasColumnType("FLOAT");
 
@@ -562,35 +540,6 @@ namespace LMS.Infrastructure.Migrations
                     b.HasIndex("QuizId");
 
                     b.ToTable("Questions", (string)null);
-                });
-
-            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.QuestionGenerationFiles", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("HasUploadedToAIService")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsCourseMaterial")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("QuizId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("StoragePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuizId");
-
-                    b.ToTable("QuestionGenerationFiles");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Quiz", b =>
@@ -1132,17 +1081,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.AIQuestionGenerationJob", b =>
-                {
-                    b.HasOne("LMS.Domain.Entities.Quizzes.Quiz", "Quiz")
-                        .WithMany("QuestionGenerationJobs")
-                        .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Quiz");
-                });
-
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Answer", b =>
                 {
                     b.HasOne("LMS.Domain.Entities.Quizzes.Attempt", "Attempt")
@@ -1202,17 +1140,6 @@ namespace LMS.Infrastructure.Migrations
                 {
                     b.HasOne("LMS.Domain.Entities.Quizzes.Quiz", "Quiz")
                         .WithMany("Questions")
-                        .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Quiz");
-                });
-
-            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.QuestionGenerationFiles", b =>
-                {
-                    b.HasOne("LMS.Domain.Entities.Quizzes.Quiz", "Quiz")
-                        .WithMany("QuestionGenerationFiles")
                         .HasForeignKey("QuizId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1350,10 +1277,6 @@ namespace LMS.Infrastructure.Migrations
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Quiz", b =>
                 {
                     b.Navigation("Attempts");
-
-                    b.Navigation("QuestionGenerationFiles");
-
-                    b.Navigation("QuestionGenerationJobs");
 
                     b.Navigation("Questions");
                 });

@@ -62,7 +62,7 @@ public class GetAllQuizzesByCourseIdQueryHandler : IRequestHandler<GetAllQuizzes
                 AttemptTimeLimit = q.AttemptTimeLimit,
                 ShowResultOnClose = q.ShowResultOnClose,
                 MaximumAttempts = q.MaximumAttempts,
-                QuestionsCount = q.Questions.Count(),
+                QuestionsCount = q.Questions.Count(qu => !qu.IsAIGenerated || qu.IsAccepted == true),
                 StudentAttemptCount = user.IsInRole(UserRoles.Student) ? q.Attempts.Count(a => a.StudentId == user.Id) : null,
                 HasActiveAttempt = q.Attempts.Any(a => a.StudentId == user.Id && a.Status == AttemptStatus.InProgress),
             })

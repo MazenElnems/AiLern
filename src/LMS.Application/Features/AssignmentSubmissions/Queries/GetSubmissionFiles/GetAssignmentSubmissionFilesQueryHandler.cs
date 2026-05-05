@@ -2,13 +2,10 @@ using LMS.Application.Common.Results.Generic;
 using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
-using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
-using LMS.Application.Settings;
 using LMS.Domain.Constants;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Errors;
 using MediatR;
-using Microsoft.Extensions.Options;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Queries.GetSubmissionFiles;
 
@@ -17,14 +14,12 @@ public class GetAssignmentSubmissionFilesQueryHandler : IRequestHandler<GetAssig
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IBunnyUrlSigner _bunnyUrlSigner;
-    private readonly BunnyOptions _bunnyOptions;
 
-    public GetAssignmentSubmissionFilesQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext, IBunnyUrlSigner bunnyUrlSigner, IOptions<BunnyOptions> bunnyOptions)
+    public GetAssignmentSubmissionFilesQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext, IBunnyUrlSigner bunnyUrlSigner)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _bunnyUrlSigner = bunnyUrlSigner;
-        _bunnyOptions = bunnyOptions.Value;
     }
 
     public async Task<Result<List<SubmissionFilesDto>>> Handle(GetAssignmentSubmissionFilesQuery request, CancellationToken cancellationToken)
@@ -51,7 +46,7 @@ public class GetAssignmentSubmissionFilesQueryHandler : IRequestHandler<GetAssig
             .Select(f => new SubmissionFilesDto
             {
                 FileName = f.FileName,
-                FileUrl = _bunnyUrlSigner.GenerateSignedUrl(_bunnyOptions.BaseUrl, _bunnyOptions.Token, f.StoragePath, TimeSpan.FromMinutes(2))
+                FileUrl = _bunnyUrlSigner.GenerateSignedUrl(f.StoragePath, TimeSpan.FromMinutes(2))
             })
             .ToList();
 

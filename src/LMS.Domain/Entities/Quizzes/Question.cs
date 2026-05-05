@@ -13,6 +13,8 @@ public class Question
     public string? Instructions { get; set; }
     public string? Explanation { get; set; }
     public string? Answer { get; set; }
+    public bool IsAIGenerated { get; set; }
+    public bool? IsAccepted { get; set; }
 
     // Foreign Keys
     public Guid QuizId { get; set; }

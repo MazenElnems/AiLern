@@ -3,12 +3,10 @@ using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Sections.Shared.DTO;
-using LMS.Application.Settings;
 using LMS.Domain.Constants;
 using LMS.Domain.Errors;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace LMS.Application.Features.Sections.Queries.GetSection;
 
@@ -16,14 +14,12 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
-    private readonly BunnyOptions _bunnyOptions;
     private readonly IBunnyUrlSigner _bunnyUrl;
 
-    public GetCourseSectionsQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext, IOptions<BunnyOptions> bunnyOptions, IBunnyUrlSigner bunnyUrl)
+    public GetCourseSectionsQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext, IBunnyUrlSigner bunnyUrl)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
-        _bunnyOptions = bunnyOptions.Value;
         _bunnyUrl = bunnyUrl;
     }
 
@@ -57,8 +53,7 @@ public class GetCourseSectionsQueryHandler : IRequestHandler<GetCourseSectionsQu
                     FileName = f.FileName,
                     UploadDate = f.UploadDate,
                     OrderIndex = f.OrderIndex,
-                    FileUrl = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl, _bunnyOptions.Token,
-                                    _bunnyOptions.Token, TimeSpan.FromMinutes(60))
+                    FileUrl = _bunnyUrl.GenerateSignedUrl(f.StoragePath, TimeSpan.FromMinutes(60))
                 }).OrderBy(f => f.OrderIndex).ToList(),
                 IsCompleted = currentUser.IsInRole(UserRoles.Instructor)
                     ? false

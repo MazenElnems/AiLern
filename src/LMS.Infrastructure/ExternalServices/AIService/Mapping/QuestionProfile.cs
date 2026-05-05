@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using LMS.Application.Common.Models.Responses;
 using LMS.Domain.Entities.Quizzes;
-using LMS.Infrastructure.ExternalServices.AIService.Responses;
 
 namespace LMS.Infrastructure.ExternalServices.AIService.Mapping;
 

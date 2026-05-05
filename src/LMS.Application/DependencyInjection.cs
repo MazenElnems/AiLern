@@ -8,7 +8,6 @@ using LMS.Application.Features.Courses.Commands.CreateCourse;
 using LMS.Application.Features.Courses.Shared.DTO;
 using LMS.Application.Features.Students.Shared.DTO;
 using LMS.Application.Features.Users.Shared.DTO;
-using LMS.Application.Settings;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Users;
@@ -34,8 +33,6 @@ public static class DependencyInjection
             cfg.AddOpenBehavior(typeof(LoggingBehaviour<,>));                // 2
             cfg.AddOpenBehavior(typeof(ValidationBehaviour<,>));             // 3
         });
-
-        services.Configure<ApplicationDomain>(configuration.GetSection("Domain"));
 
         // Validator
         services

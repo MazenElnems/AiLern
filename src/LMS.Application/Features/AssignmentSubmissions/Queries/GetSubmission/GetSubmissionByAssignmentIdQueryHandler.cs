@@ -1,15 +1,11 @@
 ﻿using AutoMapper;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.Contracts.ExternalServices;
-using LMS.Application.Contracts.Jobs;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
-using LMS.Application.Features.AssignmentSubmissions.Commands.Submit;
 using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
-using LMS.Application.Settings;
 using LMS.Domain.Errors;
 using MediatR;
-using Microsoft.Extensions.Options;
 
 namespace LMS.Application.Features.AssignmentSubmissions.Queries.GetSubmission;
 
@@ -19,15 +15,13 @@ public class GetSubmissionByAssignmentIdQueryHandler : IRequestHandler<GetSubmis
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IBunnyUrlSigner _bunnyUrlSigner;
-    private readonly BunnyOptions _bunnyOptions;
 
-    public GetSubmissionByAssignmentIdQueryHandler(IMapper mapper, IUnitOfWork unitOfWork, IUserContext userContext, IBunnyUrlSigner bunnyUrlSigner, IOptions<BunnyOptions> bunnyOptions)
+    public GetSubmissionByAssignmentIdQueryHandler(IMapper mapper, IUnitOfWork unitOfWork, IUserContext userContext, IBunnyUrlSigner bunnyUrlSigner)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _bunnyUrlSigner = bunnyUrlSigner;
-        _bunnyOptions = bunnyOptions.Value;
     }
 
     public async Task<Result<MySubmissionDto>> Handle(GetSubmissionByAssignmentIdQuery request, CancellationToken cancellationToken)
@@ -53,7 +47,7 @@ public class GetSubmissionByAssignmentIdQueryHandler : IRequestHandler<GetSubmis
                 Id = f.Id,
                 FileName = f.FileName,
                 FileType = f.FileType,
-                FileUrl = _bunnyUrlSigner.GenerateSignedUrl(_bunnyOptions.BaseUrl, _bunnyOptions.Token, f.StoragePath, TimeSpan.FromMinutes(15))
+                FileUrl = _bunnyUrlSigner.GenerateSignedUrl(f.StoragePath, TimeSpan.FromMinutes(15))
             }).ToList();
 
         var mySubmission = new MySubmissionDto

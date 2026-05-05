@@ -1,6 +1,6 @@
 ﻿using LMS.Application.Contracts.Identity;
-using LMS.Application.Settings;
 using LMS.Domain.Entities.Users;
+using LMS.Infrastructure.Settings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -21,7 +21,7 @@ internal class JwtTokenService : IJwtTokenService
         _jwt = jwt.Value;
     }
 
-    public async Task<string> GenerateTokenAsync(ApplicationUser user, DateTime expiration)
+    public async Task<(string, DateTime)> GenerateTokenAsync(ApplicationUser user)
     {
         var roles = await _userManager.GetRolesAsync(user);
         var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role));
@@ -41,15 +41,17 @@ internal class JwtTokenService : IJwtTokenService
         var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
+        var expirationDate = DateTime.UtcNow.AddMinutes(_jwt.DurationInMinutes);
+
         var jwtSecurityToken = new JwtSecurityToken(
             issuer: _jwt.Issuer,
             audience: _jwt.Audience,
             claims: claims,
-            expires: expiration,
+            expires: expirationDate,
             signingCredentials: signingCredentials
         );
 
         string token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-        return token;
+        return (token, expirationDate);
     }
 }

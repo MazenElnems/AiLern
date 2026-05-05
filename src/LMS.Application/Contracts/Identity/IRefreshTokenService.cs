@@ -2,5 +2,5 @@
 
 public interface IRefreshTokenService
 {
-    string GenerateRefreshToken();
+    (string, DateTime) GenerateRefreshToken();
 }
