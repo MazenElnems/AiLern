@@ -53,8 +53,7 @@ public class UserLoginByEmailAndPasswordCommandHandler(
             AccessToken = accessToken,
             ExpiresOn = accessTokenExpiration,
             RefreshToken = refreshToken,
-            Role = user.Role,
-            ImageUrl = user.ImageStoragePath == null ? null : $"https://ailern-content.b-cdn.net/{user.ImageStoragePath}"
+            Role = user.Role
         };
 
         return Result<GetTokenResponseDto>.Success(response, "login successful");
