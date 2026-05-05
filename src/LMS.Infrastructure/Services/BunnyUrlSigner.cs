@@ -36,4 +36,7 @@ public class BunnyUrlSigner(IOptions<BunnyOptions> bunnyOptions) : IBunnyUrlSign
             .Replace('/', '_')
             .TrimEnd('=');
     }
+
+    public string GetUrl(string path)
+        => $"{_bunnyOptions.PublicUrl}/{path}";
 }

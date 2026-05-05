@@ -1,12 +1,11 @@
 ﻿using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Users.Shared.DTO;
-using LMS.Application.Settings;
 using LMS.Domain.Errors;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace LMS.Application.Features.Users.Queries.GetMe;
 
@@ -14,13 +13,12 @@ public class GetMeQueryHandler : IRequestHandler<GetMeQuery, Result<GetMeDto>>
 {
     private readonly IUserContext _userContext;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly BunnyOptions _bunnyOptions;
-
-    public GetMeQueryHandler(IUserContext userContext, IUnitOfWork unitOfWork, IOptions<BunnyOptions> options)
+    private readonly IBunnyUrlSigner _bunny;
+    public GetMeQueryHandler(IUserContext userContext, IUnitOfWork unitOfWork, IBunnyUrlSigner bunny)
     {
         _userContext = userContext;
         _unitOfWork = unitOfWork;
-        _bunnyOptions = options.Value;
+        _bunny = bunny;
     }
 
     public async Task<Result<GetMeDto>> Handle(GetMeQuery request, CancellationToken cancellationToken)
@@ -43,7 +41,7 @@ public class GetMeQueryHandler : IRequestHandler<GetMeQuery, Result<GetMeDto>>
 
         if (!string.IsNullOrEmpty(userData.ImageUrl))
         {
-            userData.ImageUrl = $"{_bunnyOptions.PublicUrl}{userData.ImageUrl}";
+            userData.ImageUrl = _bunny.GetUrl(userData.ImageUrl);
         }
 
         return userData;

@@ -6,4 +6,6 @@ public interface IBunnyUrlSigner
         string path,
         TimeSpan validFor
     );
+
+    string GetUrl(string path);
 }
