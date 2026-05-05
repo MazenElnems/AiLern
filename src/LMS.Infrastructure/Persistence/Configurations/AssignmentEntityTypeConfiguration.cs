@@ -18,7 +18,7 @@ public class AssignmentEntityTypeConfiguration : IEntityTypeConfiguration<Assign
 
         builder.Property(a => a.Instructions)
             .HasColumnType("NVARCHAR(MAX)")
-            .IsRequired();
+            .IsRequired(false);
 
         builder.Property(a => a.DueDate)
             .HasColumnType("DATETIME2")

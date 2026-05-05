@@ -1,4 +1,6 @@
-﻿namespace LMS.Application.Features.Courses.Shared.DTO;
+﻿using LMS.Domain.Enums;
+
+namespace LMS.Application.Features.Courses.Shared.DTO;
 
 public class AiFileDto
 {
@@ -7,4 +9,6 @@ public class AiFileDto
     public string FileName { get; set; }
     public double FileSize { get; set; }
     public string ContentType { get; set; }
+    public AIStatus AIStatus { get; set; }
+    public UploadStatus UploadStatus { get; set; }
 }

@@ -85,7 +85,7 @@ public class CreateAttemptCommandHandler : IRequestHandler<CreateAttemptCommand,
 
             jobId = _backgroundJobService.Schedule(
                 () => _autoSubmitAttemptJob.ExecuteAsync(attempt.Id, cancellationToken),
-                attempt.AttemptEndTime.AddMinutes(1) - now);
+                attempt.AttemptEndTime - now);
 
             attempt.AutoSubmitJobId = jobId;
 

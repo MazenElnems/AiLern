@@ -9,4 +9,5 @@ public class GetStudentCoursesDto
     public int InstructorId { get; set; }
     public string InstructorName { get; set; }
     public string? ImageUrl { get; set; }
+    public int Progress { get; set; }   
 }

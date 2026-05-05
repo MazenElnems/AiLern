@@ -5,6 +5,7 @@ using LMS.API.Middleware;
 using LMS.API.Models;
 using LMS.Application;
 using LMS.Infrastructure;
+using LMS.Infrastructure.Hubs;
 using LMS.Infrastructure.Jobs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -40,10 +41,14 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         return new BadRequestObjectResult(response);
     };
 });
+
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
     options.TokenLifespan = TimeSpan.FromMinutes(30); 
 });
+
+builder.Services.AddSignalR();
+
 builder.Services
     .ConfigureHttpClient()
     .AddCorsConfigurations()
@@ -70,6 +75,8 @@ recurringJobManager.AddOrUpdate(
 
 app.UseGlobalExceptionHandler();
 
+app.UseAuthResponseHandler();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -92,5 +99,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<AIServiceHub>("/hubs/ai-resources")
+    .RequireAuthorization();
 
 app.Run();

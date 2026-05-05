@@ -1,4 +1,5 @@
 ﻿using LMS.Domain.Enums;
+using System.Net.NetworkInformation;
 
 namespace LMS.Domain.Entities.Courses;
 
@@ -8,7 +9,8 @@ public class AIResource
     public string FileName { get; set; }
     public double FileSize { get; set; }
     public string FileType { get; set; }
-    public UploadStatus Status { get; set; }
+    public UploadStatus UploadStatus { get; set; }
+    public AIStatus AIStatus { get; set; }
     public string StoragePath { get; set; }
 
     // Navigation property

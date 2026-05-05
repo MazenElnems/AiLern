@@ -11,7 +11,7 @@ public class AssignmentCreateCommand : IRequest<Result<AssignmentDto>>
     [JsonIgnore]
     public int CourseId { get; set; }
     public string Title { get; set; }
-    public string Instructions { get; set; }
+    public string? Instructions { get; set; }
     public DateTime DueDate { get; set; }
     public bool AllowLateSubmission { get; set; }
     public bool IsPublished { get; set; }

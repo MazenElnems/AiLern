@@ -48,7 +48,9 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
 
         var requestedQuestionIds = request.Questions.Select(q => q.Id);
 
-        questions.RemoveAll(q => !requestedQuestionIds.Contains(q.Id));
+        questions.RemoveAll(q =>
+            !requestedQuestionIds.Contains(q.Id) &&
+            !(q.IsAIGenerated && q.IsAccepted != true));
 
         int order = 1;
         foreach(var question in request.Questions)
@@ -112,6 +114,7 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
                     Explanation = question.Explanation,
                     Mark = question.Mark,
                     Order = order,
+                    IsAIGenerated = false,
                     Options = question.Options.Select((o, i) => new Option
                     {
                         OptionText = o.OptionText,

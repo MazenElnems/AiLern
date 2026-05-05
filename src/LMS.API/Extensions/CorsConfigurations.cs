@@ -6,7 +6,12 @@ public static class CorsConfigurations
     {
         services.AddCors(options =>
         {
-            options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            options.AddDefaultPolicy(policy =>
+                policy.WithOrigins("http://localhost:5173", "https://ailern.me")
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowCredentials()
+            );
         });
         return services;
     }

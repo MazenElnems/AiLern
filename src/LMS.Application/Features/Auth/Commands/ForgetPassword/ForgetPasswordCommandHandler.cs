@@ -31,7 +31,7 @@ public class ForgetPasswordCommandHandler : IRequestHandler<ForgetPasswordComman
         var user = await _userManager.FindByEmailAsync(request.Email);
 
         if(user == null)
-            return DomainErrors.User.NotFound(request.Email);  
+            return DomainErrors.User.EmailNotFound;  
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 

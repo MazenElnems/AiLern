@@ -99,10 +99,10 @@ public class GetQuizDashboardQueryHandler : IRequestHandler<GetQuizDashboardQuer
             .Select(a => a.TimeSpent)
             .ToListAsync();
 
-        var quizTotalPoints = await _unitOfWork.Quizzes.Query
-            .Where(q => q.Id == request.QuizId)
-            .Select(q => q.Questions.Sum(a => a.Mark))
-            .FirstOrDefaultAsync();
+        var quizTotalPoints = await _unitOfWork.Questions.Query
+            .Where(q => q.QuizId == request.QuizId)
+            .Where(QuizQuestionVisibility.IsLive)
+            .SumAsync(q => q.Mark, cancellationToken);
 
         var quarterOfQuiz = quiz!.AttemptTimeLimit * 0.25d;
 

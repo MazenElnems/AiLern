@@ -1,7 +1,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using LMS.Application.Contracts.ExternalServices;
-using LMS.Application.Settings;
+using LMS.Infrastructure.Settings;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -35,6 +35,21 @@ public class WasabiService : IWasabiService
         {
             return false;
         }
+    }
+
+    public async Task<string> GeneratePresignedDownloadUrlAsync(string key, int expirationMinutes = 15, bool secret = true)
+    {
+        _logger.LogInformation("Generating pre-signed URL for download from Wasabi: {Key}", key);
+
+        var request = new GetPreSignedUrlRequest
+        {
+            BucketName = secret ? _wasabiSettings.BucketName : _wasabiSettings.ContentBucketName,
+            Key = key,
+            Verb = HttpVerb.GET,
+            Expires = DateTime.UtcNow.AddMinutes(expirationMinutes)
+        };
+
+        return await _s3Client.GetPreSignedURLAsync(request);
     }
 
     public async Task<string> GeneratePresignedUploadUrlAsync(string key, string contentType, int expirationMinutes = 15,bool secret = true)
