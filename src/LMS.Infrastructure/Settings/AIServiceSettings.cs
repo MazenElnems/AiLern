@@ -6,4 +6,5 @@ public class AIServiceSettings
     public string QAEndpoint { get; set; }
     public string UploadEndpoint { get; set; }
     public string DeleteEndpoint { get; set; }
+    public string CancelJobEndpoint { get; set; }   
 }

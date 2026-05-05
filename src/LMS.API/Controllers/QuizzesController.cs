@@ -2,14 +2,18 @@
 using LMS.API.Controllers.Common;
 using LMS.API.Models;
 using LMS.Application.Features.Attempts.Queries.GetAttemptsByQuizId;
+using LMS.Application.Features.Quizzes.Commands.AcceptAiGeneratedQuestion;
+using LMS.Application.Features.Quizzes.Commands.AcceptAllAiGeneratedQuestions;
 using LMS.Application.Features.Quizzes.Commands.CreateQuiz;
 using LMS.Application.Features.Quizzes.Commands.DeleteQuiz;
+using LMS.Application.Features.Quizzes.Commands.RejectAiGeneratedQuestion;
 using LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
 using LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
 using LMS.Application.Features.Quizzes.Commands.UpdateQuizStatus;
 using LMS.Application.Features.Quizzes.Commands.UpsertQuestions;
 using LMS.Application.Features.Quizzes.Queries.GetAllQuizzes;
 using LMS.Application.Features.Quizzes.Queries.GetQuiz;
+using LMS.Application.Features.Quizzes.Queries.GetPendingAiGeneratedQuestions;
 using LMS.Application.Features.Quizzes.Queries.GetSubmissionsByQuizId;
 using LMS.Application.Features.Quizzes.Shared.Requests;
 using LMS.Domain.Constants;
@@ -110,6 +114,42 @@ public class QuizzesController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetQuizById(Guid id)
     {
         var result = await _mediator.Send(new GetQuizByIdQuery(id));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("{id}/ai-generated-questions")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "List pending AI-generated questions", Description = "Returns AI-generated questions that are not yet accepted.")]
+    public async Task<ActionResult<ApiResponse>> GetPendingAiGeneratedQuestions(Guid id)
+    {
+        var result = await _mediator.Send(new GetPendingAiGeneratedQuestionsQuery(id));
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("{id}/ai-generated-questions/accept-all")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Accept all pending AI questions")]
+    public async Task<ActionResult<ApiResponse>> AcceptAllAiGeneratedQuestions(Guid id)
+    {
+        var result = await _mediator.Send(new AcceptAllAiGeneratedQuestionsCommand(id));
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("{id}/ai-generated-questions/{questionId}/accept")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Accept one AI-generated question")]
+    public async Task<ActionResult<ApiResponse>> AcceptAiGeneratedQuestion(Guid id, Guid questionId)
+    {
+        var result = await _mediator.Send(new AcceptAiGeneratedQuestionCommand(id, questionId));
+        return HandleResponse(this, result);
+    }
+
+    [HttpDelete("{id}/ai-generated-questions/{questionId}/reject")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Reject and delete a pending AI-generated question")]
+    public async Task<ActionResult<ApiResponse>> RejectAiGeneratedQuestion(Guid id, Guid questionId)
+    {
+        var result = await _mediator.Send(new RejectAiGeneratedQuestionCommand(id, questionId));
         return HandleResponse(this, result);
     }
 

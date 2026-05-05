@@ -30,7 +30,16 @@ public class GlobalExceptionHandlerMiddleware
 
             await httpContext.Response.WriteAsJsonAsync(ApiResponse.InternalError("AI Service Unavailable Exception", StatusCodes.Status503ServiceUnavailable));
         }
-        catch(AIServiceTimeoutException ex)
+        catch(AIServiceException ex)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            _logger.LogError("AI Service Exception Was Thrown {@StackTrace} {@Exception}",
+                ex.StackTrace,
+                ex.Source
+            );
+            await httpContext.Response.WriteAsJsonAsync(ApiResponse.InternalError("AI Service Exception", StatusCodes.Status500InternalServerError));
+        }
+        catch (AIServiceTimeoutException ex)
         {
             httpContext.Response.StatusCode = StatusCodes.Status504GatewayTimeout;
             _logger.LogError("AI Service Timeout Exception Was Thrown {@StackTrace} {@Exception}",

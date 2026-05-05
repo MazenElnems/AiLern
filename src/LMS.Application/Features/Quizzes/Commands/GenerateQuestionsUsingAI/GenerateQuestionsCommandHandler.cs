@@ -8,18 +8,21 @@ using LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
+using LMS.Domain.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace LMS.Application.Features.Quizzes.Commands.GenerateQuestionsUsingAI;
 
-public class GenerateQuestionsCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IAIService aiService, IMapper mapper)
+public class GenerateQuestionsCommandHandler(IUserContext userContext, IUnitOfWork unitOfWork, IAIService aiService, IMapper mapper, ILogger<GenerateQuestionsCommandHandler> logger)
     : IRequestHandler<GenerateQuestionsCommand, Result>
 {
     private readonly IUserContext _userContext = userContext;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IAIService _aiService = aiService;
     private readonly IMapper _mapper = mapper;
+    private readonly ILogger<GenerateQuestionsCommandHandler> _logger = logger;
 
     public async Task<Result> Handle(GenerateQuestionsCommand request, CancellationToken cancellationToken)
     {
@@ -48,6 +51,12 @@ public class GenerateQuestionsCommandHandler(IUserContext userContext, IUnitOfWo
         var aiQuizGenerationRequest = _mapper.Map<AIQuizGenerationRequest>(request);
         var result = await _aiService.GenerateQuestionsAsync(aiQuizGenerationRequest, cancellationToken);
 
-        return Result.Success(result.Message);
+        if (result.Status != "accepted")
+        {
+            _logger.LogWarning("AI service returned a non-accepted status: {Status}. Message: {Message}", result.Status, result.Message);
+            throw new AIServiceException($"AI service returned a non-accepted status: {result.Status}. Message: {result.Message}");
+        }
+
+        return Result.Success("Quiz questions generation request accepted. You will be notified once the process is completed.");
     }
 }

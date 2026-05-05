@@ -10,7 +10,8 @@ using System.Net.Http.Json;
 
 namespace LMS.Infrastructure.ExternalServices.AIService;
 
-public class AIService(IHttpClientFactory factory, ILogger<AIService> logger, IOptions<AIServiceSettings> aiServiceOptions, IOptions<WebhookSettings> webhookSettings) : IAIService
+public class AIService(IHttpClientFactory factory, ILogger<AIService> logger, IOptions<AIServiceSettings> aiServiceOptions, IOptions<WebhookSettings> webhookSettings)
+    : IAIService
 {
     private readonly IHttpClientFactory _factory = factory;
     private readonly ILogger<AIService> _logger = logger;

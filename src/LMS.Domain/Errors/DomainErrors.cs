@@ -124,6 +124,21 @@ public static class DomainErrors
             Common.BusinessRule("Quiz.NotAvailableAtThisTime", "The quiz is not available at the current time.");
     }
 
+    public static class QuizQuestion
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Question", id.ToString());
+
+        public static Error NotInQuiz =>
+            Common.BusinessRule("QuizQuestion.NotInQuiz", "The question does not belong to this quiz.");
+
+        public static Error NotPendingAi =>
+            Common.BusinessRule("QuizQuestion.NotPendingAi", "The question is not a pending AI-generated item.");
+
+        public static Error CannotRejectHasAttempts =>
+            Common.BusinessRule("QuizQuestion.CannotRejectHasAttempts", "Cannot reject this question because it appears in student attempts.");
+    }
+
     public static class Attempt
     {
         public static Error NotSubmitted =>
