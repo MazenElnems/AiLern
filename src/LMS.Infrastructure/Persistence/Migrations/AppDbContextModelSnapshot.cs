@@ -43,6 +43,7 @@ namespace LMS.Infrastructure.Migrations
                         .HasColumnType("DATETIME2");
 
                     b.Property<string>("Instructions")
+                        .IsRequired()
                         .HasColumnType("NVARCHAR(MAX)");
 
                     b.Property<bool>("IsPublished")
@@ -291,7 +292,7 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Enrollments");
+                    b.ToTable("Enrollments", (string)null);
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Courses.Section", b =>

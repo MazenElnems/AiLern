@@ -50,12 +50,8 @@ public class GenerateQuestionsCommandHandler(IUserContext userContext, IUnitOfWo
 
         var aiQuizGenerationRequest = _mapper.Map<AIQuizGenerationRequest>(request);
         var result = await _aiService.GenerateQuestionsAsync(aiQuizGenerationRequest, cancellationToken);
-
-        if (result.Status != "accepted")
-        {
-            _logger.LogWarning("AI service returned a non-accepted status: {Status}. Message: {Message}", result.Status, result.Message);
-            throw new AIServiceException($"AI service returned a non-accepted status: {result.Status}. Message: {result.Message}");
-        }
+        
+        // TODO: handle if the request not accepted
 
         return Result.Success("Quiz questions generation request accepted. You will be notified once the process is completed.");
     }

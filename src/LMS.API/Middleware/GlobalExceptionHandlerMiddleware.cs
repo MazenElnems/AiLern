@@ -28,7 +28,7 @@ public class GlobalExceptionHandlerMiddleware
                 ex.Source
             );
 
-            await httpContext.Response.WriteAsJsonAsync(ApiResponse.InternalError("AI Service Unavailable Exception", StatusCodes.Status503ServiceUnavailable));
+            await httpContext.Response.WriteAsJsonAsync(ApiResponse.InternalError("AI service is temporarily unavailable. Please try again later.", StatusCodes.Status503ServiceUnavailable));
         }
         catch(AIServiceException ex)
         {
