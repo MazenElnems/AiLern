@@ -4,12 +4,10 @@ using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Sections.Shared.DTO;
-using LMS.Application.Settings;
 using LMS.Domain.Constants;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Errors;
 using MediatR;
-using Microsoft.Extensions.Options;
 
 namespace LMS.Application.Features.Sections.Queries.GetSection;
 
@@ -18,15 +16,13 @@ public class GetSectionQueryHandler : IRequestHandler<GetSectionQuery, Result<Co
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IUserContext _userContext;
-    private readonly BunnyOptions _bunnyOptions;
     private readonly IBunnyUrlSigner _bunnyUrl;
 
-    public GetSectionQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IUserContext userContext, IOptions<BunnyOptions> bunnyOptions, IBunnyUrlSigner bunnyUrl)
+    public GetSectionQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IUserContext userContext, IBunnyUrlSigner bunnyUrl)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _userContext = userContext;
-        _bunnyOptions = bunnyOptions.Value;
         _bunnyUrl = bunnyUrl;
     }
 
@@ -66,8 +62,7 @@ public class GetSectionQueryHandler : IRequestHandler<GetSectionQuery, Result<Co
                 ContentType = file.FileType,
                 OrderIndex = file.OrderIndex,
                 UploadDate = file.UploadDate,
-                FileUrl = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl,
-                                                                _bunnyOptions.Token, file.StoragePath, TimeSpan.FromMinutes(5))
+                FileUrl = _bunnyUrl.GenerateSignedUrl(file.StoragePath, TimeSpan.FromMinutes(5))
             }).ToList();
 
         sectiondto.SectionFiles = materialFiles;

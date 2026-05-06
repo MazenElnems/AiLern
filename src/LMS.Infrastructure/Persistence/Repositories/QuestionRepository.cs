@@ -18,6 +18,7 @@ internal class QuestionsRepository : BaseRepository<Question>, IQuestionsReposit
     {
         return _context.Questions
             .Where(q => q.QuizId == quizId)
+            .Where(QuizQuestionVisibility.IsLive)
             .Select(q => new KeyValuePair<Guid, List<Guid>>(q.Id, q.Options.Select(o => o.OptionId).ToList()))
             .ToListAsync();
     }

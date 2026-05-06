@@ -3,9 +3,9 @@
 public interface IBunnyUrlSigner
 {
     string GenerateSignedUrl(
-        string baseUrl,
-        string tokenKey,
         string path,
         TimeSpan validFor
     );
+
+    string GetUrl(string path);
 }

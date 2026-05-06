@@ -4,11 +4,9 @@ using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
 using LMS.Application.Features.Students.Shared.DTO;
-using LMS.Application.Settings;
 using LMS.Domain.Errors;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace LMS.Application.Features.Students.Queries.GetStudentProfileInCourse;
 
@@ -17,14 +15,12 @@ public class GetStudentProfileInCourseQueryHandler : IRequestHandler<GetStudentP
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IBunnyUrlSigner _bunnyUrlSigner;
-    private readonly BunnyOptions _bunnyOptions;
 
-    public GetStudentProfileInCourseQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext, IBunnyUrlSigner bunnyUrlSigner, IOptions<BunnyOptions> bunnyOptions)
+    public GetStudentProfileInCourseQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext, IBunnyUrlSigner bunnyUrlSigner)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _bunnyUrlSigner = bunnyUrlSigner;
-        _bunnyOptions = bunnyOptions.Value;
     }
 
     public async Task<Result<GetStudentProfileInCourseDto>> Handle(GetStudentProfileInCourseQuery request, CancellationToken cancellationToken)
@@ -87,8 +83,6 @@ public class GetStudentProfileInCourseQueryHandler : IRequestHandler<GetStudentP
                     Id = sf.Id,
                     FileName = sf.FileName,
                     FileUrl = _bunnyUrlSigner.GenerateSignedUrl(
-                        _bunnyOptions.BaseUrl,
-                        _bunnyOptions.Token,
                         sf.StoragePath,
                         TimeSpan.FromMinutes(15)),
                     FileType = sf.FileType

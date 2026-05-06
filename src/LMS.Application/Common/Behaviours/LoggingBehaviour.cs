@@ -1,9 +1,7 @@
 ﻿using LMS.Application.Common.Results;
-using LMS.Application.CurrentUser;
 using LMS.Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 
 namespace LMS.Application.Common.Behaviours;
 

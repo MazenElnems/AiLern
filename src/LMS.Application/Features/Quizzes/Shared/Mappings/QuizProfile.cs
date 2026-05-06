@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LMS.Application.Common.Models.Request;
 using LMS.Application.Features.Quizzes.Commands.CreateQuiz;
 using LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
 using LMS.Application.Features.Quizzes.Shared.DTO;
@@ -17,7 +18,6 @@ public class QuizProfile : Profile
 
         CreateMap<CreateQuizCommand, Quiz>();
         CreateMap<Quiz, GetQuizDto>();
-        CreateMap<AIQuestionGenerationJob, GetJobDto>();
 
         CreateMap<Quiz, GetAllQuizDto>();
         CreateMap<Question, QuestionDto>()
@@ -25,10 +25,15 @@ public class QuizProfile : Profile
 
         CreateMap<Option, OptionDto>();
 
-        CreateMap<QuestionGenerationFiles, QuestionGenerationFilesDto>();
 
         CreateMap<GenerateQuestionByAIRequest, GenerateQuestionsCommand>();
 
         CreateMap<CreateQuizCommand, Quiz>();
+
+        CreateMap<GenerateQuestionsCommand, AIQuizGenerationRequest>()
+            .ForMember(dest => dest.ProjectIds, opt => opt.MapFrom(src => src.FileIds.Select(f => f.ToString())))
+            .ForMember(dest => dest.QuestionsNumber, opt => opt.MapFrom(src => src.QuestionsCount))
+            .ForMember(dest => dest.QuestionsTypes, opt => opt.MapFrom(src => src.QuestionTypeCounts))
+            .ForMember(dest => dest.DifficultyLevels, opt => opt.MapFrom(src => src.QuestionDifficultyPercents));
     }
 }

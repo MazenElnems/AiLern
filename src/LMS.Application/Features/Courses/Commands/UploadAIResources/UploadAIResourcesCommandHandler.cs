@@ -46,7 +46,7 @@ public class UploadAIResourcesCommandHandler : IRequestHandler<UploadAIResources
                 FileType = file.ContentType,
                 FileSize = file.FileSize,
                 StoragePath = $"courses/{course.Name.Replace(" ","_")}/AIResources/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}",
-                Status = UploadStatus.Pending,
+                UploadStatus = UploadStatus.Pending,
             };
             aiResources.Add(aiResource);
         }

@@ -3,11 +3,9 @@ using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Courses.Shared.DTO;
-using LMS.Application.Settings;
 using LMS.Domain.Errors;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace LMS.Application.Features.Courses.Queries.GetAIResources;
 
@@ -15,14 +13,12 @@ public class GetAIResourcesCommandHandler : IRequestHandler<GetAIResourcesComman
 {
     private readonly IUserContext _user;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly BunnyOptions _bunnyOptions;
     private readonly IBunnyUrlSigner _bunnyUrl;
 
-    public GetAIResourcesCommandHandler(IUserContext user, IUnitOfWork unitOfWork, IOptions<BunnyOptions> bunnyOptions, IBunnyUrlSigner bunnyUrl)
+    public GetAIResourcesCommandHandler(IUserContext user, IUnitOfWork unitOfWork, IBunnyUrlSigner bunnyUrl)
     {
         _user = user;
         _unitOfWork = unitOfWork;
-        _bunnyOptions = bunnyOptions.Value;
         _bunnyUrl = bunnyUrl;
     }
 
@@ -47,11 +43,13 @@ public class GetAIResourcesCommandHandler : IRequestHandler<GetAIResourcesComman
                 FileUrl = f.StoragePath,
                 FileName = f.FileName,
                 FileSize = f.FileSize,
-                ContentType = f.FileType
+                ContentType = f.FileType,
+                AIStatus = f.AIStatus,
+                UploadStatus = f.UploadStatus
             }).ToListAsync(cancellationToken);
         aiResources.ForEach(r =>
         {
-            r.FileUrl = _bunnyUrl.GenerateSignedUrl(_bunnyOptions.BaseUrl,_bunnyOptions.Token,r.FileUrl,TimeSpan.FromHours(1));
+            r.FileUrl = _bunnyUrl.GenerateSignedUrl(r.FileUrl, TimeSpan.FromHours(1));
         });
         return aiResources;
 

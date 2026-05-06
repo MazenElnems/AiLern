@@ -38,7 +38,10 @@ public class UpdateQuizStatusCommandHandler : IRequestHandler<UpdateQuizStatusCo
         if(quiz.AvailableFrom < DateTime.UtcNow)
             return DomainErrors.Quiz.QuizStarted;
 
-        if(request.Status == QuizStatus.Published && !await _unitOfWork.Questions.AnyAsync(q => q.QuizId == request.QuizId))
+        if (request.Status == QuizStatus.Published &&
+            !await _unitOfWork.Questions.AnyAsync(
+                q => q.QuizId == request.QuizId && (!q.IsAIGenerated || q.IsAccepted == true),
+                cancellationToken))
             return DomainErrors.Quiz.CannotPublishEmptyQuiz;
 
         quiz.Status = request.Status;

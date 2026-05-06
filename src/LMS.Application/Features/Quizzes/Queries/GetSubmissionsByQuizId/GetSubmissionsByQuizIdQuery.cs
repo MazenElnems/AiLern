@@ -6,6 +6,6 @@ using MediatR;
 
 namespace LMS.Application.Features.Quizzes.Queries.GetSubmissionsByQuizId;
 
-public record GetSubmissionsByQuizIdQuery(Guid QuizId, int PageNo, int PageSize, AttemptStatus Status)
+public record GetSubmissionsByQuizIdQuery(Guid QuizId, int PageNo, int PageSize, AttemptStatus? Status)
     : IRequest<Result<PaginationResult<GetSubmissionsByQuizIdDto>>>
 { }

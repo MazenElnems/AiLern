@@ -23,7 +23,7 @@ public class AIResourcesEntityTypeConfiguration : IEntityTypeConfiguration<AIRes
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(a => a.Status)
+        builder.Property(a => a.UploadStatus)
             .IsRequired()
             .HasConversion<string>();
 
@@ -41,7 +41,7 @@ public class AIResourcesEntityTypeConfiguration : IEntityTypeConfiguration<AIRes
         builder.HasIndex(a => a.CourseId)
             .HasDatabaseName("IX_AIResources_CourseId");
 
-        builder.HasIndex(a => a.Status)
+        builder.HasIndex(a => a.UploadStatus)
             .HasDatabaseName("IX_AIResources_Status");
     }
 }

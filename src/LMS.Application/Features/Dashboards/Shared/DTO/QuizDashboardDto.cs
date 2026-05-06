@@ -3,12 +3,12 @@
 public class QuizDashboardDto
 {
     public int StudentsInCourse { get; set; }
-    public int? NumberOfStudents { get; set; }
-    public AverageScore? AverageScore { get; set; }
-    public Dictionary<string,QuizPassFailDto>? PassesFalis { get; set; }
-    public List<QuestionStatisticsDto>? QuestionStatistics { get; set; }
-    public List<AttemptStatisticsDto>? AttemptsDistributions { get; set; }
-    public List<SubmissionTimeBucketDto>? SubmissionTimeDistribution { get; set; }
+    public int NumberOfStudents { get; set; }
+    public AverageScore AverageScore { get; set; }
+    public Dictionary<string,QuizPassFailDto> PassesFalis { get; set; }
+    public List<QuestionStatisticsDto> QuestionStatistics { get; set; }
+    public List<AttemptStatisticsDto> AttemptsDistributions { get; set; }
+    public List<SubmissionTimeBucketDto> SubmissionTimeDistribution { get; set; }
 
 }
 
@@ -39,7 +39,7 @@ public class AttemptStatisticsDto
 
 public class AverageScore
 {
-    public double? MinAverage { get; set; }
-    public double? AvgAverage { get; set; }
-    public double? MaxAverage { get; set; }
+    public double MinAverage { get; set; }
+    public double AvgAverage { get; set; }
+    public double MaxAverage { get; set; }
 }

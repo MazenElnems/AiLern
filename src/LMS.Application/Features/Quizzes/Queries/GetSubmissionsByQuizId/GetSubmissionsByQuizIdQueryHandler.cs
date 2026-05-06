@@ -35,7 +35,7 @@ public class GetSubmissionsByQuizIdQueryHandler : IRequestHandler<GetSubmissions
             return DomainErrors.Quiz.NotOwned;
 
         var query = _unitOfWork.Attempts.Query
-            .Where(a => a.QuizId == request.QuizId && a.Status == request.Status);
+            .Where(a => a.QuizId == request.QuizId && (a.Status == request.Status || request.Status==null));
 
         var totalResult = await query.CountAsync(cancellationToken);
 

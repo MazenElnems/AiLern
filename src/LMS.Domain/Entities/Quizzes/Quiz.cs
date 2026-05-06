@@ -26,8 +26,6 @@ public class Quiz
     public Course Course { get; set; }
     public List<Question> Questions { get; set; } = new();
     public List<Attempt> Attempts { get; set; } = new();
-    public List<AIQuestionGenerationJob> QuestionGenerationJobs { get; set; } = new();
-    public List<QuestionGenerationFiles> QuestionGenerationFiles { get; set; } = new();
 
     public DateTime CalculateAttemptEndTime(DateTime attemptStartDateTime)
     {

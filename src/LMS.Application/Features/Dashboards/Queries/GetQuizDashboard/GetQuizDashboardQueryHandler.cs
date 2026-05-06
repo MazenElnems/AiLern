@@ -34,6 +34,12 @@ public class GetQuizDashboardQueryHandler : IRequestHandler<GetQuizDashboardQuer
         if (quiz.Course.InstructorId != user.Id)
             return DomainErrors.Course.NotOwned;
 
+        if (quiz.AvailableUntil > DateTime.UtcNow)
+            return DomainErrors.Common.BusinessRule(
+                "Can't show statistics",
+                "Statistics are available only after the quiz ends"
+            );
+
         var studentsInCourse = await _unitOfWork.Enrollments.Query
             .Where(e => e.CourseId == quiz!.CourseId)
             .CountAsync();
@@ -93,10 +99,10 @@ public class GetQuizDashboardQueryHandler : IRequestHandler<GetQuizDashboardQuer
             .Select(a => a.TimeSpent)
             .ToListAsync();
 
-        var quizTotalPoints = await _unitOfWork.Quizzes.Query
-            .Where(q => q.Id == request.QuizId)
-            .Select(q => q.Questions.Sum(a => a.Mark))
-            .FirstOrDefaultAsync();
+        var quizTotalPoints = await _unitOfWork.Questions.Query
+            .Where(q => q.QuizId == request.QuizId)
+            .Where(QuizQuestionVisibility.IsLive)
+            .SumAsync(q => q.Mark, cancellationToken);
 
         var quarterOfQuiz = quiz!.AttemptTimeLimit * 0.25d;
 
@@ -105,9 +111,9 @@ public class GetQuizDashboardQueryHandler : IRequestHandler<GetQuizDashboardQuer
             .GroupBy(x => x.StudentId)
             .Select(g => new
             {
-                Min = g.Min(x => x.Score),
-                Avg = g.Average(x => x.Score),
-                Max = g.Max(x => x.Score)
+                Min = g.Min(x => x.Score) ?? 0,
+                Avg = g.Average(x => x.Score) ?? 0,
+                Max = g.Max(x => x.Score) ?? 0
             })
             .ToList();
 
