@@ -23,9 +23,9 @@ internal class AIServiceNotifier : IAIServiceNotifier
         await _hub.Clients.User(userId.ToString()).SendAsync("QuestionsGenerated", questionsCount, completed, cancellationToken);
     }
 
-    public async Task NotifyStatusChangeAsync(Guid fileId, string userId, AIStatus status, CancellationToken cancellationToken)
+    public async Task NotifyStatusChangeAsync(Guid fileId, string userId, AIStatus status, string? error, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Notifying user {UserId} about status change for file {FileId} to {Status}", userId, fileId, status);
-        await _hub.Clients.User(userId).SendAsync("StatusUpdated", fileId, status.ToString(), cancellationToken);
+        await _hub.Clients.User(userId).SendAsync("StatusUpdated", fileId, status.ToString(), error, cancellationToken);
     }
 }
