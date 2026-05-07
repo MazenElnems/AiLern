@@ -38,5 +38,5 @@ public class BunnyUrlSigner(IOptions<BunnyOptions> bunnyOptions) : IBunnyUrlSign
     }
 
     public string GetUrl(string path)
-        => $"{_bunnyOptions.PublicUrl}/{path}";
+        => $"{_bunnyOptions.PublicUrl}{path}";
 }
