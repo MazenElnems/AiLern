@@ -164,6 +164,9 @@ internal class BaseRepository<T> : IBaseRepository<T> where T : class
     public virtual async Task InsertAsync(T entity)
         => await _dbSet.AddAsync(entity);
 
+    public virtual async Task InsertRangeAsync(IEnumerable<T> entities)
+        => await _dbSet.AddRangeAsync(entities);
+
     public virtual void Update(T entity) 
         => _dbSet.Update(entity);
 

@@ -1,7 +1,9 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
+using LMS.Domain.Entities.Notification;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
@@ -14,12 +16,14 @@ public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Resul
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IMapper _mapper;
+    private readonly INotificationService _notificationService;
 
-    public CreateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper)
+    public CreateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, INotificationService notificationService)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _mapper = mapper;
+        _notificationService = notificationService;
     }
 
     public async Task<Result<Guid>> Handle(CreateQuizCommand request, CancellationToken cancellationToken)
@@ -40,7 +44,20 @@ public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Resul
         quiz.CreatedAt = DateTime.UtcNow;
 
         await _unitOfWork.Quizzes.InsertAsync(quiz);
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
+
+
+        if(quiz.Status == QuizStatus.Published)
+        {
+            await _notificationService.NotifyAsync(
+                quiz.CourseId,
+                $"{course.Name}: New Quiz",
+                $"\"{quiz.Title}\" is now available. Start solving now!",
+                NotificationType.NewQuizAdded,
+                $"https://www.ailern.me/quizzes/{quiz.Id}",
+                "Start Quiz"
+            );
+        }
 
         return Result<Guid>.Success(quiz.Id, "quiz created successfully.");
     }

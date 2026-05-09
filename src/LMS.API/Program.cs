@@ -26,6 +26,8 @@ builder.Host.UseSerilog((context, configuration) =>
 
 builder.Services.AddAuthentication();
 
+builder.Services.AddSignalR();
+
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
@@ -103,4 +105,8 @@ app.MapControllers();
 app.MapHub<AIServiceHub>("/hubs/ai-resources")
     .RequireAuthorization();
 
+app.MapHub<NotificationHub>("/notificationHub")
+   .RequireAuthorization();
+
 app.Run();
+

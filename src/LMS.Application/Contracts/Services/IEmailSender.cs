@@ -1,4 +1,6 @@
-﻿namespace LMS.Application.Contracts.ExternalServices;
+﻿using LMS.Domain.Models.Notification;
+
+namespace LMS.Application.Contracts.Services;
 
 public interface IEmailSender
 {
@@ -6,4 +8,6 @@ public interface IEmailSender
     Task SendChangeEmailConfirmationAsync(int userId, string email, string fullName, string token);
     Task SendForgetPasswordEmailAsync(string email, string fullName, string token);
     Task SendWelcomeEmailAsync(string email, string fullName);
+
+    Task SendNotificationEmailWithUrlAsync(string email, string fullName, NotificationEmailModel notificationEmailModel);
 }

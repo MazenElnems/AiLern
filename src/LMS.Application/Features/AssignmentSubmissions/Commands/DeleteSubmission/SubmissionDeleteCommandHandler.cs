@@ -5,9 +5,9 @@ using Microsoft.Extensions.Logging;
 using LMS.Application.Features.Assignments.Commands.DeleteAssignment;
 using LMS.Application.Features.AssignmentSubmissions.Commands.DeleteSubmission;
 using LMS.Domain.Errors;
-using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Domain.Entities.Assignments;
+using LMS.Application.Contracts.Services;
 
 namespace LMS.Application.Commands.Submissions.SubmissionDeleteCommands;
 

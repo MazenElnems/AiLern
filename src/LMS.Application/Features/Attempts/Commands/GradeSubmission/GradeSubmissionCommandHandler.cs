@@ -1,6 +1,8 @@
 using LMS.Application.Common.Results;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
+using LMS.Domain.Entities.Notification;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
@@ -12,11 +14,13 @@ public class GradeSubmissionCommandHandler : IRequestHandler<GradeSubmissionComm
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
+    private readonly INotificationService _notificationService;
 
-    public GradeSubmissionCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext)
+    public GradeSubmissionCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, INotificationService notificationService)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
+        _notificationService = notificationService;
     }
 
     public async Task<Result> Handle(GradeSubmissionCommand request, CancellationToken cancellationToken)
@@ -28,6 +32,8 @@ public class GradeSubmissionCommandHandler : IRequestHandler<GradeSubmissionComm
 
         if (attempt == null)
             return DomainErrors.Attempt.NotFound(request.Id);
+
+        var previousStatus = attempt.Status;
 
         var quiz = await _unitOfWork.Quizzes.GetAsync(a => a.Id == attempt.QuizId, includeProperties: [nameof(Quiz.Course)]);
 
@@ -53,6 +59,18 @@ public class GradeSubmissionCommandHandler : IRequestHandler<GradeSubmissionComm
         }
 
         attempt.Status = request.Status;
+
+        if(previousStatus != AttemptStatus.Reviewed && attempt.Status == AttemptStatus.Reviewed)
+        {
+            await _notificationService.NotifyUserWithEmailAsync(
+                attempt.StudentId,
+                $"{quiz.Course.Name}: Quiz Graded",
+                $"Your quiz \"{quiz.Title}\" has been graded. Check your result now.",
+                NotificationType.AttemptReviewed,
+                $"https://www.ailern.me/quizzes/{quiz.Id}/result",
+                "View Result"
+            );
+        }
         await _unitOfWork.CommitAsync(cancellationToken);
         return Result.Success("Attempt graded successfully.");
     }

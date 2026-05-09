@@ -1,7 +1,7 @@
 using LMS.Application.Common.Interfaces;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.Jobs;
+using LMS.Application.Contracts.Services;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
 using Microsoft.AspNetCore.Identity;

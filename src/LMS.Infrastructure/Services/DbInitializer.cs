@@ -1,4 +1,4 @@
-﻿using LMS.Application.Contracts.ExternalServices;
+﻿using LMS.Application.Contracts.Services;
 using LMS.Domain.Constants;
 using LMS.Domain.Entities.Users;
 using LMS.Infrastructure.Persistence;

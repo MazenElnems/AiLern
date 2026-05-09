@@ -1,5 +1,6 @@
-using LMS.Application.Contracts.ExternalServices;
 using LMS.Infrastructure.Settings;
+using LMS.Application.Contracts.Services;
+using LMS.Domain.Models.Notification;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Hosting;
@@ -60,6 +61,42 @@ internal class EmailSender : IEmailSender
             .Replace("{{FullName}}", fullName);
 
         await SendAsync(email, fullName, "Forget Password", body);
+    }
+
+    public async Task SendNotificationEmailWithUrlAsync(string email,string fullName, NotificationEmailModel notificationEmailModel)
+    {
+        var templatePath = Path.Combine(_env.WebRootPath, "EmailTemplates", "NotificationEmail.html");
+        var template = await File.ReadAllTextAsync(templatePath);
+
+
+        var actionButton = "";
+
+        if (!string.IsNullOrEmpty(notificationEmailModel.ActionUrl))
+        {
+            actionButton = $@"
+                <tr>
+                    <td style='padding-top:30px;'>
+                        <a href='{notificationEmailModel.ActionUrl}'
+                           style='background:#3b82f6;
+                                  color:white;
+                                  padding:14px 24px;
+                                  text-decoration:none;
+                                  border-radius:8px;
+                                  font-weight:bold;
+                                  display:inline-block;'>
+                            {notificationEmailModel.ActionText ?? "View Details"}
+                        </a>
+                    </td>
+                </tr>";
+        }
+
+        var body = template.Replace("{{FullName}}", fullName)
+                           .Replace("{{Title}}", notificationEmailModel.Title)
+                           .Replace("{{Message}}", notificationEmailModel.Message)
+                           .Replace("{{ActionButton}}", actionButton);
+
+        await SendAsync(email, fullName, "Notification", body);
+
     }
 
     public async Task SendWelcomeEmailAsync(string email, string fullName)

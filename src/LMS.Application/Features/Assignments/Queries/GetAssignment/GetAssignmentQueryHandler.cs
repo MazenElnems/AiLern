@@ -8,6 +8,7 @@ using LMS.Domain.Errors;
 using LMS.Application.Features.Assignments.Shared.DTO;
 using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.UnitOfWork;
+using LMS.Application.Contracts.Services;
 
 namespace LMS.Application.Features.Assignments.Queries.GetAssignment;
 

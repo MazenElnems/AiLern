@@ -1,13 +1,17 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Contracts.Jobs;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Assignments.Shared.DTO;
 using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Entities.Notification;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
+using LMS.Domain.Models.Notification;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Application.Features.Assignments.Commands.UpdateAssignment;
 
@@ -17,13 +21,17 @@ public class AssignmentUpdateCommandHandler : IRequestHandler<AssignmentUpdateCo
     private readonly IUserContext _userContext;
     private readonly IMapper _mapper;
     private readonly IWasabiService _wasabiService;
+    private readonly INotificationService _notificationService;
+    private readonly IBackgroundJobService _backgroundService;
 
-    public AssignmentUpdateCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, IWasabiService wasabiService)
+    public AssignmentUpdateCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, IWasabiService wasabiService, INotificationService notificationService, IBackgroundJobService backgroundService)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _mapper = mapper;
         _wasabiService = wasabiService;
+        _notificationService = notificationService;
+        _backgroundService = backgroundService;
     }
 
     public async Task<Result<AssignmentDto>> Handle(AssignmentUpdateCommand request, CancellationToken cancellationToken)
@@ -43,6 +51,7 @@ public class AssignmentUpdateCommandHandler : IRequestHandler<AssignmentUpdateCo
             return DomainErrors.Assignment.InValidDueDate;
 
         var previousDueDate = assignment.DueDate;
+        var previousIsPublished = assignment.IsPublished;
 
         assignment.Title = request.Title;
         assignment.Instructions = request.Instructions;
@@ -60,7 +69,7 @@ public class AssignmentUpdateCommandHandler : IRequestHandler<AssignmentUpdateCo
         }
 
         var dto = _mapper.Map<AssignmentDto>(assignment);
-
+        List<string> keys = new();
         if (request.UploadedFileMetaData is not null)
         {
             foreach (var file in request.UploadedFileMetaData)
@@ -77,10 +86,30 @@ public class AssignmentUpdateCommandHandler : IRequestHandler<AssignmentUpdateCo
                     StoragePath = key,
                     UploadStatus = UploadStatus.Pending,
                 });
+                keys.Add(key);
             }
         }
 
+        if (keys.Any())
+        {
+            _backgroundService.Schedule<IConfirmUploadedFilesJob>(
+                job => job.ExecuteAsync(keys),
+                TimeSpan.FromMinutes(2));
+        }
+
+
+
         await _unitOfWork.CommitAsync();
+
+        if (!previousIsPublished && assignment.IsPublished)
+        {
+            await _notificationService.NotifyAsync(assignment.CourseId,
+                $"{assignment.Course.Name}: New Assignment",
+                $"\"{assignment.Title}\" is available. Due by {assignment.DueDate:MMM dd}.",
+                NotificationType.NewAssignmentAdded,
+                $"https://www.ailern.me/assignments/{assignment.Id}",
+                "View Assignment");
+        }
         return Result<AssignmentDto>.Success(dto, "Assignment updated successfully.");
     }
 }

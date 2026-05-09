@@ -6,7 +6,7 @@ using LMS.Domain.Errors;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using LMS.Application.Contracts.Jobs;
-using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Contracts.Services;
 
 namespace LMS.Application.Features.Auth.Commands.PasswordResetEmail;
 

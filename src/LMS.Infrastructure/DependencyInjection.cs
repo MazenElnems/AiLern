@@ -34,6 +34,7 @@ public static class DependencyInjection
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IWasabiService, WasabiService>();
+        services.AddScoped<INotificationService, SignalRNotificationService>();
         services.AddScoped<IEmailSender,EmailSender>();
         services.AddScoped<IBunnyUrlSigner, BunnyUrlSigner>();
         services.AddScoped<IDbInitializer, DbInitializer>();
@@ -43,6 +44,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IAutoSubmitAttemptJob, AutoSubmitAttemptJob>();
+        services.AddScoped<ISendEmailToUsersJob, SendEmailToUsersJob>();
         services.AddScoped<ICalculateStudentScoreJob, CalculateStudentScoreJob>();
         services.AddScoped<IPrepareDocumentsForAIJob, PrepareDocumentsForAIJob>();
         services.AddScoped<IAIService, AIService>();

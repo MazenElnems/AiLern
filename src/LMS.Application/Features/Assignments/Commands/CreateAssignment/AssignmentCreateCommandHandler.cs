@@ -1,14 +1,18 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
-using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.Jobs;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Assignments.Shared.DTO;
 using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Entities.Notification;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
+using LMS.Domain.Models.Notification;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace LMS.Application.Features.Assignments.Commands.CreateAssignment;
 
@@ -19,14 +23,17 @@ public class AssignmentCreateCommandHandler : IRequestHandler<AssignmentCreateCo
     private readonly IMapper _mapper;
     private readonly IWasabiService _wasabiService;
     private readonly IBackgroundJobService _backgroundService;
+    private readonly INotificationService _notificationService;
 
-    public AssignmentCreateCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, IWasabiService wasabiService, IBackgroundJobService backgroundService)
+
+    public AssignmentCreateCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, IWasabiService wasabiService, IBackgroundJobService backgroundService, INotificationService notificationService)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _mapper = mapper;
         _wasabiService = wasabiService;
         _backgroundService = backgroundService;
+        _notificationService = notificationService;
     }
 
     public async Task<Result<AssignmentDto>> Handle(AssignmentCreateCommand request, CancellationToken cancellationToken)
@@ -68,10 +75,21 @@ public class AssignmentCreateCommandHandler : IRequestHandler<AssignmentCreateCo
                 keys.Add(key);
             }
         }
+        if (keys.Any())
+        {
+            _backgroundService.Schedule<IConfirmUploadedFilesJob>(
+                job => job.ExecuteAsync(keys),
+                TimeSpan.FromMinutes(2));
+        }
 
-        _backgroundService.Schedule<IConfirmUploadedFilesJob>(
-            job => job.ExecuteAsync(keys),
-            TimeSpan.FromMinutes(2));
+        if (assignment.IsPublished)
+        {
+            await _notificationService.NotifyAsync(assignment.CourseId,
+                $"{course.Name}: New Assignment",
+                $"\"{assignment.Title}\" is available. Due by {assignment.DueDate:MMM dd}.",
+                NotificationType.NewAssignmentAdded,
+                $"https://www.ailern.me/assignments/{assignment.Id}", "View Assignment");
+        }
 
         await _unitOfWork.CommitAsync();
 
