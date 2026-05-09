@@ -15,6 +15,7 @@ public class Question
     public string? Answer { get; set; }
     public bool IsAIGenerated { get; set; }
     public bool? IsAccepted { get; set; }
+    public string? AIGradingReferenceAnswer { get; set; }   // for written questions, used as reference answer for AI grader
 
     // Foreign Keys
     public Guid QuizId { get; set; }
@@ -23,4 +24,5 @@ public class Question
     public Quiz Quiz { get; set; } = null!;
     public List<Option> Options { get; set; } = new();
     public List<Answer> Answers { get; set; } = new();
+    public List<AIGradingCriteria> Criterias { get; set; }
 }

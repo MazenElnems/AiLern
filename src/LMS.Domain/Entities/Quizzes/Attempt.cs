@@ -17,7 +17,8 @@ public class Attempt
     public int AttemptNumber { get; set; }
     public AttemptStatus Status { get; set; }
     public List<Guid>? ShuffledQuestionIds { get; set; }     // JSON serialized list of question ids in the order they were presented to the student
-    public string AutoSubmitJobId { get; set; } 
+    public string AutoSubmitJobId { get; set; }
+    public List<string> WeakTopics { get; set; } = new();
 
     // Navigation Properties
     public Student Student { get; set; } = null!;

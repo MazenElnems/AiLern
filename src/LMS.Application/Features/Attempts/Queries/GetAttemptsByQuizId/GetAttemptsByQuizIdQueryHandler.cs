@@ -67,7 +67,7 @@ public class GetAttemptsByQuizIdQueryHandler : IRequestHandler<GetAttemptsByQuiz
                 SubmittedAt = a.SubmittedAt,
                 AttemptEndTime = a.AttemptEndTime,
                 Status = a.Status,
-                Score = quiz.AvailableUntil < DateTime.UtcNow && (a.Status == AttemptStatus.Reviewed || quiz.ShowResultOnClose) ? a.Score : null
+                Score = quiz.AvailableUntil < DateTime.UtcNow && (a.Status == AttemptStatus.Graded || quiz.ShowResultOnClose) ? a.Score : null
             }).ToList()
         };
 

@@ -16,6 +16,7 @@ public class Quiz
     public double TotalPoints => Questions.Sum(q => q.Mark);  // computed at application level when Question navigation are loaded
     public bool ShuffleQuestions { get; set; }
     public bool ShuffleOptions { get; set; }
+    public bool IsAIGradingEnabled { get; set; }
     public QuizStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
 

@@ -1,3 +1,5 @@
+using LMS.Domain.Enums;
+
 namespace LMS.Domain.Entities.Quizzes;
 
 public class Answer

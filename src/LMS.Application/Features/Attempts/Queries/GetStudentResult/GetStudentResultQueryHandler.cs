@@ -41,7 +41,7 @@ public class GetStudentResultQueryHandler : IRequestHandler<GetStudentResultQuer
         if (attempt.Quiz.AvailableUntil > DateTime.UtcNow)
             return DomainErrors.Attempt.QuizNotFinshYet;
 
-        if (!attempt.Quiz.ShowResultOnClose && attempt.Status != AttemptStatus.Reviewed)
+        if (!attempt.Quiz.ShowResultOnClose && attempt.Status != AttemptStatus.Graded)
             return DomainErrors.Attempt.AttemptNotReviewedYet;
 
         var studentResult = await _unitOfWork.Attempts.Query

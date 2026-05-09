@@ -60,7 +60,7 @@ public class GradeSubmissionCommandHandler : IRequestHandler<GradeSubmissionComm
 
         attempt.Status = request.Status;
 
-        if(previousStatus != AttemptStatus.Reviewed && attempt.Status == AttemptStatus.Reviewed)
+        if(previousStatus != AttemptStatus.Graded && attempt.Status == AttemptStatus.Graded)
         {
             await _notificationService.NotifyUserWithEmailAsync(
                 attempt.StudentId,
