@@ -141,6 +141,21 @@ public static class DomainErrors
         public static Error CannotRejectHasAttempts =>
             Common.BusinessRule("QuizQuestion.CannotRejectHasAttempts", "Cannot reject this question because it appears in student attempts.");
     }
+    public static class Discussion
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Discussion", id.ToString());
+        public static Error NotOwned =>
+            Common.Forbidden("You do not have permission to delete this discussion.");
+        public static Error AlreadyVoted =>
+            Common.Forbidden("You have already voted on this discussion.");
+        public static Error NotVoted =>
+            Common.Forbidden("You have not voted on this discussion.");
+        public static Error AlreadyPinned =>
+            Common.BusinessRule("Discussion.AlreadyPinned", "The discussion is already pinned.");
+        public static Error NotPinned =>
+            Common.BusinessRule("Discussion.NotPinned", "The discussion is not pinned.");
+    }
 
     public static class Attempt
     {
