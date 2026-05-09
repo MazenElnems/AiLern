@@ -1,4 +1,5 @@
 using LMS.Application.Common.Results;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Notification;
@@ -13,11 +14,13 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
+    private readonly INotificationService _notificationService;
 
-    public UpdateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext)
+    public UpdateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, INotificationService notificationService)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
+        _notificationService = notificationService;
     }
 
     public async Task<Result> Handle(UpdateQuizCommand request, CancellationToken cancellationToken)
@@ -34,6 +37,8 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
             return DomainErrors.Quiz.NotOwned;
 
         var now = DateTime.UtcNow;
+
+        var previousStatus = quiz.Status;
 
         // Quiz started And Published
         if (quiz.AvailableFrom < now && quiz.Status == QuizStatus.Published)

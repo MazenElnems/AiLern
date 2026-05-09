@@ -1,6 +1,7 @@
 using Amazon.S3;
 using Hangfire;
 using LMS.Application.Common.Interfaces;
+using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.Identity;
 using LMS.Application.Contracts.Jobs;
 using LMS.Application.Contracts.Repositories;

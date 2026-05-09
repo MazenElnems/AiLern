@@ -1,7 +1,5 @@
-using LMS.Application.Contracts.ExternalServices;
 using LMS.Infrastructure.Settings;
 using LMS.Application.Contracts.Services;
-using LMS.Application.Settings;
 using LMS.Domain.Models.Notification;
 using MailKit.Net.Smtp;
 using MailKit.Security;

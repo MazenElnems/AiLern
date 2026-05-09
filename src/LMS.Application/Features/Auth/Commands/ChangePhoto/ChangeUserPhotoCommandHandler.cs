@@ -1,5 +1,5 @@
 ﻿using LMS.Application.Common.Results.Generic;
-using LMS.Application.Contracts.ExternalServices;
+using LMS.Application.Contracts.Services;
 using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Errors;
@@ -13,8 +13,6 @@ public class ChangeUserPhotoCommandHandler : IRequestHandler<ChangeUserPhotoComm
     private readonly IWasabiService _wasabiService;
     private readonly IUserContext _user;
     private readonly UserManager<ApplicationUser> _userManager;
-
-
 
     public ChangeUserPhotoCommandHandler(IWasabiService wasabiService, IUserContext user, UserManager<ApplicationUser> userManager)
     {

@@ -1,5 +1,6 @@
 using AutoMapper;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Notification;
@@ -15,14 +16,14 @@ public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Resul
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IMapper _mapper;
+    private readonly INotificationService _notificationService;
 
-
-    public CreateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, IBackgroundJobService backgroundJobService, INotificationService notificationService)
-    public CreateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper)
+    public CreateQuizCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IMapper mapper, INotificationService notificationService)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _mapper = mapper;
+        _notificationService = notificationService;
     }
 
     public async Task<Result<Guid>> Handle(CreateQuizCommand request, CancellationToken cancellationToken)
