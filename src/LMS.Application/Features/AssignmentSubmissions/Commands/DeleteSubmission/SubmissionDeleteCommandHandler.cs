@@ -6,7 +6,7 @@ using LMS.Application.Features.Assignments.Commands.DeleteAssignment;
 using LMS.Application.Features.AssignmentSubmissions.Commands.DeleteSubmission;
 using LMS.Domain.Errors;
 using LMS.Application.Contracts.UnitOfWork;
-using LMS.Application.Contracts.Services;
+using LMS.Domain.Entities.Assignments;
 
 namespace LMS.Application.Commands.Submissions.SubmissionDeleteCommands;
 
@@ -27,20 +27,21 @@ public class SubmissionDeleteCommandHandler : IRequestHandler<SubmissionDeleteCo
 
     public async Task<Result> Handle(SubmissionDeleteCommand request, CancellationToken cancellationToken)
     {
-        var submission = await _unitOfWork.AssignmentSubmissions.GetByIdAsync(request.Id);
+        var submission = await _unitOfWork.AssignmentSubmissions.GetAsync(a=>a.Id == request.Id,
+            includeProperties: [nameof(AssignmentSubmission.Files)]);
         if (submission is null)
-            return Result.Failure(DomainErrors.AssignmentSubmission.NotFound(request.Id.ToString()));
+            return DomainErrors.AssignmentSubmission.NotFound(request.Id.ToString());
         var assignment = await _unitOfWork.Assignments.GetByIdAsync(submission.AssignmentId);
         if (assignment is null)
-            return Result.Failure(DomainErrors.Assignment.NotFound(submission.AssignmentId));
+            return DomainErrors.Assignment.NotFound(submission.AssignmentId);
         var user = _userContext.GetCurrentUser();
-        if (submission.StudentId != user.Id)
+        if (submission.StudentId != user.Id || submission.Feedback != null)
         {
-            return Result.Failure(DomainErrors.AssignmentSubmission.DeleteForbidden);
+            return DomainErrors.AssignmentSubmission.DeleteForbidden;
         }
-        if (assignment.AllowLateSubmission == false)
+        if (assignment.AllowLateSubmission == false && assignment.DueDate <= DateTime.UtcNow)
         {
-            return Result.Failure(DomainErrors.AssignmentSubmission.DeleteAfterDeadline);
+            return DomainErrors.AssignmentSubmission.DeleteAfterDeadline;
         }
         var filePaths = submission.Files.Select(f => f.StoragePath);
 

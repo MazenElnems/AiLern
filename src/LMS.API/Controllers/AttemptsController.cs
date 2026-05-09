@@ -4,9 +4,9 @@ using LMS.Application.Features.Attempts.Commands.CreateAttempt;
 using LMS.Application.Features.Attempts.Commands.GradeSubmission;
 using LMS.Application.Features.Attempts.Commands.SaveAttempt;
 using LMS.Application.Features.Attempts.Commands.SubmitAttempt;
-using LMS.Application.Features.Attempts.Queries;
 using LMS.Application.Features.Attempts.Queries.GetAttempt;
 using LMS.Application.Features.Attempts.Queries.GetAttemptInstructor;
+using LMS.Application.Features.Attempts.Queries.GetAttemptsByQuizId;
 using LMS.Application.Features.Attempts.Queries.GetStudentQuestionsAndAswers;
 using LMS.Application.Features.Attempts.Shared.Requests;
 using LMS.Domain.Constants;
@@ -102,7 +102,7 @@ public class AttemptsController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
     [HttpPut("{attemptId}/grade")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> GradeSubmission([FromRoute]Guid attemptId, [FromBody] GradeSubmissionCommand command)
+    public async Task<ActionResult<ApiResponse>> GradeSubmission(Guid attemptId, [FromBody] GradeSubmissionCommand command)
     {
         command.Id = attemptId;
         var result = await _mediator.Send(command);

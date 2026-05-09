@@ -35,6 +35,7 @@ public class GetCourseAssignmentsForStudentQueryHandler : IRequestHandler<GetCou
         var assignmentsWithSubmissions = await _unitOfWork.Assignments.Query
             .Include(a => a.Submissions.Where(s => s.StudentId == userId))
             .Where(a => a.CourseId == request.CourseId && a.IsPublished)
+            .OrderByDescending(a=>a.CreatedAt)
             .ToListAsync(cancellationToken);
 
         return _mapper.Map<List<GetAllAssignmentForStudentDto>>(assignmentsWithSubmissions);

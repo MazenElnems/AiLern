@@ -11,8 +11,6 @@ namespace LMS.Infrastructure.Persistence;
 
 public class AppDbContext : IdentityDbContext<ApplicationUser,IdentityRole<int>,int>
 {
-    public DbSet<QuestionGenerationFiles> QuestionGenerationFiles { get; set; }
-    public DbSet<AIQuestionGenerationJob>  QuestionGenerationJobs { get; set; } 
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Admin> Admins { get; set; }
     public DbSet<Student> Students { get; set; }
@@ -31,6 +29,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser,IdentityRole<int>,
     public DbSet<Answer> Answers { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<UserNotification> UserNotifications { get; set; }  
+    public DbSet<AIResource> AIResources { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options):
         base(options)

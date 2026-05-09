@@ -71,10 +71,37 @@ public static class DomainErrors
         public static Error InValidDueDate =>
             Common.BusinessRule("Assignment.InValidDueDate", "Due date cannot be earlier than the current date.");
     }
+    public static class AiResource
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("AIResource", id.ToString());
+
+        public static Error ErrorWhileDeletingFile => 
+            Common.Conflict("AIResource", "Error occurred while deleting the AI resource.");
+
+        public static Error CannotDeleteProcessingFile =>
+            Common.Conflict("AIResource", "Cannot delete the AI resource while it is still processing.");
+
+    }
     public static class Quiz
     {
-        public static Error UpdateNotAllowedAfterStart =>
-            Common.BusinessRule("Quiz.UpdateNotAllowedAfterStart", "Cannot update quiz after it has started.");
+        public static Error QuizStarted  =>
+            Common.BusinessRule("Quiz.QuizStarted", "Cannot modify the quiz after it has started.");
+
+        public static Error CannotDecreaseMaximumAttempts 
+            => Common.BusinessRule("Quiz.CannotDecreaseMaximumAttempts", "Cannot decrease the maximum number of attempts after the quiz has started.");
+        public static Error CannotPublishEmptyQuiz
+            => Common.BusinessRule("Quiz.CannotPublishEmptyQuiz", "Cannot publish an empty quiz.");
+        public static Error CannotDecreaseAttemptTimeLimit
+            => Common.BusinessRule("Quiz.CannotDecreaseAttemptTimeLimit", "Cannot decrease the attempt time limit after the quiz has started.");
+        public static Error CannotShortenQuizDuration
+            => Common.BusinessRule("Quiz.CannotShortenQuizDuration", "Cannot shorten the quiz duration after it has started.");
+        public static Error StartTimeCannotBeInThePast
+            => Common.BusinessRule("Quiz.StartTimeCannotBeInThePast", "Start time cannot be in the past.");
+        public static Error CannotDeleteQuizDuration =>
+            Common.BusinessRule("Quiz.CannotDeleteQuizDuration", "Cannot delete quiz after it has started.");
+        public static Error UpdateQuestionsAfterQuizStarted =>
+            Common.BusinessRule("Quiz.UpdateQuestionsAfterQuizStarted", "Cannot update questions after the quiz has started.");
         public static Error NotFound(Guid id) =>
             Common.NotFound("Quiz", id.ToString());
 
@@ -98,6 +125,21 @@ public static class DomainErrors
             Common.BusinessRule("Quiz.QuizFinished", "The quiz has already finished and cannot be modified.");
         public static Error QuizNotAvailableAtThisTime =>
             Common.BusinessRule("Quiz.NotAvailableAtThisTime", "The quiz is not available at the current time.");
+    }
+
+    public static class QuizQuestion
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Question", id.ToString());
+
+        public static Error NotInQuiz =>
+            Common.BusinessRule("QuizQuestion.NotInQuiz", "The question does not belong to this quiz.");
+
+        public static Error NotPendingAi =>
+            Common.BusinessRule("QuizQuestion.NotPendingAi", "The question is not a pending AI-generated item.");
+
+        public static Error CannotRejectHasAttempts =>
+            Common.BusinessRule("QuizQuestion.CannotRejectHasAttempts", "Cannot reject this question because it appears in student attempts.");
     }
 
     public static class Attempt
@@ -188,6 +230,9 @@ public static class DomainErrors
 
         public static Error AlreadySubmitted =>
             Common.BusinessRule("Submission.AlreadySubmitted", "You have already submitted this assignment.");
+
+        public static Error SubmissionNotFound =>
+            Common.NotFound("Submission.NotFound", "You have not submitted this assignment yet.");
     }
 
     public static class User
@@ -203,6 +248,10 @@ public static class DomainErrors
 
         public static Error CreationFailed(string message) =>
             Common.BusinessRule("User.CreationFailed", message);
+        public static Error InvalidPassword =>
+            Common.BusinessRule("InvalidPassword", "The current password is incorrect.");
+        public static Error EmailNotFound =>
+            Common.BusinessRule("User.EmailNotFound", "No account found with this email."); 
     }
 
     public static class Role
@@ -235,7 +284,7 @@ public static class DomainErrors
             Common.BusinessRule("Auth.EmailConfirmationFailed", "Email confirmation failed.");
 
         public static Error PasswordResetFailed =>
-            Common.BusinessRule("Auth.PasswordResetFailed", "Can't reset the password, please try again.");
+            Common.BusinessRule("Auth.PasswordResetFailed", "New password must be different from the old password.");
 
         public static Error ChangePasswordFailed(string message) =>
             Common.BusinessRule("Auth.ChangePasswordFailed", message);

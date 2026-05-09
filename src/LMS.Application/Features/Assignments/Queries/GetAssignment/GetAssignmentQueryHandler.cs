@@ -3,11 +3,10 @@ using LMS.Application.CurrentUser;
 using LMS.Domain.Constants;
 using LMS.Application.Common.Results.Generic;
 using MediatR;
-using Microsoft.Extensions.Options;
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Errors;
 using LMS.Application.Features.Assignments.Shared.DTO;
-using LMS.Application.Settings;
+using LMS.Application.Contracts.ExternalServices;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.Contracts.Services;
 
@@ -19,15 +18,13 @@ public class GetAssignmentQueryHandler : IRequestHandler<GetAssignmentQuery, Res
     private readonly IMapper _mapper;
     private readonly IUserContext _userContext;
     private readonly IBunnyUrlSigner _urlSigner;
-    private readonly BunnyOptions _bunnyOptions;
 
-    public GetAssignmentQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IUserContext userContext, IBunnyUrlSigner urlSigner, IOptions<BunnyOptions> bunnyOptions)
+    public GetAssignmentQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IUserContext userContext, IBunnyUrlSigner urlSigner)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _userContext = userContext;
         _urlSigner = urlSigner;
-        _bunnyOptions = bunnyOptions.Value;
     }
 
     public async Task<Result<AssignmentWithFilesDto>> Handle(GetAssignmentQuery request, CancellationToken cancellationToken)
@@ -52,8 +49,13 @@ public class GetAssignmentQueryHandler : IRequestHandler<GetAssignmentQuery, Res
             return DomainErrors.Common.Forbidden("It's not allowed to access this assignment.");
 
         var assignmentDto = _mapper.Map<AssignmentWithFilesDto>(assignment);
-        assignmentDto.FileUrls = assignment.Files
-            .Select(file => _urlSigner.GenerateSignedUrl(_bunnyOptions.BaseUrl , _bunnyOptions.Token, file.StoragePath, TimeSpan.FromMinutes(5)))
+        assignmentDto.SubmissionFiles = assignment.Files
+            .Select(file => new SubmissionFilesDto
+            { 
+                Id = file.Id,
+                FileUrl = _urlSigner.GenerateSignedUrl(file.StoragePath, TimeSpan.FromMinutes(5)) , 
+                FileName = file.FileName
+            })
             .ToList();
 
         return assignmentDto;

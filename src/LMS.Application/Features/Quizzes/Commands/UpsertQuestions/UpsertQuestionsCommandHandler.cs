@@ -1,10 +1,11 @@
 ﻿using LMS.Application.Common.Results;
 using LMS.Application.Contracts.UnitOfWork;
+using Microsoft.EntityFrameworkCore; 
 using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Errors;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+using LMS.Domain.Enums;
 
 namespace LMS.Application.Features.Quizzes.Commands.UpsertQuestions;
 
@@ -21,7 +22,7 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
 
     public async Task<Result> Handle(UpsertQuestionsCommand request, CancellationToken cancellationToken)
     {
-        var user = _userContext.GetCurrentUser();
+        var instructorId = _userContext.GetCurrentUser().Id;
 
         var quiz = await _unitOfWork.Quizzes.Query
             .Include(q => q.Course)
@@ -32,14 +33,24 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
         if (quiz == null)
             return DomainErrors.Quiz.NotFound(request.QuizId);
 
-        if (quiz.Course.InstructorId != user.Id)
+        if (quiz.Course.InstructorId != instructorId)
             return DomainErrors.Quiz.NotOwned;
+
+        // cannot update questions after the quiz has started
+        if (quiz.AvailableFrom < DateTime.UtcNow && quiz.Status == QuizStatus.Published)
+            return DomainErrors.Quiz.UpdateQuestionsAfterQuizStarted;
+
+        // cannot remove questions from a published quiz
+        if(quiz.Status == QuizStatus.Published && request.Questions.Count == 0)
+            return DomainErrors.Quiz.CannotPublishEmptyQuiz;
 
         var questions = quiz.Questions;
 
         var requestedQuestionIds = request.Questions.Select(q => q.Id);
 
-        questions.RemoveAll(q => !requestedQuestionIds.Contains(q.Id));
+        questions.RemoveAll(q =>
+            !requestedQuestionIds.Contains(q.Id) &&
+            !(q.IsAIGenerated && q.IsAccepted != true));
 
         int order = 1;
         foreach(var question in request.Questions)
@@ -52,6 +63,7 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
                 {
                     updatedQuestion.QuestionText = question.QuestionText;
                     updatedQuestion.Mark = question.Mark;
+                    updatedQuestion.Type = question.QuestionType;
                     updatedQuestion.Explanation = question.Explanation;
                     updatedQuestion.Instructions = question.Instructions;
                     updatedQuestion.Order = order;
@@ -102,6 +114,7 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
                     Explanation = question.Explanation,
                     Mark = question.Mark,
                     Order = order,
+                    IsAIGenerated = false,
                     Options = question.Options.Select((o, i) => new Option
                     {
                         OptionText = o.OptionText,
@@ -116,7 +129,7 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
             order++;
         }
         
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
 
         return Result.Success("Quiz questions updated Successfully.");
     }

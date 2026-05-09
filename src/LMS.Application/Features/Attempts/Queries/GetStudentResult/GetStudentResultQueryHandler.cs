@@ -27,7 +27,7 @@ public class GetStudentResultQueryHandler : IRequestHandler<GetStudentResultQuer
 
     public async Task<Result<AttemptResultDto>> Handle(GetStudentResultQuery request, CancellationToken cancellationToken)
     {
-        var userId = _user.GetCurrentUser().Id;
+        var studentId = _user.GetCurrentUser().Id;
 
         var attempt = await _unitOfWork.Attempts.GetAsync(a => a.Id == request.AttemptId,
             includeProperties: [nameof(Attempt.Quiz)]);
@@ -35,7 +35,7 @@ public class GetStudentResultQueryHandler : IRequestHandler<GetStudentResultQuer
         if (attempt == null) 
             return DomainErrors.Attempt.NotFound(request.AttemptId);
 
-        if (attempt.StudentId != userId)
+        if (attempt.StudentId != studentId)
             return DomainErrors.Attempt.NotOwned;
 
         if (attempt.Quiz.AvailableUntil > DateTime.UtcNow)
@@ -45,11 +45,9 @@ public class GetStudentResultQueryHandler : IRequestHandler<GetStudentResultQuer
             return DomainErrors.Attempt.AttemptNotReviewedYet;
 
         var studentResult = await _unitOfWork.Attempts.Query
-            .AsNoTracking()
             .ProjectTo<AttemptResultDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(a => a.AttemptId == request.AttemptId, cancellationToken);
 
         return studentResult!;
     }
 }
-

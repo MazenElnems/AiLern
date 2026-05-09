@@ -1,27 +1,42 @@
-﻿using LMS.Application.Contracts.Services;
+﻿using LMS.Application.Contracts.ExternalServices;
+using LMS.Infrastructure.Settings;
+using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace LMS.Infrastructure.Services;
 
-public class BunnyUrlSigner : IBunnyUrlSigner
+public class BunnyUrlSigner(IOptions<BunnyOptions> bunnyOptions) : IBunnyUrlSigner
 {
-    public string GenerateSignedUrl(string baseUrl, string tokenKey, string filePath, TimeSpan validFor)
+    private readonly BunnyOptions _bunnyOptions = bunnyOptions.Value;
+
+    public string GenerateSignedUrl(string filePath, TimeSpan validFor)
     {
-        var expires = DateTimeOffset.UtcNow
-            .Add(validFor)
-            .ToUnixTimeSeconds();
+        var normalizedPath = filePath.StartsWith('/') ? filePath : "/" + filePath;
+        var baseTrimmed = _bunnyOptions.BaseUrl.TrimEnd('/');
+        var uri = new Uri(baseTrimmed + normalizedPath);
 
-        var path = filePath.StartsWith("/") ? filePath : "/" + filePath;
+        var expires = DateTimeOffset.UtcNow.Add(validFor).ToUnixTimeSeconds().ToString();
+        var signaturePath = uri.AbsolutePath;
 
-        var hashInput = $"{tokenKey}{path}{expires}";
-        var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(hashInput));
+        // message = signaturePath + expires
+        var message = string.Concat(signaturePath, expires);
+        var token = "HS256-" + HmacSha256Base64Url(_bunnyOptions.Token, message);
 
-        var token = Convert.ToBase64String(hashBytes)
-            .Replace("+", "-")
-            .Replace("/", "_")
-            .Replace("=", "");
-
-        return $"{baseUrl}{path}?token={token}&expires={expires}";
+        var origin = $"{uri.Scheme}://{uri.Authority}";
+        return $"{origin}{signaturePath}?token={token}&expires={expires}";
     }
+
+    private static string HmacSha256Base64Url(string key, string message)
+    {
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(key));
+        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(message));
+        return Convert.ToBase64String(hash)
+            .Replace('+', '-')
+            .Replace('/', '_')
+            .TrimEnd('=');
+    }
+
+    public string GetUrl(string path)
+        => $"{_bunnyOptions.PublicUrl}{path}";
 }

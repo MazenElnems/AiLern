@@ -12,10 +12,6 @@ public class AssignmentCreateCommandValidator : AbstractValidator<AssignmentCrea
             .MaximumLength(200)
             .WithMessage("Title is required and must be 200 characters or less.");
 
-        RuleFor(a => a.Instructions)
-            .NotEmpty()
-            .WithMessage("Instructions are required.");
-
         RuleFor(a => a.CourseId)
             .GreaterThan(0)
             .WithMessage("CourseId must be greater than 0.");

@@ -1,19 +1,26 @@
 using LMS.API.Controllers.Common;
 using LMS.API.Models;
+using LMS.Application.Features.Courses.Commands.ConfirmAIResources;
 using LMS.Application.Features.Courses.Commands.CreateCourse;
 using LMS.Application.Features.Courses.Commands.CreateEnrollment;
+using LMS.Application.Features.Courses.Commands.DeleteAIResources;
 using LMS.Application.Features.Courses.Commands.DeleteCourse;
 using LMS.Application.Features.Courses.Commands.DeleteEnrollment;
 using LMS.Application.Features.Courses.Commands.UpdateCourse;
+using LMS.Application.Features.Courses.Commands.UploadAIResources;
+using LMS.Application.Features.Courses.Queries.GetAIResources;
+using LMS.Application.Features.Courses.Commands.UpdateProgress;
 using LMS.Application.Features.Courses.Queries.GetAllCourses;
 using LMS.Application.Features.Courses.Queries.GetById;
 using LMS.Application.Features.Courses.Queries.GetCoursesByInstructorId;
 using LMS.Application.Features.Courses.Queries.GetEnrolledStudents;
+using LMS.Application.Features.Courses.Queries.GetMyLearning;
 using LMS.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using LMS.Application.Features.Courses.Queries.GetAIResourceStatus;
 
 namespace LMS.API.Controllers;
 
@@ -96,6 +103,20 @@ public class CoursesController : ApiBaseController
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
+    [HttpPut("{id}/ai-resources/confirm")]
+    [SwaggerOperation(Summary = "Confirm AI resources", Description = "Confirms AI resources for a course by ID.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "AI resources confirmed successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> Update(int id, ConfirmAIResourcesCommand command)
+    {
+        command.CourseId = id;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
 
     [HttpDelete("{id}/enrollments/{studentId}")]
     [Authorize(Roles = UserRoles.Admin)]
@@ -106,21 +127,51 @@ public class CoursesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Course or student not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> DeleteEnrollment(int id,int studentId)
+    public async Task<ActionResult<ApiResponse>> DeleteEnrollment(int id, int studentId)
     {
         var result = await _mediator.Send(new DeleteEnrollmentCommand(id, studentId));
         return HandleResponse(this, result);
     }
 
+    [HttpDelete("{id}/ai-resources/{resourceId}/delete")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Delete enrollment", Description = "Removes a student enrollment from a course.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Enrollment deleted successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Course or student not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> DeleteEnrollment(int id,Guid resourceId)
+    {
+
+        var result = await _mediator.Send(new DeleteAIResourcesCommand { CourseId = id , AiResourceId = resourceId});
+        return HandleResponse(this, result);
+    }
+
     [HttpGet("{id}/students")]
+    [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Get enrolled students", Description = "Lists students enrolled in a course.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Students retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetEnrolledStudents(int id, int pageNo = 1, int pageSize = 10, string searchString = "")    
+    public async Task<ActionResult<ApiResponse>> GetEnrolledStudents(int id, int pageNo = 1, int pageSize = 10, string searchString = "")
     {
         var result = await _mediator.Send(new GetEnrolledStudentsQuery(id, pageNo, pageSize, searchString));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("{id}/ai-resources")]
+    [SwaggerOperation(Summary = "Get AI resources", Description = "Lists AI resources for a course.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "AI resources retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetAIResources(int id)    
+    {
+
+        var result = await _mediator.Send(new GetAIResourcesCommand { CourseId = id });
         return HandleResponse(this, result);
     }
 
@@ -133,9 +184,26 @@ public class CoursesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> EnrollStudent(int studentId,int courseId)
+    public async Task<ActionResult<ApiResponse>> EnrollStudent(int studentId, int courseId)
     {
         var result = await _mediator.Send(new EnrollCourseCommand(studentId, courseId));
+        return HandleResponse(this, result);
+    }
+
+    [HttpPost("{id}/ai-resources")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Upload AI resources", Description = "Uploads AI resources for a course.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "AI resources uploaded successfully   .", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> UploadAIResources(int id ,UploadAIResourcesCommand command)
+    {
+        
+        command.CourseId = id;
+        var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
 
@@ -149,6 +217,36 @@ public class CoursesController : ApiBaseController
     {
         var query = new GetCoursesByInstructorIdQuery(id);
         var result = await _mediator.Send(query);
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("{id}/progress")]
+    [Authorize(Roles = UserRoles.Student)]
+    public async Task<ActionResult<ApiResponse>> UpdateProgress(int id, UpdateStudentCourseProgressCommand command)
+    {
+        command.CourseId = id;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("my-learning")]
+    [Authorize(Roles = UserRoles.Student)]
+    [SwaggerOperation(Summary = "Get my learning", Description = "Returns the current student's enrolled courses with progress, ordered by last progress update.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Learning items retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetMyLearning(int pageNo = 1, int pageSize = 5)
+    {
+        var result = await _mediator.Send(new GetMyLearningQuery(pageNo, pageSize));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("{id}/ai-status")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> GetAIStatus(int id)
+    {
+        var result = await _mediator.Send(new GetAIResourceStatusQuery (id));
         return HandleResponse(this, result);
     }
 }

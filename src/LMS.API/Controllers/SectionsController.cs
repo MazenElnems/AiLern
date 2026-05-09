@@ -1,11 +1,12 @@
 ﻿using LMS.API.Controllers.Common;
 using LMS.API.Models;
-using LMS.Application.Features.Sections.Commands.ConfirmFileUpload;
+using LMS.Application.Contracts.Repositories;
 using LMS.Application.Features.Sections.Commands.CreateSection;
 using LMS.Application.Features.Sections.Commands.DeleteMaterialFile;
 using LMS.Application.Features.Sections.Commands.DeleteSection;
 using LMS.Application.Features.Sections.Commands.MaterialFilesReorder;
 using LMS.Application.Features.Sections.Commands.RequestPreSignedUrl;
+using LMS.Application.Features.Sections.Commands.UpdateProgress;
 using LMS.Application.Features.Sections.Commands.UpdateSection;
 using LMS.Application.Features.Sections.Queries.GetSection;
 using LMS.Domain.Constants;
@@ -51,14 +52,14 @@ public class SectionsController : ApiBaseController
     //    return HandleResponse(this, result);
     //}
 
-        [HttpPut("{id}")]
-        [Authorize(Roles = UserRoles.Instructor)]
-        public async Task<ActionResult<ApiResponse>> UpdateSection(Guid id, SectionUpdateCommand command)
-        {
-            command.Id = id;
-            var result = await _mediator.Send(command);
-            return HandleResponse(this, result);
-        }
+    [HttpPut("{id}")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> UpdateSection(Guid id, SectionUpdateCommand command)
+    {
+        command.Id = id;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
 
     [HttpDelete("{id}/files/{fileId}")]
     [Authorize(Roles = UserRoles.Instructor)]
@@ -77,13 +78,13 @@ public class SectionsController : ApiBaseController
     }
 
 
-        [HttpGet("courses/{courseId}/sections")]
-        [Authorize(Roles = $"{UserRoles.Instructor},{UserRoles.Student}")]
-        public async Task<ActionResult<ApiResponse>> GetCourseSections(int courseId)
-        {
-            var result = await _mediator.Send(new GetCourseSectionsQuery(courseId));
-            return HandleResponse(this, result);
-        }
+    [HttpGet("courses/{courseId}/sections")]
+    [Authorize(Roles = $"{UserRoles.Instructor},{UserRoles.Student}")]
+    public async Task<ActionResult<ApiResponse>> GetCourseSections(int courseId)
+    {
+        var result = await _mediator.Send(new GetCourseSectionsQuery(courseId));
+        return HandleResponse(this, result);
+    }
         
 
     [HttpPut("{id}/files/reorder")]
@@ -95,11 +96,11 @@ public class SectionsController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpGet("{sectionId}")]
-    [Authorize(Roles = $"{UserRoles.Instructor},{UserRoles.Student}")]
-    public async Task<ActionResult<ApiResponse>> GetSection(Guid sectionId)
+    [HttpPut("{id}/progress")]
+    [Authorize(Roles = UserRoles.Student)]
+    public async Task<ActionResult<ApiResponse>> UpdateSectionProgress(Guid id, [FromQuery] bool completed)
     {
-        var result = await _mediator.Send(new GetSectionQuery(sectionId));
+        var result = await _mediator.Send(new UpdateSectionProgressCommand(id, completed));
         return HandleResponse(this, result);
     }
 }

@@ -21,12 +21,13 @@ internal class UnitOfWork : IUnitOfWork
     public IBaseRepository<AssignmentSubmission> AssignmentSubmissions { get; }
     public IQuizRepository Quizzes { get; }
     public IQuestionsRepository Questions { get; }
-    public IBaseRepository<AIQuestionGenerationJob> QuestionGenerationJobs { get; }
-    public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
-    public IBaseRepository<Attempt> Attempts { get; }
+    public IAttemptRepository Attempts { get; }
     public IAnswersRepository Answers { get; }
-    public IBaseRepository<Notification> Notfications { get; }
+    public IBaseRepository<CourseProgress> CourseProgress { get; }
+    public IBaseRepository<SectionProgress> SectionProgress { get; }
     public IBaseRepository<UserNotification> UserNotifications { get; }
+    public IBaseRepository<AIResource> AIResources { get; }
+    public IBaseRepository<Notification> Notfications { get; }
 
     public UnitOfWork(AppDbContext context)
     {
@@ -41,16 +42,16 @@ internal class UnitOfWork : IUnitOfWork
         AssignmentSubmissions = new BaseRepository<AssignmentSubmission>(_context);
         Quizzes = new QuizRepository(_context);
         Questions = new QuestionsRepository(_context);
-        QuestionGenerationJobs = new BaseRepository<AIQuestionGenerationJob>(_context);
-        QuestionGenerationFiles = new BaseRepository<QuestionGenerationFiles>(_context);
-        Attempts = new BaseRepository<Attempt>(_context);
+        Attempts = new AttemptRepository(_context);
         Answers = new AnswersRepository(_context);
+        CourseProgress = new BaseRepository<CourseProgress>(_context);
+        SectionProgress = new BaseRepository<SectionProgress>(_context);
         Notfications = new BaseRepository<Notification>(_context);
         UserNotifications = new BaseRepository<UserNotification>(_context);
+        AIResources = new BaseRepository<AIResource>(_context);
     }
 
     public async Task<int> CommitAsync() => await _context.SaveChangesAsync();
 
     public Task<int> CommitAsync(CancellationToken cancellationToken) => _context.SaveChangesAsync(cancellationToken);
 }
-

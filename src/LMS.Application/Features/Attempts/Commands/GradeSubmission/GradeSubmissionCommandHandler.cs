@@ -36,8 +36,10 @@ public class GradeSubmissionCommandHandler : IRequestHandler<GradeSubmissionComm
         var previousStatus = attempt.Status;
 
         var quiz = await _unitOfWork.Quizzes.GetAsync(a => a.Id == attempt.QuizId, includeProperties: [nameof(Quiz.Course)]);
+
         if (quiz == null)
             return DomainErrors.Quiz.NotFound(attempt.QuizId);
+
         if (quiz.Course.InstructorId != userId)
             return DomainErrors.Course.NotOwned;
 
@@ -69,7 +71,7 @@ public class GradeSubmissionCommandHandler : IRequestHandler<GradeSubmissionComm
                 "View Result"
             );
         }
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
         return Result.Success("Attempt graded successfully.");
     }
 }

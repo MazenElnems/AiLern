@@ -23,23 +23,24 @@ public class GetSubmissionsByQuizIdQueryHandler : IRequestHandler<GetSubmissions
 
     public async Task<Result<PaginationResult<GetSubmissionsByQuizIdDto>>> Handle(GetSubmissionsByQuizIdQuery request, CancellationToken cancellationToken)
     {
-        var user = _userContext.GetCurrentUser();
+        var instructorId = _userContext.GetCurrentUser().Id;
+
         var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId,
             includeProperties: [nameof(Quiz.Course)]);
 
         if (quiz == null)
-            return Result<PaginationResult<GetSubmissionsByQuizIdDto>>.Failure(DomainErrors.Quiz.NotFound(request.QuizId));
+            return DomainErrors.Quiz.NotFound(request.QuizId);
 
-        if (quiz.Course.InstructorId != user.Id)
-            return Result<PaginationResult<GetSubmissionsByQuizIdDto>>.Failure(DomainErrors.Quiz.NotOwned);
+        if (quiz.Course.InstructorId != instructorId)
+            return DomainErrors.Quiz.NotOwned;
 
         var query = _unitOfWork.Attempts.Query
-            .AsNoTracking()
-            .Where(a => a.QuizId == request.QuizId && a.Status == request.Status);
+            .Where(a => a.QuizId == request.QuizId && (a.Status == request.Status || request.Status==null));
 
         var totalResult = await query.CountAsync(cancellationToken);
 
         var items = await query
+            .OrderByDescending(a => a.SubmittedAt)
             .Skip(request.PageSize * (request.PageNo - 1))
             .Take(request.PageSize)
             .Select(a => new GetSubmissionsByQuizIdDto
@@ -51,6 +52,7 @@ public class GetSubmissionsByQuizIdQueryHandler : IRequestHandler<GetSubmissions
                 Status = a.Status,
                 StudentId = a.StudentId,
                 StudentName = a.Student.FullName,
+                Email = a.Student.Email!,
                 SubmittedAt = a.SubmittedAt,
                 TimeSpent = a.TimeSpent
             }).ToListAsync();

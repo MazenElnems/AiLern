@@ -42,12 +42,13 @@ public class AssignmentCreateCommandHandler : IRequestHandler<AssignmentCreateCo
         var course = await _unitOfWork.Courses.GetByIdAsync(request.CourseId);
 
         if(course == null)
-            return Result<AssignmentDto>.Failure(DomainErrors.Course.NotFound(request.CourseId));
+            return DomainErrors.Course.NotFound(request.CourseId);
 
-        if(course.InstructorId != userId)
-            return Result<AssignmentDto>.Failure(DomainErrors.Common.Forbidden("You do not have permission to create an assignment for this course."));
+        if (course.InstructorId != userId)
+            return DomainErrors.Course.NotOwned;
 
         var assignment = _mapper.Map<Assignment>(request);
+        assignment.CourseId = request.CourseId;
         assignment.CreatedAt = DateTime.UtcNow;
 
         await _unitOfWork.Assignments.InsertAsync(assignment);
@@ -59,8 +60,8 @@ public class AssignmentCreateCommandHandler : IRequestHandler<AssignmentCreateCo
         {
             foreach (var file in request.UploadedFileMetaData)
             {
-                var key = $"courses/{course.Name}/assignments/{assignment.Id}/{Guid.NewGuid()}_{file.FileName}";
-                var url = await _wasabiService.GeneratePresignedUploadUrlAsync(key, file.ContentType, 2);
+                var key = $"courses/{course.Id}/assignments/{assignment.Id}/{Guid.NewGuid()}.{file.FileName.Split('.').Last()}";
+                var url = await _wasabiService.GeneratePresignedUploadUrlAsync(key, file.ContentType, 15);
                 dto.PresingedFileUrls.Add(url);
 
                 assignment.Files.Add(new AssignmentFile

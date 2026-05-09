@@ -27,7 +27,7 @@ public class AssignmentsController : ApiBaseController
         _mediator = mediator;
     }
 
-    [HttpPost]
+    [HttpPost("/api/Courses/{courseId}/Assignments")]
     [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Create assignment", Description = "Creates a new assignment for a course.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Assignment created successfully.", typeof(ApiResponse))]
@@ -35,8 +35,9 @@ public class AssignmentsController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> Create(AssignmentCreateCommand command)
+    public async Task<ActionResult<ApiResponse>> Create(int courseId, AssignmentCreateCommand command)
     {
+        command.CourseId = courseId;
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }

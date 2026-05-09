@@ -18,12 +18,13 @@ public interface IUnitOfWork
     public IBaseRepository<Section> Sections { get; }
     public IQuizRepository Quizzes { get; }
     public IQuestionsRepository Questions { get; }
-    public IBaseRepository<AIQuestionGenerationJob> QuestionGenerationJobs { get; }
-    public IBaseRepository<QuestionGenerationFiles> QuestionGenerationFiles { get; }
-    public IBaseRepository<Attempt> Attempts { get; }
+    public IAttemptRepository Attempts { get; }
     public IAnswersRepository Answers { get; }
     public IBaseRepository<Notification> Notfications { get; }
     public IBaseRepository<UserNotification> UserNotifications { get; }    
+    public IBaseRepository<AIResource> AIResources { get; }    
+    public IBaseRepository<CourseProgress> CourseProgress { get; }
+    public IBaseRepository<SectionProgress> SectionProgress { get;  }
 
     Task<int> CommitAsync();
     Task<int> CommitAsync(CancellationToken cancellationToken);

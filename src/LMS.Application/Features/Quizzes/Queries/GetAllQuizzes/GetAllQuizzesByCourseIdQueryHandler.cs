@@ -32,13 +32,13 @@ public class GetAllQuizzesByCourseIdQueryHandler : IRequestHandler<GetAllQuizzes
             includeProperties: [nameof(Course.Quizzes)]);
 
         if (course == null)
-            return Result<PaginationResult<GetAllQuizDto>>.Failure(DomainErrors.Course.NotFound(request.CourseId));
+            return DomainErrors.Course.NotFound(request.CourseId);
 
         if (user.IsInRole(UserRoles.Instructor) && user.Id != course.InstructorId)
-            return Result<PaginationResult<GetAllQuizDto>>.Failure(DomainErrors.Course.NotOwned);
+            return DomainErrors.Course.NotOwned;
 
         else if (user.IsInRole(UserRoles.Student) && !await _unitOfWork.Enrollments.IsEnrolledAsync(request.CourseId, user.Id))
-            return Result<PaginationResult<GetAllQuizDto>>.Failure(DomainErrors.Common.Forbidden("Can't access this course"));
+            return DomainErrors.Common.Forbidden("Can't access this course");
 
         var query = _unitOfWork.Quizzes.Query
             .Where(q => q.CourseId == request.CourseId);
@@ -49,6 +49,7 @@ public class GetAllQuizzesByCourseIdQueryHandler : IRequestHandler<GetAllQuizzes
         var totalResult = await query.CountAsync(cancellationToken);
 
         var quizzes = await query
+            .OrderByDescending(q => q.AvailableFrom)
             .Select(q => new GetAllQuizDto
             {
                 Id = q.Id,
@@ -60,11 +61,10 @@ public class GetAllQuizzesByCourseIdQueryHandler : IRequestHandler<GetAllQuizzes
                 CreatedAt = q.CreatedAt,
                 AttemptTimeLimit = q.AttemptTimeLimit,
                 ShowResultOnClose = q.ShowResultOnClose,
-                PublishedAt = q.PublishedAt,
                 MaximumAttempts = q.MaximumAttempts,
-                QuestionsCount = q.Questions.Count(),
+                QuestionsCount = q.Questions.Count(qu => !qu.IsAIGenerated || qu.IsAccepted == true),
                 StudentAttemptCount = user.IsInRole(UserRoles.Student) ? q.Attempts.Count(a => a.StudentId == user.Id) : null,
-                HasActiveAttempt = q.Attempts.Any(a => a.StudentId == user.Id && a.Status == AttemptStatus.InProgress)
+                HasActiveAttempt = q.Attempts.Any(a => a.StudentId == user.Id && a.Status == AttemptStatus.InProgress),
             })
             .Skip(request.PageSize * (request.PageNo - 1))
             .Take(request.PageSize)

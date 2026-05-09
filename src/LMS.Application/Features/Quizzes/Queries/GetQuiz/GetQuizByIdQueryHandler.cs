@@ -4,6 +4,7 @@ using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Quizzes.Shared.DTO;
 using LMS.Domain.Constants;
+using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Enums;
 using LMS.Domain.Errors;
 using MediatR;
@@ -42,6 +43,8 @@ public class GetQuizByIdQueryHandler : IRequestHandler<GetQuizByIdQuery, Result<
 
             if (quiz == null)
                 return DomainErrors.Quiz.NotFound(request.QuizId);
+
+            quiz.Questions = quiz.Questions.Where(QuizQuestionVisibility.IsLiveQuestion).ToList();
 
             var dto = _mapper.Map<GetQuizDto>(quiz);
 
