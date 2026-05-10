@@ -2,6 +2,7 @@ using LMS.API.Controllers.Common;
 using LMS.API.Models;
 using LMS.Application.Features.Attempts.Commands.CreateAttempt;
 using LMS.Application.Features.Attempts.Commands.GradeSubmission;
+using LMS.Application.Features.Attempts.Commands.GradeWithAI;
 using LMS.Application.Features.Attempts.Commands.SaveAttempt;
 using LMS.Application.Features.Attempts.Commands.SubmitAttempt;
 using LMS.Application.Features.Attempts.Queries.GetAttempt;
@@ -108,5 +109,12 @@ public class AttemptsController : ApiBaseController
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
-}
 
+    [HttpPost("{quizId}/grade-using-ai")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> GradeUsingAI(Guid quizId, [FromBody] List<Guid> attemptIds)
+    {
+        var result = await _mediator.Send(new GradeSubmissionUsingAICommand(quizId, attemptIds));
+        return HandleResponse(this, result);    
+    }
+}

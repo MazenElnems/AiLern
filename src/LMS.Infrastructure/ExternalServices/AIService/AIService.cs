@@ -1,4 +1,4 @@
-﻿using LMS.Application.Common.Models.Request;
+using LMS.Application.Common.Models.Request;
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Contracts.ExternalServices;
 using LMS.Domain.Exceptions;
@@ -177,6 +177,52 @@ public class AIService(IHttpClientFactory factory, ILogger<AIService> logger, IO
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error happened while requesting {AIServiceEndpoint} endpoint of AI Service.", $"{_aiServiceSettings.UploadEndpoint}");
+            throw;
+        }
+    }
+
+    public async Task<AIGradingResponse> GradeAsync(AIQuizSubmissionGradingRequest aIQuizSubmissionGradingRequest, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var client = _factory.CreateClient("AIService");
+
+            var response = await client.PostAsJsonAsync(
+                $"{_aiServiceSettings.GradingEndpoint}",
+                aIQuizSubmissionGradingRequest,
+                AIServiceJsonOptions.Default,
+                cancellationToken
+            );
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<AIGradingResponse>(AIServiceJsonOptions.Default, cancellationToken)
+                   ?? throw new Exception("Failed to deserialize response");
+        }
+        catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogError(
+                ex,
+                "Timeout occurred while requesting {AIServiceEndpoint} endpoint of AI Service.",
+                $"{_aiServiceSettings.GradingEndpoint}"
+            );
+
+            throw new AIServiceTimeoutException("The AI service did not respond in time. Please try again later.", ex);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(
+                ex,
+                "HTTP request error occurred while requesting {AIServiceEndpoint} endpoint of AI Service. Status Code: {StatusCode}",
+                $"{_aiServiceSettings.GradingEndpoint}",
+                ex.StatusCode
+            );
+
+            throw new AIServiceUnAvailableException("The AI service did not respond in time. Please try again later.", ex);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error happened while requesting {AIServiceEndpoint} endpoint of AI Service.", $"{_aiServiceSettings.GradingEndpoint}");
             throw;
         }
     }
