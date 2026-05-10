@@ -5,5 +5,6 @@ public enum AttemptStatus
     InProgress,
     Submitted,
     Graded,
+    AIGraded,
     NeedsReview,
 }
