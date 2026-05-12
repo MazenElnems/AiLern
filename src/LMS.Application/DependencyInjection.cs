@@ -21,9 +21,6 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // Custom Services
-        services.AddScoped<IUserContext, UserContext>();
-
         //MediatR
         services.AddMediatR(cfg => {
             cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
