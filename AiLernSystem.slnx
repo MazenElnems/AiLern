@@ -5,5 +5,7 @@
     <Project Path="src/LMS.Domain/LMS.Domain.csproj" />
     <Project Path="src/LMS.Infrastructure/LMS.Infrastructure.csproj" />
   </Folder>
-  <Folder Name="/tests/" />
+  <Folder Name="/tests/">
+    <Project Path="LMS.Infrastructure.Tests/LMS.Infrastructure.Tests.csproj" Id="2d156cd1-cf24-47c5-80ae-0fdd690b0405" />
+  </Folder>
 </Solution>
