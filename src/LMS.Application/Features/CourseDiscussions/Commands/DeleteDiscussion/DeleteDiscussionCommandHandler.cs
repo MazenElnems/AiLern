@@ -3,6 +3,7 @@ using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Domain.Errors;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Application.Features.CourseDiscussions.Commands.DeleteDiscussion;
 
@@ -37,6 +38,10 @@ public class DeleteDiscussionCommandHandler : IRequestHandler<DeleteDiscussionCo
         if (user.IsInRole("Student") && discussion.StudentId != user.Id)
         {
             return DomainErrors.Discussion.NotOwned;
+        }
+        if (user.IsInRole("Student") && discussion.StudentId == user.Id && discussion.IsAnswered)
+        {
+            return DomainErrors.Discussion.AlreadyAnswered;
         }
         _unitOfWork.Discussions.Delete(discussion);
         await _unitOfWork.CommitAsync();

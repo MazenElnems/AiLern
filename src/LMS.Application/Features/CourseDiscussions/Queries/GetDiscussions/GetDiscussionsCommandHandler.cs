@@ -59,6 +59,7 @@ public class GetDiscussionsCommandHandler : IRequestHandler<GetDiscussionsComman
                 InstructorAvatar = d.IsAnswered && !string.IsNullOrEmpty(d.Course.Instructor.ImageStoragePath) ? _bunny.GetUrl(d.Course.Instructor.ImageStoragePath) : null,
                 VotesCount = d.Votes.Count(),
                 StudentAvatar = !string.IsNullOrEmpty(d.Student.ImageStoragePath) ? _bunny.GetUrl(d.Student.ImageStoragePath) : null,
+                IsUpVotedByCurrentUser = d.Votes.Any(v => v.StudentId == user.Id)
             }).ToListAsync(cancellationToken);
 
         return Result<List<DiscussionDto>>.Success(dto);

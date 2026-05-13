@@ -155,6 +155,8 @@ public static class DomainErrors
             Common.BusinessRule("Discussion.AlreadyPinned", "The discussion is already pinned.");
         public static Error NotPinned =>
             Common.BusinessRule("Discussion.NotPinned", "The discussion is not pinned.");
+            public static Error AlreadyAnswered =>
+            Common.BusinessRule("Discussion.AlreadyAnswered", "The discussion has already been answered and cannot be deleted by the student.");
     }
 
     public static class Attempt

@@ -15,6 +15,7 @@ public class DiscussionDto
     public int VotesCount { get; set; } = 0;    
     public bool IsPinned { get; set; }
     public DateTime? PinnedAt { get; set; }
+    public bool IsUpVotedByCurrentUser { get; set; }
 
 
 
