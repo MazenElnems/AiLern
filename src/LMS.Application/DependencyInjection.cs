@@ -50,7 +50,7 @@ public static class DependencyInjection
                .ForMember(dto => dto.ImageUrl, opt => opt.MapFrom(src => src.ImageStoragePath == null ? null : $"https://ailern-content.b-cdn.net/{src.ImageStoragePath}"));
 
             cfg.CreateMap<Course, GetInstructorCoursesDto>()
-               .ForMember(dto => dto.ImageUrl, opt => opt.MapFrom(src => src.ImageStoragePath == null ? null : $"https://ailern-content.b-cdn.net/{src.ImageStoragePath}"));
+               .ForMember(dto => dto.ImageUrl, opt => opt.MapFrom(src => src.ImageStoragePath == null ? null : src.ImageStoragePath));
 
             cfg.CreateMap<Course, GetAvailableCoursesDto>()
                .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.FullName));
