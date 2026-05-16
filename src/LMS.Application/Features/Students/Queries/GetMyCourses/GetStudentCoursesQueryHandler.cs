@@ -1,5 +1,6 @@
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Courses.Shared.DTO;
@@ -12,11 +13,13 @@ public class GetStudentCoursesQueryHandler : IRequestHandler<GetStudentCoursesQu
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
+    private readonly IBunnyUrlSigner _bunnyUrl;
 
-    public GetStudentCoursesQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext)
+    public GetStudentCoursesQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext, IBunnyUrlSigner bunnyUrl)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
+        _bunnyUrl = bunnyUrl;
     }
 
     public async Task<Result<PaginationResult<GetStudentCoursesDto>>> Handle(GetStudentCoursesQuery request, CancellationToken cancellationToken)
@@ -41,7 +44,8 @@ public class GetStudentCoursesQueryHandler : IRequestHandler<GetStudentCoursesQu
                 ? 0
                 : (int) (c.Sections.Count(s => s.SectionProgresses.Any(p => p.IsCompleted && p.StudentId == userId)) * 100M
                     /
-                  c.Sections.Count()) 
+                  c.Sections.Count()) ,
+            ImageUrl = c.ImageStoragePath == null ? null : _bunnyUrl.GetUrl(c.ImageStoragePath)
         }).ToListAsync();
 
         return new PaginationResult<GetStudentCoursesDto>(

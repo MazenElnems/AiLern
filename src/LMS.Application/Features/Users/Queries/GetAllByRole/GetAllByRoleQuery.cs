@@ -6,5 +6,5 @@ using MediatR;
 
 namespace LMS.Application.Features.Users.Queries.GetAllByRoleId;
 
-public record GetAllByRoleQuery(Roles Role, int PageNo, int PageSize) : IRequest<Result<PaginationResult<GetUsersByRoleDto>>>
+public record GetAllByRoleQuery(int PageNo, int PageSize,Roles? Role = null) : IRequest<Result<PaginationResult<GetUsersByRoleDto>>>
 { }

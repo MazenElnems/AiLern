@@ -6,6 +6,7 @@ public class GetMyLearningDto
 {
     public int CourseId { get; set; }
     public string Name { get; set; } = string.Empty;
+    public string? ImageUrl { get; set; }
     public Guid? LastLearningItemId { get; set; }
     public int? LastPageNumber { get; set; }
     public int? LastWatchedTime { get; set; }
