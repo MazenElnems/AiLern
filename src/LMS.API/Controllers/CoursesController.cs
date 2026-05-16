@@ -21,6 +21,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using LMS.Application.Features.Courses.Queries.GetAIResourceStatus;
+using LMS.Application.Features.CourseDiscussions.Commands.CourseDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.VoteDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.DownVoteDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.UpdateDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.DeleteDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.PinDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.UnPinDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.AnswerDiscussion;
+using LMS.Application.Features.CourseDiscussions.Queries.GetDiscussions;
 
 namespace LMS.API.Controllers;
 
@@ -47,6 +56,155 @@ public class CoursesController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> Create(CreateCourseCommand command)
     {
         var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpPost("course/{courseId}/discussions")]
+    [Authorize(Roles = UserRoles.Student)]
+    [SwaggerOperation(Summary = "Create discussion", Description = "Creates a new discussion for a course.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Discussion created successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> Create(int courseId, CreateDiscussionCommand command)
+    {
+        command.CourseId = courseId;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+    [HttpPost("course/{courseId}/discussions/{discussionId}/up_vote")]
+    [Authorize(Roles = UserRoles.Student)]
+    [SwaggerOperation(Summary = "Upvote discussion", Description = "Upvotes an existing discussion for a course.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Discussion upvoted successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> UpVote(int courseId, Guid discussionId)
+    {
+        var result = await _mediator.Send(new UpVoteDiscussionCommand
+        {
+            CourseId = courseId,
+            DiscussionId = discussionId
+        });
+        return HandleResponse(this, result);
+    }
+
+    [HttpDelete("course/{courseId}/discussions/{discussionId}/down_vote")]
+    [Authorize(Roles = UserRoles.Student)]
+    [SwaggerOperation(Summary = "Downvote discussion", Description = "Downvotes an existing discussion for a course.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Discussion downvoted successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> DownVote(int courseId, Guid discussionId)
+    {
+        var result = await _mediator.Send(new DownVoteDiscussionCommand
+        {
+            CourseId = courseId,
+            DiscussionId = discussionId
+        });
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("course/{courseId}/discussions/{discussionId}/update")]
+    [Authorize(Roles = UserRoles.Student)]
+    [SwaggerOperation(Summary = "Update discussion", Description = "Updates an existing discussion for a course.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Discussion updated successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> Update(int courseId, Guid discussionId, UpdateDiscussionCommand command)
+    {
+        command.CourseId = courseId;
+        command.DiscussionId = discussionId;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpDelete("course/{courseId}/discussions/{discussionId}")]
+    [Authorize(Roles = UserRoles.Student + "," + UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Delete discussion", Description = "Deletes an existing discussion for a course.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Discussion deleted successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> Delete(int courseId, Guid discussionId)
+    {
+        var result = await _mediator.Send(new DeleteDiscussionCommand
+        {
+            CourseId = courseId,
+            DiscussionId = discussionId
+        });
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("course/{courseId}/discussions/{discussionId}/pin")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Pin discussion", Description = "Pins an existing discussion for a course.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Discussion pinned successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> Pin(int courseId, Guid discussionId)
+    {
+        var result = await _mediator.Send(new PinDiscussionCommand
+        {
+            CourseId = courseId,
+            DiscussionId = discussionId
+        });
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("course/{courseId}/discussions/{discussionId}/un_pin")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Unpin discussion", Description = "Unpins an existing discussion for a course.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Discussion unpinned successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> UnPin(int courseId, Guid discussionId)
+    {
+        var result = await _mediator.Send(new UnPinDiscussionCommand
+        {
+            CourseId = courseId,
+            DiscussionId = discussionId
+        });
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("course/{courseId}/discussions/{discussionId}/answer")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Answer discussion", Description = "Answers an existing discussion for a course.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Discussion answered successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> Answer(int courseId, Guid discussionId,AnswerDiscussionCommand command)
+    {
+        command.CourseId = courseId;
+        command.DiscussionId = discussionId;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+    [HttpGet("course/{courseId}/discussions")]
+    [Authorize(Roles = UserRoles.Instructor + "," + UserRoles.Student)]
+    [SwaggerOperation(Summary = "Get discussions for a course", Description = "Retrieves all discussions for a specific course.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Discussions retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetDiscussions(int courseId)
+    {
+        var result = await _mediator.Send(new GetDiscussionsCommand { CourseId = courseId });
         return HandleResponse(this, result);
     }
 

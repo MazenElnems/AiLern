@@ -29,17 +29,6 @@ public class GetInstructorDashboardQueryHandler : IRequestHandler<GetInstructorD
         try
         {
             var userId = _user.GetCurrentUser().Id;
-            #region
-            //var courses = await _unitOfWork.Courses.FilterAsync(c => c.InstructorId == userId, includeProperties: [nameof(Course.Quizzes), nameof(Course.Assignments), nameof(Course.Enrollments)]);
-            //var dashboard = new InstructorDashboardDto
-            //{
-            //    TotalCourses = courses.Count(),
-            //    TotalStudents = courses.SelectMany(c => c.Enrollments).Select(e => e.StudentId).Distinct().Count(), 
-            //    TotalQuizzes = courses.SelectMany(c => c.Quizzes).Count(),
-            //    TotalAssignments = courses.SelectMany(c => c.Assignments).Count(),
-
-            //};
-            #endregion
 
             var statistic = await _unitOfWork.Courses.Query
                 .AsNoTracking()
@@ -65,29 +54,7 @@ public class GetInstructorDashboardQueryHandler : IRequestHandler<GetInstructorD
                 })
                 .FirstOrDefaultAsync();
 
-            #region
-            //var userId = _user.GetCurrentUser().Id;
-            //var courses = await _unitOfWork.Courses.Query
-            //    .AsNoTracking()
-            //    .Where(c => c.InstructorId == userId)
-            //    .Select(c => new
-            //    {
-            //        c.Id,
-            //        TotalStudents = c.Enrollments.Count(),
-            //        TotalQuizzes = c.Quizzes.Count(),
-            //        TotalAssignments = c.Assignments.Count()
-            //    }).ToListAsync(cancellationToken);
 
-
-            //var dashboard = new InstructorDashboardDto
-            //{
-            //    TotalCourses = courses.Count(),
-            //    TotalStudents = courses.Sum(c => c.TotalStudents),
-            //    TotalQuizzes = courses.Sum(c => c.TotalQuizzes),
-            //    TotalAssignments = courses.Sum(c => c.TotalAssignments)
-
-            //};
-            #endregion
 
 
             return Result<InstructorDashboardDto>.Success(statistic);

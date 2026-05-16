@@ -1,9 +1,9 @@
 ﻿using LMS.Application.Contracts.Repositories;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Entities.CourseDiscussion;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Notification;
-using LMS.Domain.Entities.Quizzes;
 
 namespace LMS.Infrastructure.Persistence.Repositories;
 
@@ -28,6 +28,9 @@ internal class UnitOfWork : IUnitOfWork
     public IBaseRepository<UserNotification> UserNotifications { get; }
     public IBaseRepository<AIResource> AIResources { get; }
     public IBaseRepository<Notification> Notfications { get; }
+    public IBaseRepository<Discussion> Discussions { get; }
+    public IBaseRepository<DiscussionVote> DiscussionVotes { get; }
+
 
     public UnitOfWork(AppDbContext context)
     {
@@ -49,6 +52,8 @@ internal class UnitOfWork : IUnitOfWork
         Notfications = new BaseRepository<Notification>(_context);
         UserNotifications = new BaseRepository<UserNotification>(_context);
         AIResources = new BaseRepository<AIResource>(_context);
+        Discussions = new BaseRepository<Discussion>(_context);
+        DiscussionVotes = new BaseRepository<DiscussionVote>(_context);
     }
 
     public async Task<int> CommitAsync() => await _context.SaveChangesAsync();
