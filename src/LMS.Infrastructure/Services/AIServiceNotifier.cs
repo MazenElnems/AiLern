@@ -28,4 +28,16 @@ internal class AIServiceNotifier : IAIServiceNotifier
         _logger.LogInformation("Notifying user {UserId} about status change for file {FileId} to {Status}", userId, fileId, status);
         await _hub.Clients.User(userId).SendAsync("StatusUpdated", fileId, status.ToString(), error, cancellationToken);
     }
+
+    public async Task NotifyAIServiceProblemAsync(string userId, string? error, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Notifying user {UserId} about AI service problem. Error: {Error}", userId, error);
+        await _hub.Clients.User(userId).SendAsync("AIServiceProblem", error, cancellationToken);
+    }
+
+    public Task NotifyQuestionGenerationFailedAsync(int userId, string? error, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Notifying user {UserId} about question generation failure. Error: {Error}", userId, error);
+        return _hub.Clients.User(userId.ToString()).SendAsync("QuestionGenerationFailed", error, cancellationToken);
+    }
 }

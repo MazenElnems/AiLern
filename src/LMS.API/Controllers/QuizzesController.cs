@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using LMS.API.Controllers.Common;
-using LMS.API.Models;
 using LMS.Application.Features.Attempts.Queries.GetAttemptsByQuizId;
 using LMS.Application.Features.Quizzes.Commands.AcceptAiGeneratedQuestion;
 using LMS.Application.Features.Quizzes.Commands.AcceptAllAiGeneratedQuestions;
@@ -22,6 +21,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using LMS.API.Models.Responses;
 
 namespace LMS.API.Controllers;
 

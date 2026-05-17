@@ -1,4 +1,4 @@
-﻿using LMS.API.Models;
+﻿using LMS.API.Models.Responses;
 
 namespace LMS.API.Middleware;
 

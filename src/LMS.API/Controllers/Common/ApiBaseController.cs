@@ -1,4 +1,4 @@
-using LMS.API.Models;
+using LMS.API.Models.Responses;
 using LMS.Application.Common.Results;
 using LMS.Application.Common.Results.Generic;
 using LMS.Domain.Enums;

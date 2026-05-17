@@ -29,17 +29,19 @@ public class ConfirmAIResourcesCommandHandler : IRequestHandler<ConfirmAIResourc
     public async Task<Result<List<string>>> Handle(ConfirmAIResourcesCommand request, CancellationToken cancellationToken)
     {
         var userId = _user.GetCurrentUser().Id;
-        var course = await _unitOfWork.Courses.GetAsync(c => c.Id == request.CourseId, includeProperties: [nameof(Course.AIResources)]);
+
+        var course = await _unitOfWork.Courses.GetAsync(c => c.Id == request.CourseId,
+            includeProperties: [nameof(Course.AIResources)]);
+
         if (course == null)
-        {
             return DomainErrors.Course.NotFound(request.CourseId);
-        }
+
         if (course.InstructorId != userId)
-        {
             return DomainErrors.Course.NotOwned;
-        }
+
         var unSuccessfulAIResources = new List<string>();
         var aiResources = course.AIResources.Where(ar => ar.UploadStatus != UploadStatus.Completed).ToList();
+
         foreach (var aiResource in aiResources)
         {
             if (request.AiResourceIds.Contains(aiResource.Id))
@@ -52,9 +54,9 @@ public class ConfirmAIResourcesCommandHandler : IRequestHandler<ConfirmAIResourc
                 unSuccessfulAIResources.Add(aiResource.FileName);
             }
         }
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
 
-        _backgroundJobService.Enqueue(() => _prepareDocumentsForAIJob.ExecuteAsync(request.CourseId, cancellationToken));
+        //_backgroundJobService.Enqueue(() => _prepareDocumentsForAIJob.ExecuteAsync(request.CourseId, userId, cancellationToken));
         return unSuccessfulAIResources;
     }
 }

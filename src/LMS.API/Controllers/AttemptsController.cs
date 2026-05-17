@@ -1,12 +1,11 @@
 using LMS.API.Controllers.Common;
-using LMS.API.Models;
+using LMS.API.Models.Responses;
 using LMS.Application.Features.Attempts.Commands.CreateAttempt;
 using LMS.Application.Features.Attempts.Commands.GradeSubmission;
 using LMS.Application.Features.Attempts.Commands.SaveAttempt;
 using LMS.Application.Features.Attempts.Commands.SubmitAttempt;
 using LMS.Application.Features.Attempts.Queries.GetAttempt;
 using LMS.Application.Features.Attempts.Queries.GetAttemptInstructor;
-using LMS.Application.Features.Attempts.Queries.GetAttemptsByQuizId;
 using LMS.Application.Features.Attempts.Queries.GetStudentQuestionsAndAswers;
 using LMS.Application.Features.Attempts.Shared.Requests;
 using LMS.Domain.Constants;

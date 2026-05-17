@@ -2,7 +2,7 @@ using Hangfire;
 using Hangfire.Common;
 using LMS.API.Extensions;
 using LMS.API.Middleware;
-using LMS.API.Models;
+using LMS.API.Models.Responses;
 using LMS.Application;
 using LMS.Infrastructure;
 using LMS.Infrastructure.Hubs;

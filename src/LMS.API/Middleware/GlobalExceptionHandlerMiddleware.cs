@@ -1,4 +1,4 @@
-﻿using LMS.API.Models;
+﻿using LMS.API.Models.Responses;
 using LMS.Domain.Exceptions;
 
 namespace LMS.API.Middleware;
@@ -46,6 +46,7 @@ public class GlobalExceptionHandlerMiddleware
                 ex.StackTrace,
                 ex.Source
             );
+
             await httpContext.Response.WriteAsJsonAsync(ApiResponse.InternalError("AI Service Exception", StatusCodes.Status500InternalServerError));
         }
         catch (AIServiceTimeoutException ex)
@@ -56,7 +57,7 @@ public class GlobalExceptionHandlerMiddleware
                 ex.Source
             );
 
-            await httpContext.Response.WriteAsJsonAsync(ApiResponse.InternalError("AI Service Timeout Exception", StatusCodes.Status504GatewayTimeout));
+            await httpContext.Response.WriteAsJsonAsync(ApiResponse.InternalError("AI Service request timed out. Please try again later.", StatusCodes.Status504GatewayTimeout));
         }
         catch (Exception ex)
         {

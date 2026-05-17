@@ -48,11 +48,12 @@ public class UploadAIResourcesCommandHandler : IRequestHandler<UploadAIResources
                 FileSize = file.FileSize,
                 StoragePath = $"courses/{course.Name.Replace(" ","_")}/AIResources/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}",
                 UploadStatus = UploadStatus.Pending,
+                AIStatus = AIStatus.Pending,
             };
             aiResources.Add(aiResource);
         }
         course.AIResources.AddRange(aiResources);
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
 
         var aiResourcesDtos = new List<AIResourcesDto>();
         foreach (var ar in aiResources)

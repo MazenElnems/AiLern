@@ -1,6 +1,5 @@
 ﻿using LMS.API.Controllers.Common;
-using LMS.API.Models;
-using LMS.Application.Contracts.Repositories;
+using LMS.API.Models.Responses;
 using LMS.Application.Features.Sections.Commands.CreateSection;
 using LMS.Application.Features.Sections.Commands.DeleteMaterialFile;
 using LMS.Application.Features.Sections.Commands.DeleteSection;

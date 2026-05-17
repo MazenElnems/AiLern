@@ -1,4 +1,4 @@
-﻿namespace LMS.API.Models;
+﻿namespace LMS.API.Models.Responses;
 
 public class ApiResponse
 {

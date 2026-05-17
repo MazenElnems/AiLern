@@ -1,6 +1,5 @@
 using LMS.API.Controllers.Common;
-using LMS.API.Models;
-using LMS.Application.Features.Auth.Commands.ChangeUserEmail;
+using LMS.API.Models.Responses;
 using LMS.Application.Features.Instructors.Queries.GetMyCourses;
 using LMS.Application.Features.Students.Queries.GetMyCourses;
 using LMS.Application.Features.Students.Queries.GetStudentProfileInCourse;

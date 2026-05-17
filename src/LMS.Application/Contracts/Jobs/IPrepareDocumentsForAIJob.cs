@@ -2,5 +2,5 @@
 
 public interface IPrepareDocumentsForAIJob
 {
-    Task ExecuteAsync(int courseId, CancellationToken cancellationToken);
+    Task ExecuteAsync(int courseId, int instructorId, CancellationToken cancellationToken);
 }

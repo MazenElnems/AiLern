@@ -6,7 +6,7 @@ using LMS.Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace LMS.Application.Features.Courses.Commands.ProcessAIUpload;
+namespace LMS.Application.Features.Courses.Commands.ProcessAIUploadHook;
 
 public class ProcessAIUploadWebhookCommandHandler(IUnitOfWork unitOfWork, ILogger<ProcessAIUploadWebhookCommandHandler> logger, IAIServiceNotifier aiStatusNotifier, IWasabiService wsabiService) : IRequestHandler<ProcessAIUploadWebhookCommand>
 {

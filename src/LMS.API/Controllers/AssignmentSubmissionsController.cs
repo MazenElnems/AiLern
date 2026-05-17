@@ -1,5 +1,5 @@
 using LMS.API.Controllers.Common;
-using LMS.API.Models;
+using LMS.API.Models.Responses;
 using LMS.Application.Features.AssignmentSubmissions.Commands.ConfirmUpload;
 using LMS.Application.Features.AssignmentSubmissions.Commands.DeleteSubmission;
 using LMS.Application.Features.AssignmentSubmissions.Commands.ReviewSubmission;

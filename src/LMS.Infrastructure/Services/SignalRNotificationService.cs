@@ -6,7 +6,6 @@ using LMS.Domain.Models.Notification;
 using LMS.Infrastructure.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 
 namespace LMS.Infrastructure.Services;
 

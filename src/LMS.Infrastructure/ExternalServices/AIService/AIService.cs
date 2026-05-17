@@ -47,7 +47,7 @@ public class AIService(
         return result;
     }
 
-    public async Task<AIUploadDocsResponse> UploadFilesAsContextAsync(List<AIUploadDocsRequest> uploadDocsRequest, CancellationToken cancellationToken)
+    public async Task<AIUploadDocsResponse> UploadDocsAsContextAsync(List<AIUploadDocsRequest> uploadDocsRequest, CancellationToken cancellationToken)
     {
         var webhookUrl = BuildWebhookUrl("DocumentsUploaded");
 

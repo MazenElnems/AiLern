@@ -1,5 +1,5 @@
 using LMS.API.Controllers.Common;
-using LMS.API.Models;
+using LMS.API.Models.Responses;
 using LMS.Application.Features.Assignments.Commands.CreateAssignment;
 using LMS.Application.Features.Assignments.Commands.DaleteAssignmentFile;
 using LMS.Application.Features.Assignments.Commands.DeleteAssignment;

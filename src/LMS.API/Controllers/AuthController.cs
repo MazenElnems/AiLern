@@ -1,5 +1,5 @@
 using LMS.API.Controllers.Common;
-using LMS.API.Models;
+using LMS.API.Models.Responses;
 using LMS.Application.Commands.Auth.EmailConfirmationCommands;
 using LMS.Application.Features.Auth.Commands.ChangePassword;
 using LMS.Application.Features.Auth.Commands.ChangePhoto;

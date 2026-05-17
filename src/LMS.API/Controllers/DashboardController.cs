@@ -1,5 +1,4 @@
 ﻿using LMS.API.Controllers.Common;
-using LMS.API.Models;
 using LMS.Application.Features.Dashboards.Queries.CourseDashboard;
 using LMS.Application.Features.Dashboards.Queries.GetQuizDashboard;
 using LMS.Application.Features.Instructors.Queries.GetMyDashboard;
@@ -11,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using LMS.Application.Features.Admin.Queries.GetAdminDashboard;
+using LMS.API.Models.Responses;
 
 namespace LMS.API.Controllers;
 

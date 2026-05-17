@@ -1,4 +1,4 @@
-﻿using LMS.Application.Features.Courses.Commands.ProcessAIUpload;
+﻿using LMS.Application.Features.Courses.Commands.ProcessAIUploadHook;
 using LMS.Application.Features.Courses.Shared.DTO;
 using LMS.Application.Features.Quizzes.Commands.AddBatchQuestions;
 using LMS.Application.Features.Quizzes.Shared.DTO;
