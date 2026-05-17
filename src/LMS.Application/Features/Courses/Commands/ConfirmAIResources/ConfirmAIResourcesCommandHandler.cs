@@ -14,16 +14,11 @@ public class ConfirmAIResourcesCommandHandler : IRequestHandler<ConfirmAIResourc
 {
     private readonly IUserContext _user;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IBackgroundJobService _backgroundJobService;
-    private readonly IPrepareDocumentsForAIJob _prepareDocumentsForAIJob;
 
-
-    public ConfirmAIResourcesCommandHandler(IUserContext user, IUnitOfWork unitOfWork, IBackgroundJobService backgroundJobService, IPrepareDocumentsForAIJob prepareDocumentsForAIJob)
+    public ConfirmAIResourcesCommandHandler(IUserContext user, IUnitOfWork unitOfWork)
     {
         _user = user;
         _unitOfWork = unitOfWork;
-        _backgroundJobService = backgroundJobService;
-        _prepareDocumentsForAIJob = prepareDocumentsForAIJob;
     }
 
     public async Task<Result<List<string>>> Handle(ConfirmAIResourcesCommand request, CancellationToken cancellationToken)

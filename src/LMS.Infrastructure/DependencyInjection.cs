@@ -48,7 +48,6 @@ public static class DependencyInjection
         services.AddScoped<IAutoSubmitAttemptJob, AutoSubmitAttemptJob>();
         services.AddScoped<ISendEmailToUsersJob, SendEmailToUsersJob>();
         services.AddScoped<ICalculateStudentScoreJob, CalculateStudentScoreJob>();
-        services.AddScoped<IPrepareDocumentsForAIJob, PrepareDocumentsForAIJob>();
         services.AddScoped<IAIService, AIService>();
         services.AddScoped<IAnswersRepository, AnswersRepository>();
         services.AddScoped<IUserRegistrationService, UserRegistrationService>();
