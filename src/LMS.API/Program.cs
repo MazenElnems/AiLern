@@ -77,8 +77,6 @@ recurringJobManager.AddOrUpdate(
 
 app.UseGlobalExceptionHandler();
 
-app.UseAuthResponseHandler();
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
