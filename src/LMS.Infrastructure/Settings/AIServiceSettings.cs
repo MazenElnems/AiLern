@@ -1,4 +1,4 @@
-﻿namespace LMS.Infrastructure.Settings;
+namespace LMS.Infrastructure.Settings;
 
 public class AIServiceSettings
 {

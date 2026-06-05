@@ -1,5 +1,6 @@
 ﻿using LMS.Application.Common.Models.Request;
 using LMS.Application.Common.Models.Responses;
+using LMS.Domain.Enums;
 
 namespace LMS.Application.Contracts.ExternalServices;
 
