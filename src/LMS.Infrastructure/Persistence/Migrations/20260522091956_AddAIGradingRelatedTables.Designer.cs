@@ -4,6 +4,7 @@ using LMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260522091956_AddAIGradingRelatedTables")]
+    partial class AddAIGradingRelatedTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -343,13 +346,13 @@ namespace LMS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid?>("AttemptId")
+                    b.Property<Guid>("AttemptId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("CourseId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StudentId")
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
                     b.Property<string>("Topic")
@@ -477,9 +480,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AIGradingStatus")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("AttemptEndTime")
                         .HasColumnType("DATETIME2");
 
@@ -489,9 +489,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Property<string>("AutoSubmitJobId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsAIGraded")
-                        .HasColumnType("bit");
 
                     b.Property<Guid>("QuizId")
                         .HasColumnType("UNIQUEIDENTIFIER");
@@ -628,6 +625,9 @@ namespace LMS.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("NVARCHAR(2000)");
+
+                    b.Property<bool>("IsAIGradingEnabled")
+                        .HasColumnType("bit");
 
                     b.Property<int>("MaximumAttempts")
                         .HasColumnType("INT");
@@ -1130,7 +1130,8 @@ namespace LMS.Infrastructure.Migrations
                     b.HasOne("LMS.Domain.Entities.Quizzes.Attempt", "Attempt")
                         .WithMany("WeakTopics")
                         .HasForeignKey("AttemptId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("LMS.Domain.Entities.Courses.Course", "Course")
                         .WithMany("WeakTopics")
@@ -1138,13 +1139,17 @@ namespace LMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LMS.Domain.Entities.Users.Student", null)
+                    b.HasOne("LMS.Domain.Entities.Users.Student", "Student")
                         .WithMany("WeakTopics")
-                        .HasForeignKey("StudentId");
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Attempt");
 
                     b.Navigation("Course");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Notification.UserNotification", b =>

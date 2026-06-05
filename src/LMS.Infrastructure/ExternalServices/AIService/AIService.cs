@@ -10,8 +10,12 @@ using System.Net.Http.Json;
 
 namespace LMS.Infrastructure.ExternalServices.AIService;
 
-public class AIService(IHttpClientFactory factory, ILogger<AIService> logger, IOptions<AIServiceSettings> aiServiceOptions, IOptions<WebhookSettings> webhookSettings)
-    : IAIService
+public class AIService(
+    IHttpClientFactory factory,
+    ILogger<AIService> logger,
+    IOptions<AIServiceSettings> aiServiceOptions,
+    IOptions<WebhookSettings> webhookSettings
+) : IAIService
 {
     private readonly IHttpClientFactory _factory = factory;
     private readonly ILogger<AIService> _logger = logger;
@@ -20,136 +24,71 @@ public class AIService(IHttpClientFactory factory, ILogger<AIService> logger, IO
 
     public async Task<AIDeleteProjectResponse> DeleteFileAsync(string projectId, CancellationToken cancellationToken)
     {
-        HttpResponseMessage response = new HttpResponseMessage();
-        var result = new AIDeleteProjectResponse();
-        try
-        {
-            using var client = _factory.CreateClient("AIService");
+        var requestUrl = $"{_aiServiceSettings.DeleteEndpoint}/{projectId}";
+        var message = new HttpRequestMessage(HttpMethod.Delete, requestUrl);
 
-            response = await client.DeleteAsync(
-                $"{_aiServiceSettings.DeleteEndpoint}/{projectId}",
-                cancellationToken
-            );
+        var result = await ExecuteAsync<AIDeleteProjectResponse>(message, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
-
-            result = await response.Content.ReadFromJsonAsync<AIDeleteProjectResponse>(AIServiceJsonOptions.Default)
-                       ?? throw new Exception("Failed to deserialize response");
-
-            return result;
-        }
-        catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
-        {
-            _logger.LogError(
-                ex,
-                "Timeout occurred while requesting {AIServiceEndpoint} endpoint of AI Service.",
-                $"DELETE: {_aiServiceSettings.DeleteEndpoint}/{projectId}"
-            );
-
-            throw new AIServiceTimeoutException("The AI service did not respond in time. Please try again later.", ex);
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(
-                ex,
-                "HTTP request error occurred while requesting {AIServiceEndpoint} endpoint of AI Service. Status Code: {StatusCode}",
-                $"DELETE: {_aiServiceSettings.DeleteEndpoint}/{projectId}",
-                response.StatusCode
-            );
-
-            throw new AIServiceUnAvailableException("The AI service did not respond in time. Please try again later.", ex);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(
-                ex,
-                "Error occurred while requesting {AIServiceEndpoint} endpoint of AI Service.",
-                $"DELETE: {_aiServiceSettings.DeleteEndpoint}/{projectId}"
-            );
-            throw;
-        }
+        return result;
     }
 
     public async Task<AIQuizGenerationResonse> GenerateQuestionsAsync(AIQuizGenerationRequest quizGenerationRequest, CancellationToken cancellationToken)
     {
-        try
+        var webhookUrl = BuildWebhookUrl("QuestionsGenerated");
+
+        var message = new HttpRequestMessage(HttpMethod.Post, _aiServiceSettings.QAEndpoint)
         {
-            using var client = _factory.CreateClient("AIService");
+            Content = JsonContent.Create(quizGenerationRequest, options: AIServiceJsonOptions.Default)
+        };
+        message.Headers.Add("X-QuestionGenerated-WebHook", webhookUrl);
 
-            var webhookUrl = $"{_webhookSettings.BaseUrl}/{_webhookSettings.Endpoints["QuestionsGenerated"]}";
+        var result = await ExecuteAsync<AIQuizGenerationResonse>(message, cancellationToken);
 
-            client.DefaultRequestHeaders.Add(
-                "X-QuestionGenerated-WebHook",
-                webhookUrl
-            );
-
-            var response = await client.PostAsJsonAsync(
-                $"{_aiServiceSettings.QAEndpoint}",
-                quizGenerationRequest,
-                AIServiceJsonOptions.Default,
-                cancellationToken
-            );
-
-            response.EnsureSuccessStatusCode();
-
-            return await response.Content.ReadFromJsonAsync<AIQuizGenerationResonse>(AIServiceJsonOptions.Default, cancellationToken)
-                   ?? throw new Exception("Failed to deserialize response");
-        }
-        catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
-        {
-            _logger.LogError(
-                ex,
-                "Timeout occurred while requesting {AIServiceEndpoint} endpoint of AI Service.",
-                $"{_aiServiceSettings.QAEndpoint}"
-            );
-
-            throw new AIServiceTimeoutException("The AI service did not respond in time. Please try again later.", ex);
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(
-                ex,
-                "HTTP request error occurred while requesting {AIServiceEndpoint} endpoint of AI Service. Status Code: {StatusCode}",
-                $"{_aiServiceSettings.QAEndpoint}",
-                ex.StatusCode
-            );
-
-            throw new AIServiceUnAvailableException("The AI service did not respond in time. Please try again later.", ex);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error happened while requesting {AIServiceEndpoint} endpoint of AI Service.", $"{_aiServiceSettings.QAEndpoint}");
-            throw;
-        }
+        return result;
     }
 
-    public async Task<AIUploadDocsResponse> UploadFilesAsContextAsync(List<AIUploadDocsRequest> uploadDocsRequest, CancellationToken cancellationToken)
+    public async Task<AIUploadDocsResponse> UploadDocsAsContextAsync(List<AIUploadDocsRequest> uploadDocsRequest, CancellationToken cancellationToken)
     {
-        var result = new AIUploadDocsResponse();
-        HttpResponseMessage response = new HttpResponseMessage();
+        var webhookUrl = BuildWebhookUrl("DocumentsUploaded");
 
+        var message = new HttpRequestMessage(HttpMethod.Post, _aiServiceSettings.UploadEndpoint)
+        {
+            Content = JsonContent.Create(uploadDocsRequest, options: AIServiceJsonOptions.Default)
+        };
+        message.Headers.Add("X-WebHook-UpdateFileStatus", webhookUrl);
+
+        var result = await ExecuteAsync<AIUploadDocsResponse>(message, cancellationToken);
+
+        return result;
+    }
+
+    public async Task<AIBatchGradingResponse> GradeQuizBatchAsync(AIGradingRequest gradingRequest, CancellationToken cancellationToken)
+    {
+        var message = new HttpRequestMessage(HttpMethod.Post, _aiServiceSettings.BatchGradingEndpoint)
+        {
+            Content = JsonContent.Create(gradingRequest, options: AIServiceJsonOptions.Default)
+        };
+
+        var result = await ExecuteAsync<AIBatchGradingResponse>(message, cancellationToken);
+
+        return result;
+    }
+
+    private async Task<T> ExecuteAsync<T>(HttpRequestMessage message, CancellationToken cancellationToken)
+    {
+        var response = new HttpResponseMessage();
         try
         {
             using var client = _factory.CreateClient("AIService");
 
-            var webhookUrl = $"{_webhookSettings.BaseUrl}/{_webhookSettings.Endpoints["DocumentsUploaded"]}";
+            _logger.LogInformation("the Request Body : {@RequestContent}", message.Content);
 
-            client.DefaultRequestHeaders.Add(
-                "X-WebHook-UpdateFileStatus",
-                webhookUrl
-            );
-
-            response = await client.PostAsJsonAsync(
-                $"{_aiServiceSettings.UploadEndpoint}",
-                uploadDocsRequest,
-                AIServiceJsonOptions.Default,
-                cancellationToken
-            );
-
+            response = await client.SendAsync(message, cancellationToken);
             response.EnsureSuccessStatusCode();
+            _logger.LogInformation("the Response Body : {@RequestContent}", response.Content);
 
-            result = await response.Content.ReadFromJsonAsync<AIUploadDocsResponse>(cancellationToken)
-                ?? throw new Exception("Failed to deserialize response");
+            var result = await response.Content.ReadFromJsonAsync<T>(AIServiceJsonOptions.Default, cancellationToken) ??
+                throw new InvalidOperationException("Failed to deserialize response");
 
             return result;
         }
@@ -158,7 +97,7 @@ public class AIService(IHttpClientFactory factory, ILogger<AIService> logger, IO
             _logger.LogError(
                 ex,
                 "Timeout occurred while requesting {AIServiceEndpoint} endpoint of AI Service.",
-                $"{_aiServiceSettings.UploadEndpoint}"
+                $"{message.RequestUri?.PathAndQuery}"
             );
 
             throw new AIServiceTimeoutException("The AI service did not respond in time. Please try again later.", ex);
@@ -168,7 +107,7 @@ public class AIService(IHttpClientFactory factory, ILogger<AIService> logger, IO
             _logger.LogError(
                 ex,
                 "HTTP request error occurred while requesting {AIServiceEndpoint} endpoint of AI Service. Status: {HttpStatusCode}",
-                $"{_aiServiceSettings.UploadEndpoint}",
+                $"{message.RequestUri?.PathAndQuery}",
                 response.StatusCode
             );
 
@@ -176,8 +115,11 @@ public class AIService(IHttpClientFactory factory, ILogger<AIService> logger, IO
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error happened while requesting {AIServiceEndpoint} endpoint of AI Service.", $"{_aiServiceSettings.UploadEndpoint}");
+            _logger.LogError(ex, "Error happened while requesting {AIServiceEndpoint} endpoint of AI Service.", $"{message.RequestUri?.PathAndQuery}");
             throw;
         }
     }
+
+    private string BuildWebhookUrl(string endpointKey) =>
+        $"{_webhookSettings.BaseUrl}/{_webhookSettings.Endpoints[endpointKey]}";
 }

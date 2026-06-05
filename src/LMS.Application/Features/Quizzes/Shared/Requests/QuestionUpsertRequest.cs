@@ -1,4 +1,5 @@
-﻿using LMS.Domain.Enums;
+﻿using LMS.Application.Features.Quizzes.Shared.DTO;
+using LMS.Domain.Enums;
 
 namespace LMS.Application.Features.Quizzes.Shared.Requests;
 
@@ -11,4 +12,6 @@ public class QuestionUpsertRequest
     public string? Instructions { get; set; }
     public string? Explanation { get; set; }
     public List<OptionRequest> Options { get; set; } = new();
+    public List<QuestionCriteriaDto> QuestionCriterias { get; set; } = new();
+    public string? ModelAnswer { get; set; }
 }

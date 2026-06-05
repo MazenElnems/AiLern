@@ -12,4 +12,5 @@ public class Student : ApplicationUser
     public List<Attempt> Attempts { get; set; } = new List<Attempt>();
     public List<CourseProgress> Progresses { get; set; } = new();
     public List<SectionProgress> SectionProgresses { get; set; } = new();
+    public List<WeakTopic> WeakTopics { get; set; } = new();
 }

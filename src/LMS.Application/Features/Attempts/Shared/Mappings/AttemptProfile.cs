@@ -50,6 +50,8 @@ public class AttemptProfile : Profile
             .ForMember(a => a.QuizTitle, opt => opt.MapFrom(src => src.Quiz.Title))
             .ForMember(a => a.TotalScore, opt => opt.MapFrom(src => src.Quiz.Questions.Sum(q => q.Mark)))
             .ForMember(a => a.Score, opt => opt.MapFrom(src => src.Answers.Sum(a => a.Mark)))
-            .ForMember(a => a.TimeSpent, opt => opt.MapFrom(src => src.TimeSpent!.Value ));
+            .ForMember(a => a.TimeSpent, opt => opt.MapFrom(src => src.TimeSpent!.Value))
+            .ForMember(a => a.StudentId, opt => opt.MapFrom(src => src.StudentId))
+            .ForMember(a => a.StudentName, opt => opt.MapFrom(src => src.Student.UserName));
     }
 }

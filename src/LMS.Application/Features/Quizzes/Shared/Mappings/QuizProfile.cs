@@ -17,14 +17,18 @@ public class QuizProfile : Profile
         CreateMap<QuestionRequest, Question>();
 
         CreateMap<CreateQuizCommand, Quiz>();
+
         CreateMap<Quiz, GetQuizDto>();
 
+        CreateMap<AIGradingCriteria, QuestionCriteriaDto>();
+
         CreateMap<Quiz, GetAllQuizDto>();
+
         CreateMap<Question, QuestionDto>()
-            .ForMember(dest => dest.QuestionType, opt => opt.MapFrom(src => src.Type));
+            .ForMember(dest => dest.QuestionType, opt => opt.MapFrom(src => src.Type))
+            .ForMember(dest => dest.ModelAnswer, opt => opt.MapFrom(src => src.AIGradingReferenceAnswer));
 
         CreateMap<Option, OptionDto>();
-
 
         CreateMap<GenerateQuestionByAIRequest, GenerateQuestionsCommand>();
 

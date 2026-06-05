@@ -1,3 +1,4 @@
+using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Users;
 using LMS.Domain.Enums;
 
@@ -16,14 +17,16 @@ public class Attempt
     public double? Score => Answers.Sum(a => a.Mark ?? 0);
     public int AttemptNumber { get; set; }
     public AttemptStatus Status { get; set; }
+    public bool IsAIGraded { get; set; }
+    public AIGradingStatus AIGradingStatus { get; set; }    
     public List<Guid>? ShuffledQuestionIds { get; set; }     // JSON serialized list of question ids in the order they were presented to the student
     public string AutoSubmitJobId { get; set; }
-    public List<string> WeakTopics { get; set; } = new();
 
     // Navigation Properties
     public Student Student { get; set; } = null!;
     public Quiz Quiz { get; set; } = null!;
-    public List<Answer> Answers { get; set; } = new List<Answer>();
+    public List<Answer> Answers { get; set; } = new();
+    public List<WeakTopic> WeakTopics { get; set; } = new();
 
     public void Submit()
     {

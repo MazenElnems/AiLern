@@ -53,11 +53,6 @@ public class AttemptEntityTypeConfiguration : IEntityTypeConfiguration<Attempt>
             .HasColumnType("NVARCHAR(MAX)")
             .IsRequired(false);
 
-        // JSON Column
-        builder.Property(a => a.WeakTopics)
-            .HasColumnType("NVARCHAR(MAX)")
-            .IsRequired(false);
-
         // to avoid race condition and avoid multiple start attempts
         builder.HasIndex(a => new { a.QuizId, a.StudentId, a.AttemptNumber })
             .IsUnique();

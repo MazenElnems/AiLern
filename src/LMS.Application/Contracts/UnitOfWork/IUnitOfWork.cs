@@ -2,7 +2,6 @@
 using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Notification;
-using LMS.Domain.Entities.Quizzes;
 
 namespace LMS.Application.Contracts.UnitOfWork;
 
@@ -25,6 +24,7 @@ public interface IUnitOfWork
     public IBaseRepository<AIResource> AIResources { get; }    
     public IBaseRepository<CourseProgress> CourseProgress { get; }
     public IBaseRepository<SectionProgress> SectionProgress { get;  }
+    public IBaseRepository<WeakTopic> WeakTopics { get;  }
 
     Task<int> CommitAsync();
     Task<int> CommitAsync(CancellationToken cancellationToken);

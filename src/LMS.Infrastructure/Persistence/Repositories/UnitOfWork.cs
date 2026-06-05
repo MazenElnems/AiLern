@@ -29,6 +29,8 @@ internal class UnitOfWork : IUnitOfWork
     public IBaseRepository<AIResource> AIResources { get; }
     public IBaseRepository<Notification> Notfications { get; }
 
+    public IBaseRepository<WeakTopic> WeakTopics { get; }
+
     public UnitOfWork(AppDbContext context)
     {
         _context = context;
@@ -49,6 +51,7 @@ internal class UnitOfWork : IUnitOfWork
         Notfications = new BaseRepository<Notification>(_context);
         UserNotifications = new BaseRepository<UserNotification>(_context);
         AIResources = new BaseRepository<AIResource>(_context);
+        WeakTopics = new BaseRepository<WeakTopic>(_context);
     }
 
     public async Task<int> CommitAsync() => await _context.SaveChangesAsync();

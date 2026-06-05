@@ -13,5 +13,7 @@ public class QuestionDto
     public string? Explanation { get; set; }
     public int Order { get; set; }  
     public List<OptionDto>? Options { get; set; }
+    public string? ModelAnswer { get; set; }    
+    public List<QuestionCriteriaDto> Criterias { get; set; }
 }
 

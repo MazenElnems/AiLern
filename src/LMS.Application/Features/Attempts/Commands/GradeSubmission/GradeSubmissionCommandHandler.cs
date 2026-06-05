@@ -34,8 +34,10 @@ public class GradeSubmissionCommandHandler : IRequestHandler<GradeSubmissionComm
             return DomainErrors.Attempt.NotFound(request.Id);
 
         var previousStatus = attempt.Status;
+        var previousAIGradingStatus = attempt.AIGradingStatus;
 
-        var quiz = await _unitOfWork.Quizzes.GetAsync(a => a.Id == attempt.QuizId, includeProperties: [nameof(Quiz.Course)]);
+        var quiz = await _unitOfWork.Quizzes.GetAsync(a => a.Id == attempt.QuizId,
+            includeProperties: [nameof(Quiz.Course)]);
 
         if (quiz == null)
             return DomainErrors.Quiz.NotFound(attempt.QuizId);
@@ -71,6 +73,10 @@ public class GradeSubmissionCommandHandler : IRequestHandler<GradeSubmissionComm
                 "View Result"
             );
         }
+
+        if (previousAIGradingStatus == AIGradingStatus.Graded)
+            attempt.AIGradingStatus = AIGradingStatus.Overwritten;
+
         await _unitOfWork.CommitAsync(cancellationToken);
         return Result.Success("Attempt graded successfully.");
     }
