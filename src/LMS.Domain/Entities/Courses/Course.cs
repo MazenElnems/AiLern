@@ -1,4 +1,5 @@
-﻿using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Entities.CourseDiscussion;
 using LMS.Domain.Entities.Quizzes;
 using LMS.Domain.Entities.Users;
 
@@ -24,5 +25,6 @@ public class Course
     public List<Quiz> Quizzes { get; set; } = new();
     public List<AIResource> AIResources { get; set; } = new();
     public List<CourseProgress> Progresses { get; set; } = new();
+    public List<Discussion> Discussions { get; set; } = new();
     public List<WeakTopic> WeakTopics { get; set; } = new();
 }

@@ -4,6 +4,7 @@ using LMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260508160542_Add-Discussion")]
+    partial class AddDiscussion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -402,38 +405,6 @@ namespace LMS.Infrastructure.Migrations
                     b.ToTable("StudentSectionProgress", (string)null);
                 });
 
-            modelBuilder.Entity("LMS.Domain.Entities.Courses.WeakTopic", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid?>("AttemptId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Topic")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AttemptId");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("WeakTopics", (string)null);
-                });
-
             modelBuilder.Entity("LMS.Domain.Entities.Notification.Notification", b =>
                 {
                     b.Property<Guid>("NotificationId")
@@ -484,29 +455,6 @@ namespace LMS.Infrastructure.Migrations
                     b.ToTable("UserNotifications", (string)null);
                 });
 
-            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.AIGradingCriteria", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Criteria")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Mark")
-                        .HasColumnType("float");
-
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuestionId");
-
-                    b.ToTable("AIGradingCriteria");
-                });
-
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Answer", b =>
                 {
                     b.Property<Guid>("AttemptId")
@@ -514,9 +462,6 @@ namespace LMS.Infrastructure.Migrations
 
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("UNIQUEIDENTIFIER");
-
-                    b.Property<double?>("Confidence")
-                        .HasColumnType("float");
 
                     b.Property<string>("Feedback")
                         .HasColumnType("NVARCHAR(3000)");
@@ -547,9 +492,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AIGradingStatus")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("AttemptEndTime")
                         .HasColumnType("DATETIME2");
 
@@ -559,9 +501,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Property<string>("AutoSubmitJobId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsAIGraded")
-                        .HasColumnType("bit");
 
                     b.Property<Guid>("QuizId")
                         .HasColumnType("UNIQUEIDENTIFIER");
@@ -629,9 +568,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AIGradingReferenceAnswer")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Answer")
                         .HasColumnType("nvarchar(max)");
@@ -1233,28 +1169,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("LMS.Domain.Entities.Courses.WeakTopic", b =>
-                {
-                    b.HasOne("LMS.Domain.Entities.Quizzes.Attempt", "Attempt")
-                        .WithMany("WeakTopics")
-                        .HasForeignKey("AttemptId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("LMS.Domain.Entities.Courses.Course", "Course")
-                        .WithMany("WeakTopics")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LMS.Domain.Entities.Users.Student", null)
-                        .WithMany("WeakTopics")
-                        .HasForeignKey("StudentId");
-
-                    b.Navigation("Attempt");
-
-                    b.Navigation("Course");
-                });
-
             modelBuilder.Entity("LMS.Domain.Entities.Notification.UserNotification", b =>
                 {
                     b.HasOne("LMS.Domain.Entities.Notification.Notification", "Notification")
@@ -1272,17 +1186,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Notification");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("LMS.Domain.Entities.Quizzes.AIGradingCriteria", b =>
-                {
-                    b.HasOne("LMS.Domain.Entities.Quizzes.Question", "Question")
-                        .WithMany("Criterias")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Answer", b =>
@@ -1456,8 +1359,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Quizzes");
 
                     b.Navigation("Sections");
-
-                    b.Navigation("WeakTopics");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Courses.Section", b =>
@@ -1473,8 +1374,6 @@ namespace LMS.Infrastructure.Migrations
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Attempt", b =>
                 {
                     b.Navigation("Answers");
-
-                    b.Navigation("WeakTopics");
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Option", b =>
@@ -1485,8 +1384,6 @@ namespace LMS.Infrastructure.Migrations
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Question", b =>
                 {
                     b.Navigation("Answers");
-
-                    b.Navigation("Criterias");
 
                     b.Navigation("Options");
                 });
@@ -1523,8 +1420,6 @@ namespace LMS.Infrastructure.Migrations
                     b.Navigation("Progresses");
 
                     b.Navigation("SectionProgresses");
-
-                    b.Navigation("WeakTopics");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,5 @@
 using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Entities.CourseDiscussion;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Quizzes;
 
@@ -12,5 +13,7 @@ public class Student : ApplicationUser
     public List<Attempt> Attempts { get; set; } = new List<Attempt>();
     public List<CourseProgress> Progresses { get; set; } = new();
     public List<SectionProgress> SectionProgresses { get; set; } = new();
+    public List<Discussion> Discussions { get; set; } = new();
+    public List<DiscussionVote> DiscussionVotes { get; set; } = new();
     public List<WeakTopic> WeakTopics { get; set; } = new();
 }

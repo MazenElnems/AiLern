@@ -402,3 +402,7 @@ FodyWeavers.xsd
 .sln
 
 .github/
+
+# REMOVE or comment these lines
+appsettings.json
+appsettings.*.json

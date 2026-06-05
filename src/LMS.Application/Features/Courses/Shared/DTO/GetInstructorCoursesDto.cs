@@ -12,4 +12,5 @@ public class GetInstructorCoursesDto
     public int TotalStudents { get; set; }
     public int TotalSections { get; set; }
     public string? ImageUrl { get; set; }
+    public double CourseProgress { get; set; } = 0;
 }

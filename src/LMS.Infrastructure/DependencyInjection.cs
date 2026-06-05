@@ -7,6 +7,7 @@ using LMS.Application.Contracts.Jobs;
 using LMS.Application.Contracts.Repositories;
 using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
+using LMS.Application.CurrentUser;
 using LMS.Domain.Entities.Users;
 using LMS.Infrastructure.ExternalServices.AIService;
 using LMS.Infrastructure.Jobs;
@@ -30,6 +31,7 @@ public static class DependencyInjection
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
+        services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();

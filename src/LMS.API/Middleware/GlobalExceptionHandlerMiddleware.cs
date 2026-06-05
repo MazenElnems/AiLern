@@ -20,6 +20,15 @@ public class GlobalExceptionHandlerMiddleware
         {
             await _next(httpContext);
         }
+        catch(UnAuthorizedException ex)
+        {
+            _logger.LogError("Unauthorized Exception Was Thrown {@StackTrace} {@Exception}",
+                ex.StackTrace,
+                ex.Source
+            );  
+
+            await httpContext.Response.WriteAsJsonAsync(ApiResponse.Unauthorized("user not unauthenticated. please provide valid credentials."));
+        }
         catch(AIServiceUnAvailableException ex)
         {
             httpContext.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
