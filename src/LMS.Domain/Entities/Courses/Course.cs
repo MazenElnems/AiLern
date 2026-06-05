@@ -26,4 +26,5 @@ public class Course
     public List<AIResource> AIResources { get; set; } = new();
     public List<CourseProgress> Progresses { get; set; } = new();
     public List<Discussion> Discussions { get; set; } = new();
+    public List<WeakTopic> WeakTopics { get; set; } = new();
 }

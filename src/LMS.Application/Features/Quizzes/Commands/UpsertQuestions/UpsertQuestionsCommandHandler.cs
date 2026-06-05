@@ -28,6 +28,8 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
             .Include(q => q.Course)
             .Include(q => q.Questions)
                 .ThenInclude(q => q.Options)
+            .Include(q => q.Questions)
+                .ThenInclude(q => q.Criterias)
             .FirstOrDefaultAsync(q => q.Id == request.QuizId, cancellationToken);
 
         if (quiz == null)
@@ -67,6 +69,29 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
                     updatedQuestion.Explanation = question.Explanation;
                     updatedQuestion.Instructions = question.Instructions;
                     updatedQuestion.Order = order;
+                    updatedQuestion.AIGradingReferenceAnswer = question.ModelAnswer;
+
+                    // Remove Criteria that not included in the given request
+                    updatedQuestion.Criterias.RemoveAll(c => !question.QuestionCriterias.Select(cr => cr.Id).Contains(c.Id));
+
+                    // Update Criteria
+                    question.QuestionCriterias?.ForEach(c =>
+                    {
+                        if (c.Id.HasValue)
+                        {
+                            var updatedCriteria = updatedQuestion.Criterias.FirstOrDefault(criteria => criteria.Id == c.Id.Value);
+
+                            if (updatedCriteria != null)
+                            {
+                                updatedCriteria.Criteria = c.Criteria;
+                                updatedCriteria.Mark = c.Mark;
+                            }
+                        }
+                        else
+                        {
+                            updatedQuestion.Criterias.Add(new AIGradingCriteria { Criteria = c.Criteria, Mark = c.Mark });
+                        }
+                    });
 
                     // Remove deleted options
                     updatedQuestion.Options.RemoveAll(o => !question.Options.Select(opt => opt.OptionId).Contains(o.OptionId));
@@ -115,6 +140,8 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
                     Mark = question.Mark,
                     Order = order,
                     IsAIGenerated = false,
+                    Criterias = question.QuestionCriterias?.Select(c => new AIGradingCriteria { Criteria = c.Criteria, Mark = c.Mark }).ToList()!,
+                    AIGradingReferenceAnswer = question.ModelAnswer,
                     Options = question.Options.Select((o, i) => new Option
                     {
                         OptionText = o.OptionText,

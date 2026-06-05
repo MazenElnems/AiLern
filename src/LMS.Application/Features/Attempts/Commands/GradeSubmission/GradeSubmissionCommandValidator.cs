@@ -8,7 +8,7 @@ public class GradeSubmissionCommandValidator : AbstractValidator<GradeSubmission
     public GradeSubmissionCommandValidator()
     {
         RuleFor(a => a.Status)
-            .Must(s => s == AttemptStatus.Submitted || s == AttemptStatus.Reviewed)
+            .Must(s => s == AttemptStatus.Submitted || s == AttemptStatus.Graded)
             .WithMessage("Status must be either Submitted or Reviewed.");
     }
 }

@@ -38,6 +38,8 @@ public class GetQuizByIdQueryHandler : IRequestHandler<GetQuizByIdQuery, Result<
                 .AsNoTracking()
                 .Include(q => q.Course)
                 .Include(q => q.Questions)
+                    .ThenInclude(q => q.Criterias)
+                .Include(q => q.Questions)
                     .ThenInclude(q => q.Options)
                 .FirstOrDefaultAsync(q => q.Id == request.QuizId, cancellationToken);
 

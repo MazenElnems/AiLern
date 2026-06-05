@@ -1,3 +1,5 @@
+using LMS.Domain.Enums;
+
 namespace LMS.Domain.Entities.Quizzes;
 
 public class Answer
@@ -8,6 +10,7 @@ public class Answer
     public Guid? OptionId { get; set; }
     public double? Mark { get; set; }
     public string? Feedback { get; set; }
+    public double? Confidence { get; set; }
     public List<Guid>? ShuffledOptionIds { get; set; } = new(); // JSON serialized list of option ids in the order they were presented to the student
 
     // Navigation Properties

@@ -1,3 +1,5 @@
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
 using LMS.Application.Contracts.UnitOfWork;
@@ -10,16 +12,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Application.Features.Quizzes.Queries.GetSubmissionsByQuizId;
 
-public class GetSubmissionsByQuizIdQueryHandler : IRequestHandler<GetSubmissionsByQuizIdQuery, Result<PaginationResult<GetSubmissionsByQuizIdDto>>>
+public class GetSubmissionsByQuizIdQueryHandler(
+    IUserContext userContext,
+    IUnitOfWork unitOfWork,
+    IMapper mapper
+    ) : IRequestHandler<GetSubmissionsByQuizIdQuery, Result<PaginationResult<GetSubmissionsByQuizIdDto>>>
 {
-    private readonly IUserContext _userContext;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public GetSubmissionsByQuizIdQueryHandler(IUserContext userContext, IUnitOfWork unitOfWork)
-    {
-        _userContext = userContext;
-        _unitOfWork = unitOfWork;
-    }
+    private readonly IUserContext _userContext = userContext;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
 
     public async Task<Result<PaginationResult<GetSubmissionsByQuizIdDto>>> Handle(GetSubmissionsByQuizIdQuery request, CancellationToken cancellationToken)
     {
@@ -43,19 +44,8 @@ public class GetSubmissionsByQuizIdQueryHandler : IRequestHandler<GetSubmissions
             .OrderByDescending(a => a.SubmittedAt)
             .Skip(request.PageSize * (request.PageNo - 1))
             .Take(request.PageSize)
-            .Select(a => new GetSubmissionsByQuizIdDto
-            {
-                Id = a.Id,
-                AttemptNumber = a.AttemptNumber,
-                Score = a.Answers.Sum(aa => aa.Mark),
-                StartAt = a.StartAt,
-                Status = a.Status,
-                StudentId = a.StudentId,
-                StudentName = a.Student.FullName,
-                Email = a.Student.Email!,
-                SubmittedAt = a.SubmittedAt,
-                TimeSpent = a.TimeSpent
-            }).ToListAsync();
+            .ProjectTo<GetSubmissionsByQuizIdDto>(_mapper.ConfigurationProvider)
+            .ToListAsync(cancellationToken);
 
         return new PaginationResult<GetSubmissionsByQuizIdDto>(
             request.PageNo,

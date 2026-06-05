@@ -15,4 +15,5 @@ public class Student : ApplicationUser
     public List<SectionProgress> SectionProgresses { get; set; } = new();
     public List<Discussion> Discussions { get; set; } = new();
     public List<DiscussionVote> DiscussionVotes { get; set; } = new();
+    public List<WeakTopic> WeakTopics { get; set; } = new();
 }

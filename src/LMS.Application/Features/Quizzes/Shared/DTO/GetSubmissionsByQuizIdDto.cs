@@ -14,5 +14,6 @@ public class GetSubmissionsByQuizIdDto
     public double? Score { get; set; }
     public int AttemptNumber { get; set; }
     public AttemptStatus Status { get; set; }
-
+    public bool IsAIGraded { get; set; }
+    public AIGradingStatus AIGradingStatus { get; set; }    
 }

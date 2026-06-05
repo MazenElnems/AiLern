@@ -31,7 +31,7 @@ public class AutoSubmitAttemptJob : IAutoSubmitAttemptJob
         _logger.LogInformation("Auto-submitting attempt {@Attempt}", attempt);
 
         attempt.Submit();
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
         
         await _calculateStudentScoreJob.ExecuteAsync(attemptId, cancellationToken);
     }

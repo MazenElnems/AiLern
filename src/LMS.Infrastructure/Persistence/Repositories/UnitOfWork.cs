@@ -32,6 +32,8 @@ internal class UnitOfWork : IUnitOfWork
     public IBaseRepository<DiscussionVote> DiscussionVotes { get; }
 
 
+    public IBaseRepository<WeakTopic> WeakTopics { get; }
+
     public UnitOfWork(AppDbContext context)
     {
         _context = context;
@@ -54,6 +56,7 @@ internal class UnitOfWork : IUnitOfWork
         AIResources = new BaseRepository<AIResource>(_context);
         Discussions = new BaseRepository<Discussion>(_context);
         DiscussionVotes = new BaseRepository<DiscussionVote>(_context);
+        WeakTopics = new BaseRepository<WeakTopic>(_context);
     }
 
     public async Task<int> CommitAsync() => await _context.SaveChangesAsync();

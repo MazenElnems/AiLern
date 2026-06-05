@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LMS.Application.Common.Models.Request;
 using LMS.Application.Common.Models.Responses;
 using LMS.Domain.Entities.Quizzes;
 
@@ -18,5 +19,13 @@ public class QuestionProfile : Profile
                 OptionNumber = i + 1,
                 IsCorrect = o.StartsWith(src.CorrectAnswer, StringComparison.OrdinalIgnoreCase),
             })));
+
+
+        CreateMap<AIGradingCriteria, InstructorCriterion>();
+
+        CreateMap<Question, AIQuestionsGrading>()
+            .ForMember(dest => dest.QuestionAnswer, opt => opt.MapFrom(src => src.AIGradingReferenceAnswer))
+            .ForMember(dest => dest.InstructorCriteria, opt => opt.MapFrom(src => src.Criterias))
+            .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options.Select(o => o.OptionText)));
     }
 }

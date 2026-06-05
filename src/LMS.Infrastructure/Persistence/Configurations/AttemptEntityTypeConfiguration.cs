@@ -48,6 +48,7 @@ public class AttemptEntityTypeConfiguration : IEntityTypeConfiguration<Attempt>
             .HasColumnType("VARCHAR(10)")
             .IsRequired();
 
+        // JSON Column
         builder.Property(a => a.ShuffledQuestionIds)
             .HasColumnType("NVARCHAR(MAX)")
             .IsRequired(false);
