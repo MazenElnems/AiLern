@@ -1,4 +1,5 @@
 ﻿using LMS.Application.Common.Results;
+using LMS.Domain.Enums;
 using MediatR;
 using System.Text.Json.Serialization;
 
@@ -17,4 +18,5 @@ public class UpdateQuizCommand : IRequest<Result>
     public bool ShowResultOnClose { get; set; }
     public bool ShuffleQuestions { get; set; }
     public bool ShuffleOptions { get; set; }
-}
+    public QuizStatus Status { get; set; }
+}   

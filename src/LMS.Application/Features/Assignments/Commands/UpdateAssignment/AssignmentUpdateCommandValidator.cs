@@ -16,10 +16,6 @@ public class AssignmentUpdateCommandValidator : AbstractValidator<AssignmentUpda
             .NotEmpty()
             .WithMessage("Instructions are required.");
 
-        RuleFor(a => a.DueDate)
-            .Must(d => d > DateTime.UtcNow)
-            .WithMessage("DueDate must be in the future.");
-
         RuleFor(a => a.UploadedFileMetaData)
             .Must(files => files is null || files.Count <= 10)
             .WithMessage("You can upload a maximum of 10 files.");

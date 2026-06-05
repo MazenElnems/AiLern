@@ -47,7 +47,9 @@ public class AssignmentUpdateCommandHandler : IRequestHandler<AssignmentUpdateCo
         if (assignment.Course.InstructorId != userId)
             return DomainErrors.Course.NotOwned;
 
-        if (assignment.DueDate > request.DueDate)
+        var assignmentDueDateChanged = assignment.DueDate != request.DueDate;
+
+        if (assignmentDueDateChanged && request.DueDate < DateTime.UtcNow)
             return DomainErrors.Assignment.InValidDueDate;
 
         var previousDueDate = assignment.DueDate;

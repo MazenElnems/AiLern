@@ -85,8 +85,17 @@ public static class DomainErrors
     }
     public static class Quiz
     {
+        public static Error MustContainAtLeastOneQuestion =>
+            Common.BusinessRule("Quiz.MustContainAtLeastOneQuestion", "A quiz must contain at least one question to be published.");
+
+        public static Error PublishedQuizCannotHaveStartTimeInThePast =>
+            Common.BusinessRule("Quiz.PublishedQuizCannotHaveStartTimeInThePast", "A published quiz cannot have a start time in the past.");
+
         public static Error QuizStarted  =>
             Common.BusinessRule("Quiz.QuizStarted", "Cannot modify the quiz after it has started.");
+
+        public static Error CannotUpdateAvailableFromAfterQuizStarted
+            => Common.BusinessRule("Quiz.CannotUpdateAvailableFromAfterQuizStarted", "Cannot update AvailableFrom after the quiz has started.");
 
         public static Error CannotDecreaseMaximumAttempts 
             => Common.BusinessRule("Quiz.CannotDecreaseMaximumAttempts", "Cannot decrease the maximum number of attempts after the quiz has started.");
