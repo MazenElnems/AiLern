@@ -63,12 +63,12 @@ public class GetAllQuizzesByCourseIdQueryHandler : IRequestHandler<GetAllQuizzes
                 ShowResultOnClose = q.ShowResultOnClose,
                 MaximumAttempts = q.MaximumAttempts,
                 QuestionsCount = q.Questions.Count(qu => !qu.IsAIGenerated || qu.IsAccepted == true),
-                StudentAttemptCount = user.IsInRole(UserRoles.Student) ? q.Attempts.Count(a => a.StudentId == user.Id) : null,
+                StudentAttemptCount = user.IsInRole(UserRoles.Instructor) ? q.Attempts.Count() : q.Attempts.Count(s => s.StudentId == user.Id),
                 HasActiveAttempt = q.Attempts.Any(a => a.StudentId == user.Id && a.Status == AttemptStatus.InProgress),
             })
             .Skip(request.PageSize * (request.PageNo - 1))
             .Take(request.PageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return new PaginationResult<GetAllQuizDto>(
             request.PageNo,

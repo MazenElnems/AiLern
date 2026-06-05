@@ -27,23 +27,83 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
     {
         var instructorId = _userContext.GetCurrentUser().Id;
 
-        var quiz = await _unitOfWork.Quizzes.GetAsync(q => q.Id == request.QuizId,
-            includeProperties: [nameof(Quiz.Course)]);
+        var quiz = await _unitOfWork.Quizzes.GetAsync(
+            q => q.Id == request.QuizId,
+            includeProperties: [nameof(Quiz.Course), nameof(Quiz.Questions)]);
 
-        if(quiz == null)
+        if (quiz is null)
             return DomainErrors.Quiz.NotFound(request.QuizId);
 
-        if(quiz.Course.InstructorId != instructorId)
+        if (quiz.Course.InstructorId != instructorId)
             return DomainErrors.Quiz.NotOwned;
 
         var now = DateTime.UtcNow;
 
         var previousStatus = quiz.Status;
 
-        // Quiz started And Published
-        if (quiz.AvailableFrom < now && quiz.Status == QuizStatus.Published)
+        var availableFromChanged = request.AvailableFrom != quiz.AvailableFrom;
+
+        var quizStarted = quiz.AvailableFrom <= now;
+        var quizEnded = quiz.AvailableUntil <= now;
+
+        // -------------------------------------------------
+        // General Rules
+        // -------------------------------------------------
+
+        if (availableFromChanged && request.AvailableFrom < now)
+            return DomainErrors.Quiz.StartTimeCannotBeInThePast;
+
+        // Draft -> Published
+        if (previousStatus != QuizStatus.Published &&
+            request.Status == QuizStatus.Published)
         {
-            // Can only increase AvailableUntil, MaximumAttempts, AttemptTimeLimit
+            if (request.AvailableFrom <= now)
+                return DomainErrors.Quiz.PublishedQuizCannotHaveStartTimeInThePast;
+
+            if (!quiz.Questions.Any())
+                return DomainErrors.Quiz.MustContainAtLeastOneQuestion;
+        }
+
+        if(previousStatus == QuizStatus.Published &&
+           request.Status != QuizStatus.Published)
+        {
+            if (quizStarted)
+                return DomainErrors.Common.Validation("QuizStatus", "Cannot change status of a started quiz.");
+        }
+
+        // -------------------------------------------------
+        // Quiz Ended
+        // -------------------------------------------------
+
+        if (quizEnded)
+        {
+            if (request.AvailableUntil < quiz.AvailableUntil)
+                return DomainErrors.Quiz.CannotShortenQuizDuration;
+
+            if (request.MaximumAttempts < quiz.MaximumAttempts)
+                return DomainErrors.Quiz.CannotDecreaseMaximumAttempts;
+
+            if (request.AttemptTimeLimit < quiz.AttemptTimeLimit)
+                return DomainErrors.Quiz.CannotDecreaseAttemptTimeLimit;
+
+            quiz.Title = request.Title;
+            quiz.Description = request.Description;
+            quiz.ShowResultOnClose = request.ShowResultOnClose;
+            quiz.ShuffleQuestions = request.ShuffleQuestions;
+            quiz.ShuffleOptions = request.ShuffleOptions;
+
+            quiz.MaximumAttempts = request.MaximumAttempts;
+            quiz.AttemptTimeLimit = request.AttemptTimeLimit;
+
+            quiz.AvailableUntil = request.AvailableUntil;
+        }
+
+        // -------------------------------------------------
+        // Quiz Started (but not ended)
+        // -------------------------------------------------
+
+        else if (quizStarted)
+        {
             if (request.MaximumAttempts < quiz.MaximumAttempts)
                 return DomainErrors.Quiz.CannotDecreaseMaximumAttempts;
 
@@ -52,29 +112,44 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
 
             if (request.AvailableUntil < quiz.AvailableUntil)
                 return DomainErrors.Quiz.CannotShortenQuizDuration;
-        }
-        // Draft Quiz or Quiz not started
-        else
-        {
-            // Try to set start time in the past
-            if (request.AvailableFrom < now)
-                return DomainErrors.Quiz.StartTimeCannotBeInThePast;
 
             quiz.Title = request.Title;
             quiz.Description = request.Description;
-            quiz.AvailableFrom = request.AvailableFrom;
+            quiz.ShowResultOnClose = request.ShowResultOnClose;
+            quiz.ShuffleQuestions = request.ShuffleQuestions;
+            quiz.ShuffleOptions = request.ShuffleOptions;
+
+            quiz.MaximumAttempts = request.MaximumAttempts;
+            quiz.AttemptTimeLimit = request.AttemptTimeLimit;
+            quiz.AvailableUntil = request.AvailableUntil;
         }
 
-        quiz.MaximumAttempts = request.MaximumAttempts;
-        quiz.AvailableUntil = request.AvailableUntil;
-        quiz.AttemptTimeLimit = request.AttemptTimeLimit;
-        quiz.ShowResultOnClose = request.ShowResultOnClose;
-        quiz.ShuffleQuestions = request.ShuffleQuestions;
-        quiz.ShuffleOptions = request.ShuffleOptions;
+        // -------------------------------------------------
+        // Quiz Not Started
+        // -------------------------------------------------
+
+        else
+        {
+            quiz.Title = request.Title;
+            quiz.Description = request.Description;
+
+            quiz.AvailableFrom = request.AvailableFrom;
+            quiz.AvailableUntil = request.AvailableUntil;
+
+            quiz.MaximumAttempts = request.MaximumAttempts;
+            quiz.AttemptTimeLimit = request.AttemptTimeLimit;
+
+            quiz.ShowResultOnClose = request.ShowResultOnClose;
+            quiz.ShuffleQuestions = request.ShuffleQuestions;
+            quiz.ShuffleOptions = request.ShuffleOptions;
+        }
+
+        quiz.Status = request.Status;
 
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        if (previousStatus != QuizStatus.Published && quiz.Status == QuizStatus.Published)
+        if (previousStatus != QuizStatus.Published &&
+            quiz.Status == QuizStatus.Published)
         {
             await _notificationService.NotifyAsync(
                 quiz.CourseId,
@@ -82,8 +157,7 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
                 $"\"{quiz.Title}\" is now available. Start solving now!",
                 NotificationType.NewQuizAdded,
                 $"https://www.ailern.me/quizzes/{quiz.Id}",
-                "Start Quiz"
-            );
+                "Start Quiz");
         }
 
         return Result.Success("Quiz updated successfully");
