@@ -28,6 +28,7 @@ public interface IUnitOfWork
     public IBaseRepository<Discussion> Discussions { get;  }
     public IBaseRepository<DiscussionVote> DiscussionVotes { get;  }
     public IBaseRepository<WeakTopic> WeakTopics { get;  }
+    public IBaseRepository<Report> Reports { get; set; }
 
     Task<int> CommitAsync();
     Task<int> CommitAsync(CancellationToken cancellationToken);
