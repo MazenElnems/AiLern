@@ -12,6 +12,5 @@ public class QuestionUpsertRequest
     public string? Instructions { get; set; }
     public string? Explanation { get; set; }
     public List<OptionRequest> Options { get; set; } = new();
-    public List<QuestionCriteriaDto> QuestionCriterias { get; set; } = new();
     public string? ModelAnswer { get; set; }
 }
