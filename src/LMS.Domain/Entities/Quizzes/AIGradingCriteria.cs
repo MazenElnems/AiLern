@@ -3,7 +3,7 @@
 public class AIGradingCriteria
 {
     public Guid Id { get; set; }
-    public string Criteria { get; set; }
+    public string Criterion { get; set; }
     public double Mark { get; set; }
 
     // Foreign Keys

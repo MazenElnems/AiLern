@@ -3,6 +3,6 @@
 public class QuestionCriteriaDto
 {
     public Guid? Id { get; set; }    
-    public string Criteria { get; set; }
-    public int Mark { get; set; }   
+    public string Criterion { get; set; }
+    public double Mark { get; set; }   
 }
