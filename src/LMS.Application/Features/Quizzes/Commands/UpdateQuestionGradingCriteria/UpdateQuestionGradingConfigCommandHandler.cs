@@ -48,7 +48,6 @@ public class UpdateQuestionGradingConfigCommandHandler(IUnitOfWork unitOfWork, I
                 // New criterion, add it
                 var newCriterion = new AIGradingCriteria
                 {
-                    Id = Guid.NewGuid(),
                     QuestionId = question.Id,
                     Criterion = criterionDto.Criterion,
                     Mark = criterionDto.Mark
