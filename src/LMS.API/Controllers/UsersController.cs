@@ -2,6 +2,9 @@ using LMS.API.Controllers.Common;
 using LMS.API.Models;
 using LMS.Application.Features.Instructors.Queries.GetMyCourses;
 using LMS.Application.Features.Instructors.Queries.GetTopThreeCourseProgress;
+using LMS.Application.Features.Report.Commands.RejectReport;
+using LMS.Application.Features.Report.Queries.GetAllReports;
+using LMS.Application.Features.Report.Queries.GetReportById;
 using LMS.Application.Features.Students.Queries.GetMyCourses;
 using LMS.Application.Features.Students.Queries.GetStudentProfileInCourse;
 using LMS.Application.Features.Users.Commands.AddUserToRole;
@@ -146,5 +149,30 @@ public class UsersController : ApiBaseController
         var result = await _mediator.Send(new GetMeQuery());
         return HandleResponse(this, result);
     }
+
+    [HttpGet("admin/all-reports")]
+    [Authorize(Roles = UserRoles.Admin)]
+    public async Task<ActionResult<ApiResponse>> GetAllReports(ReportType? type=null, int pageNo = 1, int pageSize = 10)
+    {
+        var result = await _mediator.Send(new GetAllReportsQuery(pageNo, pageSize,type));
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("admin/report/{id}/reject")]
+    [Authorize(Roles = UserRoles.Admin)]
+    public async Task<ActionResult<ApiResponse>> RejectReport(Guid id)
+    {
+        var result = await _mediator.Send(new RejectReportCommand(id));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("admin/report/{id}")]
+    [Authorize(Roles = UserRoles.Admin)]
+    public async Task<ActionResult<ApiResponse>> GetReportById(Guid id)
+    {
+        var result = await _mediator.Send(new GetReportByIdQuery(id));
+        return HandleResponse(this, result);
+    }
+
 
 }

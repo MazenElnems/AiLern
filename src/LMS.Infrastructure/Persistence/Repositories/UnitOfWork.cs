@@ -36,6 +36,8 @@ internal class UnitOfWork : IUnitOfWork
 
     public IBaseRepository<Report> Reports { get; set; }
 
+    public IBaseRepository<MaterialFile> MaterialFiles { get; set; }
+
     public UnitOfWork(AppDbContext context)
     {
         _context = context;
@@ -60,6 +62,7 @@ internal class UnitOfWork : IUnitOfWork
         DiscussionVotes = new BaseRepository<DiscussionVote>(_context);
         WeakTopics = new BaseRepository<WeakTopic>(_context);
         Reports = new BaseRepository<Report>(_context);
+        MaterialFiles = new BaseRepository<MaterialFile>(_context);
     }
 
     public async Task<int> CommitAsync() => await _context.SaveChangesAsync();

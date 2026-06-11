@@ -83,6 +83,16 @@ public static class DomainErrors
             Common.Conflict("AIResource", "Cannot delete the AI resource while it is still processing.");
 
     }
+    public static class Report
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Report", id.ToString());
+
+        public static Error ReportAlreadyReviewed =>
+                Common.BusinessRule("Report.AlreadyReviewed", "An action has already been taken on this report.");
+
+
+    }
     public static class Quiz
     {
         public static Error MustContainAtLeastOneQuestion =>
