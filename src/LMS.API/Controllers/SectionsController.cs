@@ -1,6 +1,8 @@
 ﻿using LMS.API.Controllers.Common;
 using LMS.API.Models;
 using LMS.Application.Contracts.Repositories;
+using LMS.Application.Features.Courses.Commands.CreateCourse;
+using LMS.Application.Features.Report.Commands.CreateReport;
 using LMS.Application.Features.Sections.Commands.CreateSection;
 using LMS.Application.Features.Sections.Commands.DeleteMaterialFile;
 using LMS.Application.Features.Sections.Commands.DeleteSection;
@@ -13,6 +15,7 @@ using LMS.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace LMS.API.Controllers;
 
@@ -28,8 +31,8 @@ public class SectionsController : ApiBaseController
     }
 
     [HttpPost]
-    [Authorize(Roles =UserRoles.Instructor)]
-    public  async Task<ActionResult<ApiResponse>> Create(SectionCreateCommand command)
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> Create(SectionCreateCommand command)
     {
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
@@ -63,7 +66,7 @@ public class SectionsController : ApiBaseController
 
     [HttpDelete("{id}/files/{fileId}")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> DeleteMaterialFile(Guid id,Guid fileId)
+    public async Task<ActionResult<ApiResponse>> DeleteMaterialFile(Guid id, Guid fileId)
     {
         var result = await _mediator.Send(new DeleteMaterialFileCommand(id, fileId));
         return HandleResponse(this, result);
@@ -85,11 +88,11 @@ public class SectionsController : ApiBaseController
         var result = await _mediator.Send(new GetCourseSectionsQuery(courseId));
         return HandleResponse(this, result);
     }
-        
+
 
     [HttpPut("{id}/files/reorder")]
     [Authorize(Roles = UserRoles.Instructor)]
-    public async Task<ActionResult<ApiResponse>> ReorderMaterialFiles(Guid id,MaterialFilesReorderCommand command)
+    public async Task<ActionResult<ApiResponse>> ReorderMaterialFiles(Guid id, MaterialFilesReorderCommand command)
     {
         command.sectionId = id;
         var result = await _mediator.Send(command);
@@ -101,6 +104,21 @@ public class SectionsController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> UpdateSectionProgress(Guid id, [FromQuery] bool completed)
     {
         var result = await _mediator.Send(new UpdateSectionProgressCommand(id, completed));
+        return HandleResponse(this, result);
+    }
+    [HttpPost("{id}/material/{materialId}/reports")]
+    [Authorize(Roles = UserRoles.Student)]
+    [SwaggerOperation(Summary = "Create material report", Description = "Creates a new material report.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Material report created successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> Create(Guid id, Guid materialId, CreateMaterialReportCommand command)
+    {
+        command.SectionId = id;
+        command.MaterialId = materialId;
+        var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
 }

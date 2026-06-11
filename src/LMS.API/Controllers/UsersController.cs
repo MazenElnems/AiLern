@@ -2,6 +2,8 @@ using LMS.API.Controllers.Common;
 using LMS.API.Models;
 using LMS.Application.Features.Instructors.Queries.GetMyCourses;
 using LMS.Application.Features.Instructors.Queries.GetTopThreeCourseProgress;
+using LMS.Application.Features.Report.Commands.ApproveReport;
+using LMS.Application.Features.Report.Queries.GetStatistics;
 using LMS.Application.Features.Students.Queries.GetMyCourses;
 using LMS.Application.Features.Students.Queries.GetStudentProfileInCourse;
 using LMS.Application.Features.Users.Commands.AddUserToRole;
@@ -65,6 +67,31 @@ public class UsersController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetUsersByRole(Roles role, int pageNo = 1, int pageSize = 10)
     {
         var result = await _mediator.Send(new GetAllByRoleQuery(role, pageNo, pageSize));
+        return HandleResponse(this, result);
+    }
+    [HttpPut("admin/content-reports")]
+    [Authorize(Roles = UserRoles.Admin)]
+    [SwaggerOperation(Summary = "Approve content report", Description = "Approves a content report.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Report approved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Report not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> ApproveReport(Guid reportid)
+    {
+        var result = await _mediator.Send(new ApproveMaterialReportCommand { ReportId = reportid });
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("admin/content-reports")]
+    [Authorize(Roles = UserRoles.Admin)]
+    [SwaggerOperation(Summary = "Get reports statistics", Description = "Retrieves statistics for content reports.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Statistics retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Report not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetStatistics()
+    {
+        var result = await _mediator.Send(new GetReportsStatisticsQuery());
         return HandleResponse(this, result);
     }
 

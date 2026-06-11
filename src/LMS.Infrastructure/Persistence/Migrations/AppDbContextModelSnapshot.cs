@@ -358,7 +358,7 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Enrollments");
+                    b.ToTable("Enrollments", (string)null);
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Courses.MaterialFile", b =>
@@ -583,7 +583,7 @@ namespace LMS.Infrastructure.Migrations
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("AIGradingCriteria");
+                    b.ToTable("AIGradingCriteria", (string)null);
                 });
 
             modelBuilder.Entity("LMS.Domain.Entities.Quizzes.Answer", b =>

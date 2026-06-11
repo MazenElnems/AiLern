@@ -33,11 +33,12 @@ public class GetUpcomingEventsQueryHandler : IRequestHandler<GetUpcomingEventsQu
             var userId = _user.GetCurrentUser().Id;
             var events = _unitOfWork.Courses.Query
                  .AsNoTracking()
-                 .Where(c => c.InstructorId == userId)
+                 .Where(c => c.InstructorId == userId || c.Enrollments.Any(e => e.StudentId == userId))
                  .SelectMany(c => c.Quizzes
                      .Where(q => q.AvailableUntil > DateTime.UtcNow)
                      .Select(q => new UpcomingEventsDto
                      {
+                         CourseId = c.Id,
                          CourseName = c.Name,
                          Title = q.Title,
                          AvailableUntil = q.AvailableUntil,
@@ -45,11 +46,12 @@ public class GetUpcomingEventsQueryHandler : IRequestHandler<GetUpcomingEventsQu
                      }))
                  .Concat(
                      _unitOfWork.Courses.Query
-                         .Where(c => c.InstructorId == userId)
+                         .Where(c => c.InstructorId == userId || c.Enrollments.Any(e => e.StudentId == userId))
                          .SelectMany(c => c.Assignments
                              .Where(a => a.DueDate > DateTime.UtcNow)
                              .Select(a => new UpcomingEventsDto
                              {
+                                 CourseId = c.Id,
                                  CourseName = c.Name,
                                  Title = a.Title,
                                  AvailableUntil = a.DueDate,

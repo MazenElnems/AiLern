@@ -2,7 +2,6 @@
 
 public enum ReportStatus
 {
-    Approved,
     Rejected,
     UnderReview
 }
