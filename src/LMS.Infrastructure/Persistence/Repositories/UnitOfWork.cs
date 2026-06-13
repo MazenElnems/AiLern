@@ -37,7 +37,6 @@ internal class UnitOfWork : IUnitOfWork
     public IBaseRepository<Report> Reports { get; set; }
     public IBaseRepository<MaterialFile> MaterialFiles { get; set; }
 
-    public IBaseRepository<MaterialFile> MaterialFiles { get; set; }
 
     public UnitOfWork(AppDbContext context)
     {
