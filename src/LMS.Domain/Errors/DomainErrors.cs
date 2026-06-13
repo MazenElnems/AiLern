@@ -85,6 +85,16 @@ public static class DomainErrors
     }
     public static class Report
     {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Report", id.ToString());
+
+        public static Error ReportAlreadyReviewed =>
+                Common.BusinessRule("Report.AlreadyReviewed", "An action has already been taken on this report.");
+
+
+    }
+    public static class Report
+    {
         public static Error AlreadyReported(Guid MaterialId , int StudentId) =>
             Common.Conflict("Report", $"Report for material ID {MaterialId} by student ID {StudentId} has already been submitted.");
 
