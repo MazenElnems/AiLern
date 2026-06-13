@@ -30,6 +30,7 @@ using LMS.Application.Features.CourseDiscussions.Commands.PinDiscussion;
 using LMS.Application.Features.CourseDiscussions.Commands.UnPinDiscussion;
 using LMS.Application.Features.CourseDiscussions.Commands.AnswerDiscussion;
 using LMS.Application.Features.CourseDiscussions.Queries.GetDiscussions;
+using LMS.Application.Features.Courses.Queries.GetCourseDetailsById;
 
 namespace LMS.API.Controllers;
 
