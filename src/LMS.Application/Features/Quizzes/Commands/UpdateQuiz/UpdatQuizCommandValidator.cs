@@ -15,7 +15,9 @@ public class UpdateQuizCommandValidator : AbstractValidator<UpdateQuizCommand>
 
         RuleFor(c => c.AttemptTimeLimit)
             .GreaterThan(0).WithMessage("AttemptTimeLimit must be greater than 0.")
-            .LessThanOrEqualTo(c => (int)(c.AvailableUntil - c.AvailableFrom).TotalMinutes).WithMessage("AttemptTimeLimit must be less than or equal to the total available time.");
+            .LessThanOrEqualTo(c => (int)(c.AvailableUntil - c.AvailableFrom).TotalMinutes)
+            .WithMessage("AttemptTimeLimit must be less than or equal to the total available time.")
+            .When(c => c.AvailableUntil > c.AvailableFrom);
 
         RuleFor(c => c.MaximumAttempts)
             .InclusiveBetween(1, 3).WithMessage("MaximumAttempts must be between 1 and 3.");

@@ -46,7 +46,6 @@ public class CreateQuizCommandHandler : IRequestHandler<CreateQuizCommand, Resul
         await _unitOfWork.Quizzes.InsertAsync(quiz);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-
         if(quiz.Status == QuizStatus.Published)
         {
             await _notificationService.NotifyAsync(

@@ -67,6 +67,7 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
                     updatedQuestion.Explanation = question.Explanation;
                     updatedQuestion.Instructions = question.Instructions;
                     updatedQuestion.Order = order;
+                    updatedQuestion.AIGradingReferenceAnswer = question.ModelAnswer;
 
                     // Remove deleted options
                     updatedQuestion.Options.RemoveAll(o => !question.Options.Select(opt => opt.OptionId).Contains(o.OptionId));
@@ -115,6 +116,7 @@ public class UpsertQuestionsCommandHandler : IRequestHandler<UpsertQuestionsComm
                     Mark = question.Mark,
                     Order = order,
                     IsAIGenerated = false,
+                    AIGradingReferenceAnswer = question.ModelAnswer,
                     Options = question.Options.Select((o, i) => new Option
                     {
                         OptionText = o.OptionText,

@@ -1,7 +1,12 @@
 using LMS.API.Controllers.Common;
 using LMS.API.Models;
-using LMS.Application.Features.Auth.Commands.ChangeUserEmail;
 using LMS.Application.Features.Instructors.Queries.GetMyCourses;
+using LMS.Application.Features.Instructors.Queries.GetTopThreeCourseProgress;
+using LMS.Application.Features.Report.Commands.RejectReport;
+using LMS.Application.Features.Report.Queries.GetAllReports;
+using LMS.Application.Features.Report.Queries.GetReportById;
+using LMS.Application.Features.Report.Commands.ApproveReport;
+using LMS.Application.Features.Report.Queries.GetStatistics;
 using LMS.Application.Features.Students.Queries.GetMyCourses;
 using LMS.Application.Features.Students.Queries.GetStudentProfileInCourse;
 using LMS.Application.Features.Users.Commands.AddUserToRole;
@@ -83,6 +88,31 @@ public class UsersController : ApiBaseController
         var result = await _mediator.Send(new GetUsersCountQuery());
         return HandleResponse(this, result);
     }
+    [HttpPut("admin/content-reports")]
+    [Authorize(Roles = UserRoles.Admin)]
+    [SwaggerOperation(Summary = "Approve content report", Description = "Approves a content report.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Report approved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Report not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> ApproveReport(Guid reportid)
+    {
+        var result = await _mediator.Send(new ApproveMaterialReportCommand { ReportId = reportid });
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("admin/content-reports")]
+    [Authorize(Roles = UserRoles.Admin)]
+    [SwaggerOperation(Summary = "Get reports statistics", Description = "Retrieves statistics for content reports.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Statistics retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Report not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetStatistics()
+    {
+        var result = await _mediator.Send(new GetReportsStatisticsQuery());
+        return HandleResponse(this, result);
+    }
 
     [HttpDelete("{id}/roles")]
     [SwaggerOperation(Summary = "Delete user role", Description = "Removes a role from a user.")]
@@ -142,6 +172,20 @@ public class UsersController : ApiBaseController
         return HandleResponse(this, result);
     }
 
+    [HttpGet("instructor/my-courses-progress") ]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Get my courses progress", Description = "Retrieves the current instructor's courses progress.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Courses progress retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid query parameters.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetInstructorCoursesProgress()
+    {
+        var result = await _mediator.Send(new GetTopThreeCourseProgressQuery());
+        return HandleResponse(this, result);
+    }
+
     [HttpGet("student-profile") ]
     [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Get student profile in course", Description = "Retrieves the profile of a student in a specific course.")]
@@ -163,5 +207,30 @@ public class UsersController : ApiBaseController
         var result = await _mediator.Send(new GetMeQuery());
         return HandleResponse(this, result);
     }
+
+    [HttpGet("admin/all-reports")]
+    [Authorize(Roles = UserRoles.Admin)]
+    public async Task<ActionResult<ApiResponse>> GetAllReports(ReportType? type=null, int pageNo = 1, int pageSize = 10)
+    {
+        var result = await _mediator.Send(new GetAllReportsQuery(pageNo, pageSize,type));
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("admin/report/{id}/reject")]
+    [Authorize(Roles = UserRoles.Admin)]
+    public async Task<ActionResult<ApiResponse>> RejectReport(Guid id)
+    {
+        var result = await _mediator.Send(new RejectReportCommand(id));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("admin/report/{id}")]
+    [Authorize(Roles = UserRoles.Admin)]
+    public async Task<ActionResult<ApiResponse>> GetReportById(Guid id)
+    {
+        var result = await _mediator.Send(new GetReportByIdQuery(id));
+        return HandleResponse(this, result);
+    }
+
 
 }

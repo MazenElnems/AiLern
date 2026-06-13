@@ -32,7 +32,7 @@ public class DeleteQuizCommandHandler : IRequestHandler<DeleteQuizCommand, Resul
         if (quiz.Course.InstructorId != instructorId)
             return DomainErrors.Quiz.NotOwned;
 
-        if(quiz.AvailableFrom < DateTime.UtcNow && quiz.Status == QuizStatus.Published)
+        if(quiz.AvailableFrom < DateTime.UtcNow && quiz.Status == QuizStatus.Published && quiz.AvailableUntil > DateTime.UtcNow)
             return DomainErrors.Quiz.CannotDeleteQuizDuration;
 
         _unitOfWork.Quizzes.Delete(quiz);

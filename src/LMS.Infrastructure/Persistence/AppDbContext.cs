@@ -1,4 +1,5 @@
 using LMS.Domain.Entities.Assignments;
+using LMS.Domain.Entities.CourseDiscussion;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Notification;
 using LMS.Domain.Entities.Quizzes;
@@ -30,6 +31,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser,IdentityRole<int>,
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<UserNotification> UserNotifications { get; set; }  
     public DbSet<AIResource> AIResources { get; set; }
+    public DbSet<Discussion> Discussions { get; set; }
+    public DbSet<DiscussionVote> DiscussionVotes { get; set; }
+    public DbSet<Report> Reports { get; set; }
+    public DbSet<MaterialFile> MaterialFiles { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options):
         base(options)

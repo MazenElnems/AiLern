@@ -58,15 +58,15 @@ public class DashboardController : ApiBaseController
     }
 
     [HttpGet("UpcomingEvents")]
-    [Authorize(Roles = UserRoles.Instructor)]
+    [Authorize(Roles = UserRoles.Instructor + "," + UserRoles.Student)]
     [SwaggerOperation(Summary = "Get upcoming Events ", Description = "Retrieves upcoming Events.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Upcoming Events retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "User not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetUpcomingEvents(EventType eventType, int pageNo = 1, int pageSize = 10)
+    public async Task<ActionResult<ApiResponse>> GetUpcomingEvents(EventType? eventType = null, int pageNo = 1, int pageSize = 10)
     {
-        var result = await _mediator.Send(new GetUpcomingEventsQuery(eventType,pageNo, pageSize));
+        var result = await _mediator.Send(new GetUpcomingEventsQuery(eventType, pageNo, pageSize));
         return HandleResponse(this, result);
     }
 

@@ -83,10 +83,34 @@ public static class DomainErrors
             Common.Conflict("AIResource", "Cannot delete the AI resource while it is still processing.");
 
     }
+    public static class Report
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Report", id.ToString());
+
+        public static Error ReportAlreadyReviewed =>
+                Common.BusinessRule("Report.AlreadyReviewed", "An action has already been taken on this report.");
+        public static Error AlreadyReported(Guid MaterialId , int StudentId) =>
+            Common.Conflict("Report", $"Report for material ID {MaterialId} by student ID {StudentId} has already been submitted.");
+
+        public static Error AlreadyRejected =>
+            Common.BusinessRule("Report.AlreadyRejected", "Report has already been rejected.");
+
+
+    }
     public static class Quiz
     {
+        public static Error MustContainAtLeastOneQuestion =>
+            Common.BusinessRule("Quiz.MustContainAtLeastOneQuestion", "A quiz must contain at least one question to be published.");
+
+        public static Error PublishedQuizCannotHaveStartTimeInThePast =>
+            Common.BusinessRule("Quiz.PublishedQuizCannotHaveStartTimeInThePast", "A published quiz cannot have a start time in the past.");
+
         public static Error QuizStarted  =>
             Common.BusinessRule("Quiz.QuizStarted", "Cannot modify the quiz after it has started.");
+
+        public static Error CannotUpdateAvailableFromAfterQuizStarted
+            => Common.BusinessRule("Quiz.CannotUpdateAvailableFromAfterQuizStarted", "Cannot update AvailableFrom after the quiz has started.");
 
         public static Error CannotDecreaseMaximumAttempts 
             => Common.BusinessRule("Quiz.CannotDecreaseMaximumAttempts", "Cannot decrease the maximum number of attempts after the quiz has started.");
@@ -140,6 +164,23 @@ public static class DomainErrors
 
         public static Error CannotRejectHasAttempts =>
             Common.BusinessRule("QuizQuestion.CannotRejectHasAttempts", "Cannot reject this question because it appears in student attempts.");
+    }
+    public static class Discussion
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Discussion", id.ToString());
+        public static Error NotOwned =>
+            Common.Forbidden("You do not have permission to delete this discussion.");
+        public static Error AlreadyVoted =>
+            Common.Forbidden("You have already voted on this discussion.");
+        public static Error NotVoted =>
+            Common.Forbidden("You have not voted on this discussion.");
+        public static Error AlreadyPinned =>
+            Common.BusinessRule("Discussion.AlreadyPinned", "The discussion is already pinned.");
+        public static Error NotPinned =>
+            Common.BusinessRule("Discussion.NotPinned", "The discussion is not pinned.");
+            public static Error AlreadyAnswered =>
+            Common.BusinessRule("Discussion.AlreadyAnswered", "The discussion has already been answered and cannot be deleted by the student.");
     }
 
     public static class Attempt

@@ -46,6 +46,7 @@ public class GetStudentAnswersQueryHandler : IRequestHandler<GetStudentAnswersQu
 
         var studentAnswers = await _unitOfWork.Attempts.Query
             .ProjectTo<AttemptResultDto>(_mapper.ConfigurationProvider)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(a => a.AttemptId == request.AttemptId, cancellationToken);
 
         return studentAnswers!;

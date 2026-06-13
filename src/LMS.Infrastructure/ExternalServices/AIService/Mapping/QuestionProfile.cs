@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using LMS.Application.Common.Models.Request;
 using LMS.Application.Common.Models.Responses;
 using LMS.Domain.Entities.Quizzes;
+using LMS.Domain.Enums;
 
 namespace LMS.Infrastructure.ExternalServices.AIService.Mapping;
 
@@ -18,5 +20,13 @@ public class QuestionProfile : Profile
                 OptionNumber = i + 1,
                 IsCorrect = o.StartsWith(src.CorrectAnswer, StringComparison.OrdinalIgnoreCase),
             })));
+
+
+        CreateMap<AIGradingCriteria, InstructorCriterion>();
+
+        CreateMap<Question, AIQuestionsGrading>()
+            .ForMember(dest => dest.InstructorCriteria, opt => opt.MapFrom(src => src.Criterias))
+            .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options.Select(o => o.OptionText)))
+            .ForMember(dest => dest.QuestionAnswer, opt => opt.MapFrom(src => src.Type == QuestionType.Written ? src.AIGradingReferenceAnswer : src.Options.First(o => o.IsCorrect).OptionText));
     }
 }

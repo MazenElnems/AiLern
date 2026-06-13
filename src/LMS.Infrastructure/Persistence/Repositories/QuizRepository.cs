@@ -19,7 +19,7 @@ internal class QuizRepository : BaseRepository<Quiz>, IQuizRepository
     public async Task<List<QuizStatisticsDto>> GetQuizStatisticsForCourseAsync(int courseId)
     {
         return await _context.Attempts
-            .Where(a => a.Status == AttemptStatus.Reviewed &&
+            .Where(a => a.Status == AttemptStatus.Graded &&
                         a.Quiz.AvailableUntil < DateTime.UtcNow &&
                         a.Quiz.CourseId == courseId
             )

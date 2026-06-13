@@ -1,20 +1,25 @@
 ﻿using AutoMapper;
 using LMS.API.Controllers.Common;
 using LMS.API.Models;
+using LMS.API.Models.Requests;
+using LMS.Application.Features.Attempts.Commands.GradeAttemptByAI;
 using LMS.Application.Features.Attempts.Queries.GetAttemptsByQuizId;
 using LMS.Application.Features.Quizzes.Commands.AcceptAiGeneratedQuestion;
 using LMS.Application.Features.Quizzes.Commands.AcceptAllAiGeneratedQuestions;
 using LMS.Application.Features.Quizzes.Commands.CreateQuiz;
 using LMS.Application.Features.Quizzes.Commands.DeleteQuiz;
-using LMS.Application.Features.Quizzes.Commands.RejectAiGeneratedQuestion;
 using LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
+using LMS.Application.Features.Quizzes.Commands.RejectAiGeneratedQuestion;
+using LMS.Application.Features.Quizzes.Commands.UpdateQuestionGradingCriteria;
 using LMS.Application.Features.Quizzes.Commands.UpdateQuiz;
 using LMS.Application.Features.Quizzes.Commands.UpdateQuizStatus;
 using LMS.Application.Features.Quizzes.Commands.UpsertQuestions;
 using LMS.Application.Features.Quizzes.Queries.GetAllQuizzes;
-using LMS.Application.Features.Quizzes.Queries.GetQuiz;
+using LMS.Application.Features.Quizzes.Queries.GetGradingCriteria;
 using LMS.Application.Features.Quizzes.Queries.GetPendingAiGeneratedQuestions;
+using LMS.Application.Features.Quizzes.Queries.GetQuiz;
 using LMS.Application.Features.Quizzes.Queries.GetSubmissionsByQuizId;
+using LMS.Application.Features.Quizzes.Shared.DTO;
 using LMS.Application.Features.Quizzes.Shared.Requests;
 using LMS.Domain.Constants;
 using LMS.Domain.Enums;
@@ -184,6 +189,37 @@ public class QuizzesController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetAttemptsByQuizId(Guid id)
     {
         var result = await _mediator.Send(new GetAttemptsByQuizIdQuery(id));
+        return HandleResponse(this, result);
+    }
+
+    [SwaggerOperation(Summary = "Put attempt", Description = "Put an attempt.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Attempts will be graded successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "quiz not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    [HttpPost("{id}/ai-grade")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> GradeSubmissionsByAI(Guid id, [FromBody] AIGradingRequest request)
+    {
+        var result = await _mediator.Send(new GradeByAICommand(id, request.AttemptIds));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("{id}/ai-grading-criteria")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> GetAIGradingCriteria(Guid id)
+    {
+        var result = await _mediator.Send(new GetAIGradingCriteriaQuery(id));
+        return HandleResponse(this, result);
+    }
+
+    [HttpPut("{id}/questions/{questionId}/grading-config")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> UpdateQuestionGradingConfig(Guid id, Guid questionId, [FromBody] QuestionGradingConfigDto request)
+    {
+        var result = await _mediator.Send(new UpdateQuestionGradingConfigCommand(id, questionId, request));
         return HandleResponse(this, result);
     }
 }

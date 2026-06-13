@@ -46,6 +46,7 @@ public class GetStudentCoursesQueryHandler : IRequestHandler<GetStudentCoursesQu
                     /
                   c.Sections.Count()) ,
             ImageUrl = c.ImageStoragePath == null ? null : _bunnyUrl.GetUrl(c.ImageStoragePath)
+
         }).ToListAsync();
 
         return new PaginationResult<GetStudentCoursesDto>(

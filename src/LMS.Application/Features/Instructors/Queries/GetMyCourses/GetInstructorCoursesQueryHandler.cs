@@ -37,7 +37,11 @@ public class GetInstructorCoursesQueryHandler : IRequestHandler<GetInstructorCou
             {
                 d.TotalStudents = await _unitOfWork.Enrollments.CountAsync(e => e.CourseId == d.Id);
                 d.TotalSections = await _unitOfWork.Sections.CountAsync(s => s.CourseId == d.Id);
-                d.ImageUrl = d.ImageUrl==null? null : _bunnyUrl.GetUrl(d.ImageUrl);
+                d.ImageUrl = d.ImageUrl == null ? null : _bunnyUrl.GetUrl(d.ImageUrl);
+                d.CourseProgress = d.TotalStudents == 0 || d.TotalSections == 0 ? 0 :
+                                Math.Round(_unitOfWork.SectionProgress.Query
+                                    .Where(s => s.Section.CourseId == d.Id).Count() /
+                                (double)(d.TotalSections * d.TotalStudents) * 100, 2);
             }
             return Result<List<GetInstructorCoursesDto>>.Success(dto);
         }

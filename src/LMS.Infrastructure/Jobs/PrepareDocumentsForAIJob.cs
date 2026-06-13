@@ -34,7 +34,7 @@ public class PrepareDocumentsForAIJob : IPrepareDocumentsForAIJob
             aIUploadDocsRequest.Add(new AIUploadDocsRequest { PresignedUrl = url, ProjectId = doc.Id.ToString() });
         }
 
-        var result = await _aIService.UploadFilesAsContextAsync(aIUploadDocsRequest, cancellationToken);
+        var result = await _aIService.UploadDocsAsContextAsync(aIUploadDocsRequest, cancellationToken);
 
         if(result.Status != "accepted")
         {
