@@ -10,10 +10,12 @@ using LMS.Application.Features.Report.Queries.GetStatistics;
 using LMS.Application.Features.Students.Queries.GetMyCourses;
 using LMS.Application.Features.Students.Queries.GetStudentProfileInCourse;
 using LMS.Application.Features.Users.Commands.AddUserToRole;
+using LMS.Application.Features.Users.Commands.DeleteUser;
 using LMS.Application.Features.Users.Commands.DeleteUserRole;
 using LMS.Application.Features.Users.Queries.GetAllByRoleId;
 using LMS.Application.Features.Users.Queries.GetMe;
 using LMS.Application.Features.Users.Queries.GetUserById;
+using LMS.Application.Features.Users.Queries.GetUsersCount;
 using LMS.Domain.Constants;
 using LMS.Domain.Enums;
 using MediatR;
@@ -62,14 +64,28 @@ public class UsersController : ApiBaseController
     }
 
     [HttpGet("roles")]
+    [Authorize(Roles = UserRoles.Admin)]
     [SwaggerOperation(Summary = "Get users by role", Description = "Retrieves users assigned to a role.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Users retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid query parameters.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Role not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> GetUsersByRole(Roles role, int pageNo = 1, int pageSize = 10)
+    public async Task<ActionResult<ApiResponse>> GetUsersByRole(Roles? role=null, int pageNo = 1, int pageSize = 10)
     {
-        var result = await _mediator.Send(new GetAllByRoleQuery(role, pageNo, pageSize));
+        var result = await _mediator.Send(new GetAllByRoleQuery(pageNo, pageSize,role));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("count")]
+    [Authorize(Roles = UserRoles.Admin)]
+    [SwaggerOperation(Summary = "Get all users count ", Description = "Retrieves users counts.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Users count retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid query parameters.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Role not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetUsersCount()
+    {
+        var result = await _mediator.Send(new GetUsersCountQuery());
         return HandleResponse(this, result);
     }
     [HttpPut("admin/content-reports")]
@@ -110,6 +126,21 @@ public class UsersController : ApiBaseController
     {
         command.Id = id;
         var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [HttpDelete("{id}")]
+    [SwaggerOperation(Summary = "Delete user", Description = "Delete User From Database")]
+    [SwaggerResponse(StatusCodes.Status200OK, "User Deleted successfully From Database.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "User or role not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> DeleteUser(int id)
+    {
+
+        var result = await _mediator.Send(new DeleteUserCommand(id));
         return HandleResponse(this, result);
     }
 

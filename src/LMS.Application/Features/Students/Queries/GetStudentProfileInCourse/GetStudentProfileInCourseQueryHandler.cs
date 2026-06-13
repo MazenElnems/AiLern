@@ -5,6 +5,7 @@ using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.AssignmentSubmissions.Shared.DTO;
 using LMS.Application.Features.Students.Shared.DTO;
+using LMS.Domain.Entities.Courses;
 using LMS.Domain.Errors;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +28,7 @@ public class GetStudentProfileInCourseQueryHandler : IRequestHandler<GetStudentP
     public async Task<Result<GetStudentProfileInCourseDto>> Handle(GetStudentProfileInCourseQuery request, CancellationToken cancellationToken)
     {
         var userId = _userContext.GetCurrentUser().Id;
-        var course = await _unitOfWork.Courses.GetAsync(c => c.Id == request.CourseId);
+        var course = await _unitOfWork.Courses.GetAsync(c => c.Id == request.CourseId, includeProperties: [nameof(Course.Sections)]);
         if (course == null)
         {
             return DomainErrors.Course.NotFound(request.CourseId);
@@ -54,7 +55,9 @@ public class GetStudentProfileInCourseQueryHandler : IRequestHandler<GetStudentP
                     AttemptNumber = s.AttemptNumber,
                     Score = s.Score,
                     SubmittedAt = s.SubmittedAt
-                }).ToList()
+                }).ToList(),
+                
+
             }).ToListAsync(cancellationToken);
         var attempts = quizzes
             .SelectMany(q => q.Attempts)
@@ -91,11 +94,21 @@ public class GetStudentProfileInCourseQueryHandler : IRequestHandler<GetStudentP
                 : new List<MySubmissionFilesDto>(),
             SubmissionFeedback = x.Submission != null ? x.Submission.Feedback : null
         }).ToListAsync(cancellationToken);
+
+        var completedSections = await _unitOfWork.SectionProgress.Query.AsNoTracking()
+            .Where(p => p.IsCompleted && p.StudentId == request.StudentId).CountAsync();
+        var progress = course.Sections.Count() == 0
+                ? 0
+                : (int)(completedSections * 100M
+                    /
+                  course.Sections.Count());
+
         var dto = new GetStudentProfileInCourseDto
         {
             Quizzes = quizzes,
             AverageQuizzesScore = averageQuizzesScore,
-            Assignments = assignments
+            Assignments = assignments,
+            Progress = progress
         };
         return dto;
     }

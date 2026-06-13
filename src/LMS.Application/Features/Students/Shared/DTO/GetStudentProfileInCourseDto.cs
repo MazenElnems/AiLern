@@ -7,6 +7,7 @@ public class GetStudentProfileInCourseDto
     public List<SubmissionProfileDto> Assignments { get; set; }
     public List<QuizProfileDto> Quizzes { get; set; }
     public double AverageQuizzesScore { get; set; }
+    public int Progress { get; set; }
 }
 public class SubmissionProfileDto
 {
@@ -15,7 +16,6 @@ public class SubmissionProfileDto
     public int SubmissionId { get; set; }
     public List<MySubmissionFilesDto> SubmissionFiles { get; set; }
     public string? SubmissionFeedback { get; set; }
-
 }
 public class QuizProfileDto
 {

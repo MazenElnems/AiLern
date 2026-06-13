@@ -30,6 +30,7 @@ using LMS.Application.Features.CourseDiscussions.Commands.PinDiscussion;
 using LMS.Application.Features.CourseDiscussions.Commands.UnPinDiscussion;
 using LMS.Application.Features.CourseDiscussions.Commands.AnswerDiscussion;
 using LMS.Application.Features.CourseDiscussions.Queries.GetDiscussions;
+using LMS.Application.Features.Courses.Queries.GetCourseDetailsById;
 
 namespace LMS.API.Controllers;
 
@@ -230,6 +231,19 @@ public class CoursesController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GetById(int id)
     {
         var result = await _mediator.Send(new GetCourseByIdQuery(id));
+        return HandleResponse(this, result);
+    }
+
+    [HttpGet("{id}/details")]
+    [Authorize(Roles = UserRoles.Admin)]
+    [SwaggerOperation(Summary = "Get course details by ID", Description = "Retrieves course details by ID.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Course retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> GetCourseDetailsById(int id)
+    {
+        var result = await _mediator.Send(new GetCourseDetailsByIdQuery(id));
         return HandleResponse(this, result);
     }
 

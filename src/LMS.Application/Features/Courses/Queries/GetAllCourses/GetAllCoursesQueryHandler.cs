@@ -1,6 +1,7 @@
 using AutoMapper;
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.Features.Courses.Shared.DTO;
 using MediatR;
@@ -12,11 +13,13 @@ public class GetAllCoursesQueryHandler : IRequestHandler<GetAllCoursesQuery, Res
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IBunnyUrlSigner _bunny;
 
-    public GetAllCoursesQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetAllCoursesQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IBunnyUrlSigner bunny)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _bunny = bunny;
     }
 
     public async Task<Result<PaginationResult<GetAllCoursesDto>>> Handle(GetAllCoursesQuery request, CancellationToken cancellationToken)
@@ -37,7 +40,8 @@ public class GetAllCoursesQueryHandler : IRequestHandler<GetAllCoursesQuery, Res
                 Name = c.Name,
                 InstructorName = c.Instructor.FullName,
                 InstructorId = c.InstructorId,
-                ImageUrl = c.ImageStoragePath == null ? null : $"https://ailern-content.b-cdn.net/{c.ImageStoragePath}"
+                ImageUrl = c.ImageStoragePath == null ? null :_bunny.GetUrl(c.ImageStoragePath),
+                EnrolledStudents = c.Enrollments.Count()
             }).ToListAsync();
 
         return new PaginationResult<GetAllCoursesDto>(

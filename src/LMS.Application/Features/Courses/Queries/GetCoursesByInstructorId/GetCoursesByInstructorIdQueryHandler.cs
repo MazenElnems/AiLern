@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LMS.Application.Common.Results;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Courses.Shared.DTO;
@@ -17,11 +18,13 @@ public class GetCoursesByInstructorIdQueryHandler : IRequestHandler<GetCoursesBy
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IBunnyUrlSigner _bunnyUrl;
 
-    public GetCoursesByInstructorIdQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetCoursesByInstructorIdQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, IBunnyUrlSigner bunnyUrl)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _bunnyUrl = bunnyUrl;
     }
 
     public async Task<Result<List<GetStudentCoursesDto>>> Handle(GetCoursesByInstructorIdQuery request, CancellationToken cancellationToken)
@@ -35,7 +38,13 @@ public class GetCoursesByInstructorIdQueryHandler : IRequestHandler<GetCoursesBy
             includeProperties: [nameof(Course.Instructor)]);
 
         var result = _mapper.Map<List<GetStudentCoursesDto>>(courses);
-
+        result.ForEach(dto =>
+        {
+            if (!string.IsNullOrEmpty(dto.ImageUrl))
+            {
+                dto.ImageUrl = _bunnyUrl.GetUrl(dto.ImageUrl);
+            }
+        });
         return Result<List<GetStudentCoursesDto>>.Success(result, "Instructor courses retrieved successfully.");
 
 

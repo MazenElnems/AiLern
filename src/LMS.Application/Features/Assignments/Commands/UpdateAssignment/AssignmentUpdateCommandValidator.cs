@@ -12,9 +12,7 @@ public class AssignmentUpdateCommandValidator : AbstractValidator<AssignmentUpda
             .MaximumLength(200)
             .WithMessage("Title is required and must be 200 characters or less.");
 
-        RuleFor(a => a.Instructions)
-            .NotEmpty()
-            .WithMessage("Instructions are required.");
+
 
         RuleFor(a => a.UploadedFileMetaData)
             .Must(files => files is null || files.Count <= 10)

@@ -40,11 +40,11 @@ public static class DependencyInjection
             cfg.CreateMap<CreateCourseCommand, Course>();
             cfg.CreateMap<Course, GetCourseDto>()
                .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.UserName))
-               .ForMember(dto => dto.ImageUrl, opt => opt.MapFrom(src => src.ImageStoragePath == null ? null : $"https://ailern-content.b-cdn.net/{src.ImageStoragePath}"));
+               .ForMember(dto => dto.ImageUrl, opt => opt.MapFrom(src => src.ImageStoragePath == null ? null : src.ImageStoragePath));
 
             cfg.CreateMap<Course, GetStudentCoursesDto>()
                .ForMember(dto => dto.InstructorName, opt => opt.MapFrom(src => src.Instructor.UserName))
-               .ForMember(dto => dto.ImageUrl, opt => opt.MapFrom(src => src.ImageStoragePath == null ? null : $"https://ailern-content.b-cdn.net/{src.ImageStoragePath}"));
+               .ForMember(dto => dto.ImageUrl, opt => opt.MapFrom(src => src.ImageStoragePath == null ? null :src.ImageStoragePath));
 
             cfg.CreateMap<Course, GetInstructorCoursesDto>()
                .ForMember(dto => dto.ImageUrl, opt => opt.MapFrom(src => src.ImageStoragePath == null ? null : src.ImageStoragePath));

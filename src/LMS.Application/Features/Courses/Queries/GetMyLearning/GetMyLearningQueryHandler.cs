@@ -1,5 +1,6 @@
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.CurrentUser;
 using LMS.Application.Features.Courses.Shared.DTO;
@@ -13,11 +14,13 @@ public class GetMyLearningQueryHandler
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
+    private readonly IBunnyUrlSigner _bunnyUrl;
 
-    public GetMyLearningQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext)
+    public GetMyLearningQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext, IBunnyUrlSigner bunnyUrl)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
+        _bunnyUrl = bunnyUrl;
     }
 
     public async Task<Result<PaginationResult<GetMyLearningDto>>> Handle(GetMyLearningQuery request, CancellationToken cancellationToken)
@@ -38,7 +41,9 @@ public class GetMyLearningQueryHandler
                 LastPageNumber = p.LastPageNumber,
                 LastWatchedTime = p.LastWatchedTime,
                 Type = p.Type,
-                Name = p.Course.Name
+                Name = p.Course.Name,
+                ImageUrl = p.Course.ImageStoragePath == null ? 
+                    null : _bunnyUrl.GetUrl(p.Course.ImageStoragePath)
             })
             .Skip((request.PageNo - 1) * request.PageSize)
             .Take(request.PageSize)

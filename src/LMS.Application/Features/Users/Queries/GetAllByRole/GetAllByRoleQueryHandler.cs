@@ -1,5 +1,6 @@
 using LMS.Application.Common.Models.Responses;
 using LMS.Application.Common.Results.Generic;
+using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
 using LMS.Application.Features.Users.Shared.DTO;
 using LMS.Domain.Enums;
@@ -11,18 +12,22 @@ namespace LMS.Application.Features.Users.Queries.GetAllByRoleId;
 public class GetAllByRoleQueryHandler : IRequestHandler<GetAllByRoleQuery, Result<PaginationResult<GetUsersByRoleDto>>>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IBunnyUrlSigner _bunnyUrl;
 
-    public GetAllByRoleQueryHandler(IUnitOfWork unitOfWork)
+    public GetAllByRoleQueryHandler(IUnitOfWork unitOfWork, IBunnyUrlSigner bunnyUrl)
     {
         _unitOfWork = unitOfWork;
+        _bunnyUrl = bunnyUrl;
     }
 
     public async Task<Result<PaginationResult<GetUsersByRoleDto>>> Handle(GetAllByRoleQuery request, CancellationToken cancellationToken)
     {
-        bool invalidRole = 
-            request.Role != Roles.Admin &&
+        bool invalidRole =
+            (request.Role != Roles.Admin &&
             request.Role != Roles.Student &&
-            request.Role != Roles.Instructor;
+            request.Role != Roles.Instructor &&
+            request.Role != null);
+
 
         if (invalidRole)
             return new PaginationResult<GetUsersByRoleDto>(
@@ -34,7 +39,7 @@ public class GetAllByRoleQueryHandler : IRequestHandler<GetAllByRoleQuery, Resul
 
         var query = _unitOfWork.Users.Query
             .AsNoTracking();
-            query = query.Where(u => u.Role ==  request.Role.ToString());
+            query = query.Where(u => request.Role.HasValue ?  u.Role ==  request.Role.Value.ToString():true);
 
         var totalResult = await query.CountAsync(cancellationToken);
 
@@ -48,7 +53,8 @@ public class GetAllByRoleQueryHandler : IRequestHandler<GetAllByRoleQuery, Resul
                 FullName = u.FullName,
                 UserName = u.UserName!,
                 PhoneNumber = u.PhoneNumber!,
-                Role = u.Role
+                Role = u.Role,
+                ImageUrl = u.ImageStoragePath == null ? null : _bunnyUrl.GetUrl(u.ImageStoragePath)
             })
             .ToListAsync();
 
