@@ -6,7 +6,7 @@ using MediatR;
 
 namespace LMS.Application.Features.Instructors.Queries.GetUpcomingEvents;
 
-public record GetUpcomingEventsQuery(EventType? EventType,int PageNo, int PageSize) :
+public record GetUpcomingEventsQuery(EventType? EventType ,int PageNo, int PageSize) :
     IRequest<Result<PaginationResult<UpcomingEventsDto>>>
 {
 

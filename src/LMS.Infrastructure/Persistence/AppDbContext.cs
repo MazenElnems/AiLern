@@ -33,6 +33,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser,IdentityRole<int>,
     public DbSet<AIResource> AIResources { get; set; }
     public DbSet<Discussion> Discussions { get; set; }
     public DbSet<DiscussionVote> DiscussionVotes { get; set; }
+    public DbSet<Report> Reports { get; set; }
+    public DbSet<MaterialFile> MaterialFiles { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options):
         base(options)

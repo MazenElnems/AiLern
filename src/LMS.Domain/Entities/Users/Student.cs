@@ -16,4 +16,5 @@ public class Student : ApplicationUser
     public List<Discussion> Discussions { get; set; } = new();
     public List<DiscussionVote> DiscussionVotes { get; set; } = new();
     public List<WeakTopic> WeakTopics { get; set; } = new();
+    public List<Report> Reports { get; set; } = new();
 }

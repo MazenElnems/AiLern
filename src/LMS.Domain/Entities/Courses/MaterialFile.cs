@@ -18,4 +18,6 @@ public class MaterialFile
 
     // Navigation Properties
     public Section Section { get; set; }
+
+    public List<Report> Reports { get; set; } = new();
 }
