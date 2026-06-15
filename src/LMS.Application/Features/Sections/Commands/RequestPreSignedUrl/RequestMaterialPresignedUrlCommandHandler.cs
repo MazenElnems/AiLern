@@ -35,7 +35,7 @@ public class RequestMaterialPresignedUrlCommandHandler : IRequestHandler<Request
             var user = _userContext.GetCurrentUser();
 
             var section = await _unitOfWork.Sections.GetAsync(s => s.Id == request.SectionId,
-                includeProperties: [nameof(Section.Course)]);
+                includeProperties: [nameof(Section.Course),nameof(Section.MaterialFiles)]);
 
             if (section == null)
                 return DomainErrors.Section.NotFound(request.SectionId);
