@@ -14,4 +14,5 @@ public class AttemptResultDto
     public int TimeSpent { get; set; }
     public double TotalScore { get; set; }
     public double Score { get; set; }
+    public List<string> WeakTopics { get; set; }    
 }

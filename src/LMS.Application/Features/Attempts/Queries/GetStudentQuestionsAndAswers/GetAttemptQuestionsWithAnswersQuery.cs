@@ -6,5 +6,5 @@ namespace LMS.Application.Features.Attempts.Queries.GetStudentQuestionsAndAswers
 
 public record GetAttemptQuestionsWithAnswersQuery(
     Guid AttemptId
-) : IRequest<Result<List<AttemptQuestionDto>>>
+) : IRequest<Result<AttemptResultForStudentDto>>
 { }

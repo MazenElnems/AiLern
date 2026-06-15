@@ -52,6 +52,7 @@ public class AttemptProfile : Profile
             .ForMember(a => a.Score, opt => opt.MapFrom(src => src.Answers.Sum(a => a.Mark)))
             .ForMember(a => a.TimeSpent, opt => opt.MapFrom(src => src.TimeSpent!.Value))
             .ForMember(a => a.StudentId, opt => opt.MapFrom(src => src.StudentId))
+            .ForMember(a=> a.WeakTopics, opt => opt.MapFrom(src => src.WeakTopics.Select(wt => wt.Topic).ToList()))
             .ForMember(a => a.StudentName, opt => opt.MapFrom(src => src.Student.UserName));
     }
 }

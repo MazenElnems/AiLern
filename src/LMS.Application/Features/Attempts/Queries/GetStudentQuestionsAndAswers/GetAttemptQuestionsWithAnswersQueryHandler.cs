@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Application.Features.Attempts.Queries.GetStudentQuestionsAndAswers;
 
-public class GetAttemptQuestionsWithAnswersQueryHandler : IRequestHandler<GetAttemptQuestionsWithAnswersQuery, Result<List<AttemptQuestionDto>>>
+public class GetAttemptQuestionsWithAnswersQueryHandler : IRequestHandler<GetAttemptQuestionsWithAnswersQuery, Result<AttemptResultForStudentDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
@@ -24,7 +24,7 @@ public class GetAttemptQuestionsWithAnswersQueryHandler : IRequestHandler<GetAtt
         _userContext = userContext;
     }
 
-    public async Task<Result<List<AttemptQuestionDto>>> Handle(GetAttemptQuestionsWithAnswersQuery request, CancellationToken cancellationToken)
+    public async Task<Result<AttemptResultForStudentDto>> Handle(GetAttemptQuestionsWithAnswersQuery request, CancellationToken cancellationToken)
     {
         var studentId = _userContext.GetCurrentUser().Id;
 
@@ -50,9 +50,14 @@ public class GetAttemptQuestionsWithAnswersQueryHandler : IRequestHandler<GetAtt
         if (attempt.Status != AttemptStatus.InProgress)
             return DomainErrors.Attempt.NotInProgress;
 
-        var questions = await _unitOfWork.Answers.Query
+        var questionAnswers = await _unitOfWork.Answers.Query
             .Where(a => a.AttemptId == request.AttemptId)
             .ProjectTo<AttemptQuestionDto>(_mapper.ConfigurationProvider)
+            .ToListAsync(cancellationToken);
+
+        var weakTopics = await _unitOfWork.WeakTopics.Query
+            .Where(wt => wt.AttemptId == request.AttemptId)
+            .Select(wt => wt.Topic)
             .ToListAsync(cancellationToken);
 
         if (attempt.ShuffleQuestions && attempt.ShuffledQuestionIds != null)
@@ -61,18 +66,18 @@ public class GetAttemptQuestionsWithAnswersQueryHandler : IRequestHandler<GetAtt
                 .Select((id, index) => new { id, index })
                 .ToDictionary(x => x.id, x => x.index);
 
-            questions = questions
+            questionAnswers = questionAnswers
                 .OrderBy(q => questionMap.TryGetValue(q.Id, out var order) ? order : int.MaxValue)
                 .ToList();
         }
         else
         {
             // Default Ordering
-            questions = questions
+            questionAnswers = questionAnswers
                 .OrderBy(q => q.Order).ToList();
         }
 
-        foreach (var question in questions)
+        foreach (var question in questionAnswers)
         {
             if (question.Options == null) continue;
 
@@ -97,6 +102,10 @@ public class GetAttemptQuestionsWithAnswersQueryHandler : IRequestHandler<GetAtt
             }
         }
 
-        return questions;
+        return new AttemptResultForStudentDto
+        {
+            Answers = questionAnswers,
+            WeakTopics = weakTopics
+        };
     }
 }
