@@ -119,11 +119,10 @@ public class GetQuizDashboardQueryHandler : IRequestHandler<GetQuizDashboardQuer
 
         var avaregeScore = new AverageScore
         {
-            MinAverage = studentScores.Average(a => a.Min),
-            AvgAverage = studentScores.Average(a => a.Avg),
-            MaxAverage = studentScores.Average(a => a.Max)
+            MinAverage = studentScores.Any() ? studentScores.Average(a => a.Min) : 0,
+            AvgAverage = studentScores.Any() ? studentScores.Average(a => a.Avg) : 0,
+            MaxAverage = studentScores.Any() ? studentScores.Average(a => a.Max) : 0
         };
-
 
         var passDegree = quizTotalPoints * 0.5;
 
