@@ -24,24 +24,31 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand, R
 
     public async Task<Result> Handle(EnrollCourseCommand request, CancellationToken cancellationToken)
     {
-        var user = await _unitOfWork.Users.GetByIdAsync(request.StudentId);
-        if (user == null || user.Role != UserRoles.Student)
-            return DomainErrors.User.NotFound(request.StudentId.ToString());
+        var user = _userContext.GetCurrentUser();
+        var course = await _unitOfWork.Courses.GetAsync(c => c.Id == request.CourseId);
 
-        var course = await _unitOfWork.Courses.GetByIdAsync(request.CourseId);
         if (course == null)
             return DomainErrors.Course.NotFound(request.CourseId);
 
-        
-        if(await _unitOfWork.Enrollments.IsEnrolledAsync(request.CourseId,request.StudentId))
+        if (course.InstructorId != user.Id)
+            return DomainErrors.Course.NotOwned;
+
+        var student = await _unitOfWork.Users.GetAsync(u => u.Email == request.StudentEmail);
+
+        if (student == null || student.Role != UserRoles.Student)
+            return DomainErrors.Common.BusinessRule( "Enrollment Failed",
+                $"No student found with the email '{request.StudentEmail}'.");
+
+        var isEnrolled = await _unitOfWork.Enrollments.IsEnrolledAsync(course.Id, student.Id);
+
+        if (isEnrolled)
             return DomainErrors.Course.AlreadyEnrolled;
 
         var enrollment = new Enrollment
         {
-            StudentId  = request.StudentId,
-            CourseId = request.CourseId,
+            StudentId = student.Id,
+            CourseId = course.Id,
             EnrolledAt = DateTime.UtcNow
-
         };
 
         course.Enrollments.Add(enrollment);
@@ -49,12 +56,13 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand, R
         try
         {
             await _unitOfWork.CommitAsync();
-            return Result.Success();
+            return Result.Success("Student enrolled successfully.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error enrolling in course with ID {CourseId} by student with ID {StudentId}", request.CourseId, request.StudentId);
+            _logger.LogError(ex, "Error enrolling in course with ID {CourseId} by student with Email {StudentEmail}", request.CourseId, request.StudentEmail);
             throw;
         }
+
     }
 }

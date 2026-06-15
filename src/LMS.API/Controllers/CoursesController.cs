@@ -1,5 +1,15 @@
+using Amazon.Auth.AccessControlPolicy;
 using LMS.API.Controllers.Common;
 using LMS.API.Models;
+using LMS.Application.Features.CourseDiscussions.Commands.AnswerDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.CourseDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.DeleteDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.DownVoteDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.PinDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.UnPinDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.UpdateDiscussion;
+using LMS.Application.Features.CourseDiscussions.Commands.VoteDiscussion;
+using LMS.Application.Features.CourseDiscussions.Queries.GetDiscussions;
 using LMS.Application.Features.Courses.Commands.ConfirmAIResources;
 using LMS.Application.Features.Courses.Commands.CreateCourse;
 using LMS.Application.Features.Courses.Commands.CreateEnrollment;
@@ -7,11 +17,13 @@ using LMS.Application.Features.Courses.Commands.DeleteAIResources;
 using LMS.Application.Features.Courses.Commands.DeleteCourse;
 using LMS.Application.Features.Courses.Commands.DeleteEnrollment;
 using LMS.Application.Features.Courses.Commands.UpdateCourse;
+using LMS.Application.Features.Courses.Commands.UpdateProgress;
 using LMS.Application.Features.Courses.Commands.UploadAIResources;
 using LMS.Application.Features.Courses.Queries.GetAIResources;
-using LMS.Application.Features.Courses.Commands.UpdateProgress;
+using LMS.Application.Features.Courses.Queries.GetAIResourceStatus;
 using LMS.Application.Features.Courses.Queries.GetAllCourses;
 using LMS.Application.Features.Courses.Queries.GetById;
+using LMS.Application.Features.Courses.Queries.GetCourseDetailsById;
 using LMS.Application.Features.Courses.Queries.GetCoursesByInstructorId;
 using LMS.Application.Features.Courses.Queries.GetEnrolledStudents;
 using LMS.Application.Features.Courses.Queries.GetMyLearning;
@@ -20,17 +32,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using LMS.Application.Features.Courses.Queries.GetAIResourceStatus;
-using LMS.Application.Features.CourseDiscussions.Commands.CourseDiscussion;
-using LMS.Application.Features.CourseDiscussions.Commands.VoteDiscussion;
-using LMS.Application.Features.CourseDiscussions.Commands.DownVoteDiscussion;
-using LMS.Application.Features.CourseDiscussions.Commands.UpdateDiscussion;
-using LMS.Application.Features.CourseDiscussions.Commands.DeleteDiscussion;
-using LMS.Application.Features.CourseDiscussions.Commands.PinDiscussion;
-using LMS.Application.Features.CourseDiscussions.Commands.UnPinDiscussion;
-using LMS.Application.Features.CourseDiscussions.Commands.AnswerDiscussion;
-using LMS.Application.Features.CourseDiscussions.Queries.GetDiscussions;
-using LMS.Application.Features.Courses.Queries.GetCourseDetailsById;
 
 namespace LMS.API.Controllers;
 
@@ -188,7 +189,7 @@ public class CoursesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> Answer(int courseId, Guid discussionId,AnswerDiscussionCommand command)
+    public async Task<ActionResult<ApiResponse>> Answer(int courseId, Guid discussionId, AnswerDiscussionCommand command)
     {
         command.CourseId = courseId;
         command.DiscussionId = discussionId;
@@ -314,10 +315,10 @@ public class CoursesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Course or student not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> DeleteEnrollment(int id,Guid resourceId)
+    public async Task<ActionResult<ApiResponse>> DeleteAiResourse(int id, Guid resourceId)
     {
 
-        var result = await _mediator.Send(new DeleteAIResourcesCommand { CourseId = id , AiResourceId = resourceId});
+        var result = await _mediator.Send(new DeleteAIResourcesCommand { CourseId = id, AiResourceId = resourceId });
         return HandleResponse(this, result);
     }
 
@@ -347,8 +348,8 @@ public class CoursesController : ApiBaseController
         return HandleResponse(this, result);
     }
 
-    [HttpPost("enroll")]
-    [Authorize(Roles = UserRoles.Admin)]
+    [HttpPost("{id}/enroll")]
+    [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Enroll in course", Description = "Creates an enrollment request.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Enrollment request created.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -356,9 +357,10 @@ public class CoursesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Course not found.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
-    public async Task<ActionResult<ApiResponse>> EnrollStudent(int studentId, int courseId)
+    public async Task<ActionResult<ApiResponse>> EnrollStudent([FromRoute] int id, EnrollCourseCommand command)
     {
-        var result = await _mediator.Send(new EnrollCourseCommand(studentId, courseId));
+        command.CourseId = id;
+        var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
 
