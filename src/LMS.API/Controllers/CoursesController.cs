@@ -292,7 +292,7 @@ public class CoursesController : ApiBaseController
     }
 
     [HttpDelete("{id}/enrollments/{studentId}")]
-    [Authorize(Roles = UserRoles.Admin)]
+    [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Delete enrollment", Description = "Removes a student enrollment from a course.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Enrollment deleted successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]

@@ -6,7 +6,7 @@ public class GetStudentProfileInCourseDto
 {
     public List<SubmissionProfileDto> Assignments { get; set; }
     public List<QuizProfileDto> Quizzes { get; set; }
-    public double AverageQuizzesScore { get; set; }
+    public double? AverageQuizzesScore { get; set; }
     public int Progress { get; set; }
 }
 public class SubmissionProfileDto
@@ -21,6 +21,7 @@ public class QuizProfileDto
 {
     public string QuizName { get; set; }
     public Guid QuizId { get; set; }
+    public double TotalPoints { get; set; }    
     public List<AttemptProfileDto> Attempts { get; set; }
 
 }
