@@ -10,6 +10,7 @@ public class DiscussionDto
     public DateTime CreatedAt { get; set; }
     public string? InstructorName { get; set; }
     public string? InstructorAvatar { get; set; }
+    public int StudentId { get; set; }
     public string StudentName { get; set; }
     public string? StudentAvatar { get; set; }
     public int VotesCount { get; set; } = 0;    

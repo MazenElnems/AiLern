@@ -54,6 +54,7 @@ public class GetDiscussionsCommandHandler : IRequestHandler<GetDiscussionsComman
                 AnswerAt = d.AnswerAt,
                 IsPinned = d.IsPinned,
                 PinnedAt = d.PinnedAt,
+                StudentId = d.StudentId,
                 StudentName = d.Student.FullName,
                 InstructorName = d.IsAnswered ? d.Course.Instructor.FullName : null,
                 InstructorAvatar = d.IsAnswered && !string.IsNullOrEmpty(d.Course.Instructor.ImageStoragePath) ? _bunny.GetUrl(d.Course.Instructor.ImageStoragePath) : null,

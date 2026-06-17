@@ -47,12 +47,14 @@ public class NotificationHub : Hub
                 .Select(e => e.StudentId)
                 .ToListAsync();
 
+        var type = NotificationType.CourseMaterialsUpdated;
+
         var notification = new Notification
         {
             Title = $"{course!.Name}: New Material",
             Message = $"New materials has been added/updated in \"{course.Name}\" course",
             CreatedAt = DateTime.UtcNow,
-            Type = NotificationType.CourseMaterialsUpdated,
+            Type = type,
             Url = $"/courses/{course.Id}/sections"
         };
 
@@ -69,6 +71,6 @@ public class NotificationHub : Hub
 
         await _unitOfWork.CommitAsync();
 
-        await Clients.Group($"course-{course.Id}").SendAsync("recieveNotification",notification.Title,notification.Message);
+        await Clients.Group($"course-{course.Id}").SendAsync("recieveNotification",notification.Title,notification.Message,type);
     }
 }
