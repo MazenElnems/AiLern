@@ -58,7 +58,7 @@ public class SignalRNotificationService : INotificationService
         };
 
         _backgroundService.Enqueue<ISendEmailToUsersJob>((job) => job.ExecuteAsync(studentsToNotify, notificationEmailModel));
-        await _hubContext.Clients.Group(group).SendAsync("recieveNotification", title, message);
+        await _hubContext.Clients.Group(group).SendAsync("recieveNotification", title, message,type);
 
         await _unitOfWork.CommitAsync();
     }
@@ -99,7 +99,7 @@ public class SignalRNotificationService : INotificationService
         };
 
         _backgroundService.Enqueue<ISendEmailToUsersJob>((job) => job.ExecuteAsync(new[]{userId}, notificationEmailModel));
-        await _hubContext.Clients.User(userId.ToString()).SendAsync("recieveNotification", title, message);
+        await _hubContext.Clients.User(userId.ToString()).SendAsync("recieveNotification", title, message,type);
         await _unitOfWork.CommitAsync();
     }
 }
