@@ -4,6 +4,7 @@ using LMS.Domain.Entities.Assignments;
 using LMS.Domain.Entities.CourseDiscussion;
 using LMS.Domain.Entities.Courses;
 using LMS.Domain.Entities.Notification;
+using MediatR;
 
 namespace LMS.Infrastructure.Persistence.Repositories;
 
@@ -36,6 +37,7 @@ internal class UnitOfWork : IUnitOfWork
 
     public IBaseRepository<Report> Reports { get; set; }
     public IBaseRepository<MaterialFile> MaterialFiles { get; set; }
+    public IBaseRepository<Notification> Notifications { get; set; }
 
 
     public UnitOfWork(AppDbContext context)
@@ -63,6 +65,7 @@ internal class UnitOfWork : IUnitOfWork
         WeakTopics = new BaseRepository<WeakTopic>(_context);
         Reports = new BaseRepository<Report>(_context);
         MaterialFiles = new BaseRepository<MaterialFile>(_context);
+        Notifications = new BaseRepository<Notification>(_context);
     }
 
     public async Task<int> CommitAsync() => await _context.SaveChangesAsync();
