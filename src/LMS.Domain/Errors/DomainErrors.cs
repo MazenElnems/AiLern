@@ -98,6 +98,11 @@ public static class DomainErrors
 
 
     }
+    public static class Notifications
+    {
+        public static Error NotFound(Guid id) =>
+            Common.NotFound("Notification", id.ToString());
+    }
     public static class Quiz
     {
         public static Error MustContainAtLeastOneQuestion =>
