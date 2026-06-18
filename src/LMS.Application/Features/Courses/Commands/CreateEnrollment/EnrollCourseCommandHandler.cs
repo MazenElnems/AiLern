@@ -1,11 +1,13 @@
-using LMS.Application.CurrentUser;
 using LMS.Application.Common.Results;
+using LMS.Application.Contracts.Services;
+using LMS.Application.Contracts.UnitOfWork;
+using LMS.Application.CurrentUser;
+using LMS.Domain.Constants;
+using LMS.Domain.Entities.Courses;
+using LMS.Domain.Entities.Notification;
+using LMS.Domain.Errors;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using LMS.Domain.Entities.Courses;
-using LMS.Domain.Errors;
-using LMS.Domain.Constants;
-using LMS.Application.Contracts.UnitOfWork;
 
 namespace LMS.Application.Features.Courses.Commands.CreateEnrollment;
 
@@ -14,12 +16,14 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand, R
     private readonly ILogger<EnrollCourseCommandHandler> _logger;
     private readonly IUserContext _userContext;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificationService _notificationService;
 
-    public EnrollCourseCommandHandler(ILogger<EnrollCourseCommandHandler> logger, IUserContext userContext, IUnitOfWork unitOfWork)
+    public EnrollCourseCommandHandler(ILogger<EnrollCourseCommandHandler> logger, IUserContext userContext, IUnitOfWork unitOfWork, INotificationService notificationService)
     {
         _logger = logger;
         _userContext = userContext;
         _unitOfWork = unitOfWork;
+        _notificationService = notificationService;
     }
 
     public async Task<Result> Handle(EnrollCourseCommand request, CancellationToken cancellationToken)
@@ -56,6 +60,14 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand, R
         try
         {
             await _unitOfWork.CommitAsync();
+            await _notificationService.NotifyUserWithEmailAsync(
+                student.Id,
+                $"Welcome to {course.Name}",
+                $"You're now enrolled in \"{course.Name}\". Explore the course and begin your learning journey.",
+                NotificationType.EnrolledInNewCourse,
+                $"https://www.ailern.me/courses/{course.Id}",
+                "Go to Course"
+            );
             return Result.Success("Student enrolled successfully.");
         }
         catch (Exception ex)

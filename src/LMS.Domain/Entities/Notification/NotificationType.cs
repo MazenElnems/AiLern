@@ -7,6 +7,7 @@ public enum NotificationType
     CourseMaterialsUpdated,
     NewQuizAdded,
     AttemptReviewed,
+    EnrolledInNewCourse,
     DiscussionAnswered,
 
     // Instructor Notifications
