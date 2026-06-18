@@ -8,9 +8,10 @@ public enum NotificationType
     NewQuizAdded,
     AttemptReviewed,
     EnrolledInNewCourse,
+    DiscussionAnswered,
 
     // Instructor Notifications
     DeadlineReached,
     AiQuestionGenerationFinished,
-    CourseRemovedByAdmin    
+    CourseRemovedByAdmin
 }

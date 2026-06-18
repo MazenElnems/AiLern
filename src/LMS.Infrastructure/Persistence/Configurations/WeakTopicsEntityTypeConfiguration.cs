@@ -15,12 +15,12 @@ public class WeakTopicsEntityTypeConfiguration : IEntityTypeConfiguration<WeakTo
             .HasOne(t => t.Attempt)
             .WithMany(a => a.WeakTopics)
             .HasForeignKey(t => t.AttemptId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder
             .HasOne(t => t.Course)
             .WithMany(a => a.WeakTopics)
             .HasForeignKey(t => t.CourseId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }
