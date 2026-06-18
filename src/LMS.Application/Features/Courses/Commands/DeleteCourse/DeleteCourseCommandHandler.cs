@@ -1,9 +1,12 @@
-using LMS.Domain.Entities;
 using LMS.Application.Common.Results;
+using LMS.Application.Contracts.Services;
+using LMS.Application.Contracts.UnitOfWork;
+using LMS.Domain.Entities;
+using LMS.Domain.Entities.Notification;
+using LMS.Domain.Entities.Users;
+using LMS.Domain.Errors;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using LMS.Domain.Errors;
-using LMS.Application.Contracts.UnitOfWork;
 
 namespace LMS.Application.Features.Courses.Commands.DeleteCourse;
 
@@ -11,11 +14,13 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DeleteCourseCommandHandler> _logger;
+    private readonly INotificationService _notificationService;
 
-    public DeleteCourseCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteCourseCommandHandler> logger)
+    public DeleteCourseCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteCourseCommandHandler> logger, INotificationService notificationService)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _notificationService = notificationService;
     }
 
     public ILogger<DeleteCourseCommandHandler> Logger => _logger;
@@ -33,6 +38,14 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
         {
             await _unitOfWork.CommitAsync();
             Logger.LogInformation("Course with ID {CourseId} deleted successfully", request.Id);
+            await _notificationService.NotifyUserWithEmailAsync(
+                course.InstructorId,
+                $"{course.Name}: Course Removed",
+                $"Your course \"{course.Name}\" has been removed by the administrator and is no longer available.",
+                NotificationType.CourseRemovedByAdmin,
+                "https://www.ailern.me/instructor/courses",
+                "View My Courses"
+            );
             return Result.Success();
         }
         catch(Exception ex)

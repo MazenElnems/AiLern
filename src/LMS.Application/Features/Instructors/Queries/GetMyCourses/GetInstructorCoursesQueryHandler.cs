@@ -40,7 +40,7 @@ public class GetInstructorCoursesQueryHandler : IRequestHandler<GetInstructorCou
                 d.ImageUrl = d.ImageUrl == null ? null : _bunnyUrl.GetUrl(d.ImageUrl);
                 d.CourseProgress = d.TotalStudents == 0 || d.TotalSections == 0 ? 0 :
                                 Math.Round(_unitOfWork.SectionProgress.Query
-                                    .Where(s => s.Section.CourseId == d.Id).Count() /
+                                    .Where(s => s.Section.CourseId == d.Id && s.IsCompleted).Count() /
                                 (double)(d.TotalSections * d.TotalStudents) * 100, 2);
             }
             return Result<List<GetInstructorCoursesDto>>.Success(dto);
