@@ -156,7 +156,7 @@ public class UpdateQuizCommandHandler : IRequestHandler<UpdateQuizCommand, Resul
                 $"{quiz.Course.Name}: New Quiz",
                 $"\"{quiz.Title}\" is now available. Start solving now!",
                 NotificationType.NewQuizAdded,
-                $"https://www.ailern.me/quizzes/{quiz.Id}",
+                $"quizzes/{quiz.Id}",
                 "Start Quiz");
         }
 

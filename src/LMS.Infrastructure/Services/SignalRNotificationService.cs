@@ -4,9 +4,11 @@ using LMS.Application.Contracts.UnitOfWork;
 using LMS.Domain.Entities.Notification;
 using LMS.Domain.Models.Notification;
 using LMS.Infrastructure.Hubs;
+using LMS.Infrastructure.Settings;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace LMS.Infrastructure.Services;
 
@@ -15,12 +17,14 @@ public class SignalRNotificationService : INotificationService
     private readonly IHubContext<NotificationHub> _hubContext;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IBackgroundJobService _backgroundService;
+    private readonly FrontEndSettings _frontendSettings;
 
-    public SignalRNotificationService(IHubContext<NotificationHub> hubContext, IUnitOfWork unitOfWork, IBackgroundJobService backgroundService)
+    public SignalRNotificationService(IHubContext<NotificationHub> hubContext, IUnitOfWork unitOfWork, IBackgroundJobService backgroundService, IOptions<FrontEndSettings> frontendSettings)
     {
         _hubContext = hubContext;
         _unitOfWork = unitOfWork;
         _backgroundService = backgroundService;
+        _frontendSettings = frontendSettings.Value;
     }
 
     public async Task NotifyAsync(int courseId, string title, string message,NotificationType type,string url,string? actionText)
@@ -36,7 +40,7 @@ public class SignalRNotificationService : INotificationService
             Message = message,
             CreatedAt = DateTime.UtcNow,
             Type = type,
-            Url = url
+            Url = $"{_frontendSettings.Domain}/{url}"
         };
         await _unitOfWork.Notfications.InsertAsync(notification);
 
@@ -53,7 +57,7 @@ public class SignalRNotificationService : INotificationService
         {
             Title = notification.Title,
             Message = notification.Message,
-            ActionUrl = url,
+            ActionUrl = $"{_frontendSettings.Domain}/{url}",
             ActionText = actionText
         };
 
@@ -63,10 +67,34 @@ public class SignalRNotificationService : INotificationService
         await _unitOfWork.CommitAsync();
     }
     
-
-    public async Task NotifyAsync(int userId, string title, string message)
+    public async Task NotifyQuestionRepliedAsync(int userId, int courseId, string title, string message)
     {
-        await _hubContext.Clients.User(userId.ToString()).SendAsync("recieveNotification", title, message);
+        var url = $"{_frontendSettings.Domain}/courses/{courseId}/qna";
+
+        var notification = new Notification
+        {
+            Title = title,
+            Message = message,
+            CreatedAt = DateTime.UtcNow,
+            Type = NotificationType.DiscussionAnswered,
+            Url = $"{_frontendSettings.Domain}/{url}"
+        };
+
+        await _unitOfWork.Notifications.InsertAsync(notification);
+
+        var userNotifications =  new UserNotification
+        {
+            NotificationId = notification.NotificationId,
+            UserId = userId,
+            IsRead = false,
+        };
+
+        await _unitOfWork.UserNotifications.InsertAsync(userNotifications);
+
+        await _unitOfWork.CommitAsync();
+
+        await _hubContext.Clients.User(userId.ToString())
+            .SendAsync("recieveNotification", title, message, NotificationType.DiscussionAnswered, url);
     }
 
     public async Task NotifyUserWithEmailAsync(int userId, string title, string message, NotificationType type, string url, string? actionText)
@@ -77,7 +105,7 @@ public class SignalRNotificationService : INotificationService
             Message = message,
             CreatedAt = DateTime.UtcNow,
             Type = type,
-            Url = url
+            Url = $"{_frontendSettings.Domain}/{url}"
         };
         await _unitOfWork.Notfications.InsertAsync(notification);
 
@@ -94,7 +122,7 @@ public class SignalRNotificationService : INotificationService
         {
             Title = notification.Title,
             Message = notification.Message,
-            ActionUrl = url,
+            ActionUrl = $"{_frontendSettings.Domain}/{url}",
             ActionText = actionText
         };
 

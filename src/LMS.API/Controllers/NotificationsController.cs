@@ -1,5 +1,6 @@
 ﻿using LMS.API.Controllers.Common;
 using LMS.API.Models;
+using LMS.Application.Features.Notifications.Commands.DeleteSingleNotification;
 using LMS.Application.Features.Notifications.Commands.MarkAllAsRead;
 using LMS.Application.Features.Notifications.Queries.GetNotifications;
 using MediatR;
@@ -42,6 +43,19 @@ public class NotificationsController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> MarkAllAsRead()
     {
         var result = await _mediator.Send(new MarkAllAsReadCommand());
+        return HandleResponse(this, result);
+    }
+
+    [HttpDelete("{notificationId}")]
+    [Authorize]
+    [SwaggerOperation(Summary = "Delete notification", Description = "Deletes a specific notification for the current user.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Notification deleted successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "User Not Authenticated.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Notification not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    public async Task<ActionResult<ApiResponse>> DeleteNotification(Guid notificationId)
+    {
+        var result = await _mediator.Send(new DeleteSingleNotificationCommand(notificationId));
         return HandleResponse(this, result);
     }
 }

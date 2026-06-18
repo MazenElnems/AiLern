@@ -69,7 +69,7 @@ public class GradeSubmissionCommandHandler : IRequestHandler<GradeSubmissionComm
                 $"{quiz.Course.Name}: Quiz Graded",
                 $"Your quiz \"{quiz.Title}\" has been graded. Check your result now.",
                 NotificationType.AttemptReviewed,
-                $"https://www.ailern.me/quizzes/{quiz.Id}/result",
+                $"quizzes/{quiz.Id}/result",
                 "View Result"
             );
         }

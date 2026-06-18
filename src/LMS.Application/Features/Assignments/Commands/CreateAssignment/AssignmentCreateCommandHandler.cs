@@ -88,7 +88,7 @@ public class AssignmentCreateCommandHandler : IRequestHandler<AssignmentCreateCo
                 $"{course.Name}: New Assignment",
                 $"\"{assignment.Title}\" is available. Due by {assignment.DueDate:MMM dd}.",
                 NotificationType.NewAssignmentAdded,
-                $"https://www.ailern.me/assignments/{assignment.Id}", "View Assignment");
+                $"assignments/{assignment.Id}", "View Assignment");
         }
 
         await _unitOfWork.CommitAsync();
