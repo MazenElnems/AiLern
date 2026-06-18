@@ -109,7 +109,7 @@ public class AssignmentUpdateCommandHandler : IRequestHandler<AssignmentUpdateCo
                 $"{assignment.Course.Name}: New Assignment",
                 $"\"{assignment.Title}\" is available. Due by {assignment.DueDate:MMM dd}.",
                 NotificationType.NewAssignmentAdded,
-                $"https://www.ailern.me/assignments/{assignment.Id}",
+                $"assignments/{assignment.Id}",
                 "View Assignment");
         }
         return Result<AssignmentDto>.Success(dto, "Assignment updated successfully.");
