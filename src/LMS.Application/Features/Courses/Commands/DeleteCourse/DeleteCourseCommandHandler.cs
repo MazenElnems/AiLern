@@ -1,6 +1,8 @@
 using LMS.Application.Common.Results;
 using LMS.Application.Contracts.Services;
 using LMS.Application.Contracts.UnitOfWork;
+using LMS.Application.CurrentUser;
+using LMS.Domain.Constants;
 using LMS.Domain.Entities;
 using LMS.Domain.Entities.Notification;
 using LMS.Domain.Entities.Users;
@@ -15,21 +17,29 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DeleteCourseCommandHandler> _logger;
     private readonly INotificationService _notificationService;
+    public ILogger<DeleteCourseCommandHandler> Logger => _logger;
+    private readonly IUserContext _userContext;
 
-    public DeleteCourseCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteCourseCommandHandler> logger, INotificationService notificationService)
+    public DeleteCourseCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteCourseCommandHandler> logger, INotificationService notificationService, IUserContext userContext)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
         _notificationService = notificationService;
+        _userContext = userContext;
     }
 
-    public ILogger<DeleteCourseCommandHandler> Logger => _logger;
 
     public async Task<Result> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
     {
+        var currentUser = _userContext.GetCurrentUser();
+
         var course = await _unitOfWork.Courses.GetByIdAsync(request.Id);
+
         if (course == null)
             return Result.Failure(DomainErrors.Course.NotFound(request.Id));
+
+        if(currentUser.IsInRole(UserRoles.Instructor) && course.InstructorId != currentUser.Id)
+            return DomainErrors.Course.NotOwned;
 
         Logger.LogInformation("Deleting course with ID {CourseId}", request.Id);
         _unitOfWork.Courses.Delete(course);
@@ -38,15 +48,18 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
         {
             await _unitOfWork.CommitAsync();
             Logger.LogInformation("Course with ID {CourseId} deleted successfully", request.Id);
-            await _notificationService.NotifyUserWithEmailAsync(
-                course.InstructorId,
-                $"{course.Name}: Course Removed",
-                $"Your course \"{course.Name}\" has been removed by the administrator and is no longer available.",
-                NotificationType.CourseRemovedByAdmin,
-                "https://www.ailern.me/instructor/courses",
-                "View My Courses"
-            );
-            return Result.Success();
+
+            if(currentUser.IsInRole(UserRoles.Admin))
+                await _notificationService.NotifyUserWithEmailAsync(
+                    course.InstructorId,
+                    $"{course.Name}: Course Removed",
+                    $"Your course \"{course.Name}\" has been removed by the administrator and is no longer available.",
+                    NotificationType.CourseRemovedByAdmin,
+                    "https://www.ailern.me/instructor/courses",
+                    "View My Courses"
+                );
+
+            return "Course deleted successfully.";
         }
         catch(Exception ex)
         {
