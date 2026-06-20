@@ -75,6 +75,7 @@ public class CoursesController : ApiBaseController
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
+
     [HttpPost("course/{courseId}/discussions/{discussionId}/up_vote")]
     [Authorize(Roles = UserRoles.Student)]
     [SwaggerOperation(Summary = "Upvote discussion", Description = "Upvotes an existing discussion for a course.")]
@@ -196,6 +197,7 @@ public class CoursesController : ApiBaseController
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
+
     [HttpGet("course/{courseId}/discussions")]
     [Authorize(Roles = UserRoles.Instructor + "," + UserRoles.Student)]
     [SwaggerOperation(Summary = "Get discussions for a course", Description = "Retrieves all discussions for a specific course.")]
@@ -249,6 +251,7 @@ public class CoursesController : ApiBaseController
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = $"{UserRoles.Admin}, {UserRoles.Instructor}")]
     [SwaggerOperation(Summary = "Delete course", Description = "Deletes a course by ID.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Course deleted successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -263,6 +266,7 @@ public class CoursesController : ApiBaseController
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Update course", Description = "Updates course details by ID.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Course updated successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -276,7 +280,9 @@ public class CoursesController : ApiBaseController
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
+
     [HttpPut("{id}/ai-resources/confirm")]
+    [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Confirm AI resources", Description = "Confirms AI resources for a course by ID.")]
     [SwaggerResponse(StatusCodes.Status200OK, "AI resources confirmed successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -336,6 +342,7 @@ public class CoursesController : ApiBaseController
     }
 
     [HttpGet("{id}/ai-resources")]
+    [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Get AI resources", Description = "Lists AI resources for a course.")]
     [SwaggerResponse(StatusCodes.Status200OK, "AI resources retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
@@ -343,7 +350,6 @@ public class CoursesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
     public async Task<ActionResult<ApiResponse>> GetAIResources(int id)    
     {
-
         var result = await _mediator.Send(new GetAIResourcesCommand { CourseId = id });
         return HandleResponse(this, result);
     }
@@ -375,14 +381,13 @@ public class CoursesController : ApiBaseController
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
     public async Task<ActionResult<ApiResponse>> UploadAIResources(int id ,UploadAIResourcesCommand command)
     {
-        
         command.CourseId = id;
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
 
     [HttpGet("instructors/{id}")]
-    [Authorize]
+    [Authorize(Roles = UserRoles.Instructor)]
     [SwaggerOperation(Summary = "Get courses by instructor id", Description = "Retrieves approved courses for a specific instructor.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Courses retrieved successfully.", typeof(ApiResponse))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Instructor not found.", typeof(ApiResponse))]
