@@ -193,6 +193,9 @@ public static class DomainErrors
         public static Error NotSubmitted =>
             Common.BusinessRule("Attempt.NotSubmitted", "The attempt has not been submitted yet, you cannot view the result.");
 
+        public static Error NotGradedByAi =>
+            Common.BusinessRule("Attempt.NotGradedByAi", "The attempt has not been Graded By Ai, you cannot Evaluate the Ai Grading.");
+
         public static Error NotFound(Guid attemptId)
             => Common.NotFound("Attempt", attemptId.ToString());
 

@@ -8,6 +8,7 @@ using LMS.Application.Features.Quizzes.Commands.AcceptAiGeneratedQuestion;
 using LMS.Application.Features.Quizzes.Commands.AcceptAllAiGeneratedQuestions;
 using LMS.Application.Features.Quizzes.Commands.CreateQuiz;
 using LMS.Application.Features.Quizzes.Commands.DeleteQuiz;
+using LMS.Application.Features.Quizzes.Commands.EvaluateAiGeneratedQuestion;
 using LMS.Application.Features.Quizzes.Commands.QenerateQuestionsUsingAI;
 using LMS.Application.Features.Quizzes.Commands.RejectAiGeneratedQuestion;
 using LMS.Application.Features.Quizzes.Commands.UpdateQuestionGradingCriteria;
@@ -222,4 +223,16 @@ public class QuizzesController : ApiBaseController
         var result = await _mediator.Send(new UpdateQuestionGradingConfigCommand(id, questionId, request));
         return HandleResponse(this, result);
     }
+
+    [HttpPut("{id}/ai-generated-questions/{questionId}/evaluate")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    [SwaggerOperation(Summary = "Evaluate one AI-generated question")]
+    public async Task<ActionResult<ApiResponse>> EvaluateAiGeneratedQuestion(Guid id,Guid questionId, EvaluateAiGeneratedQuestionCommand command)
+    {
+        command.QuizId = id;
+        command.QuestionId = questionId;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
 }
