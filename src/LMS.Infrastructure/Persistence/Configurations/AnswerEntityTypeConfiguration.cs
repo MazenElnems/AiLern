@@ -52,5 +52,15 @@ public class AnswerEntityTypeConfiguration : IEntityTypeConfiguration<Answer>
             .WithMany(q => q.Answers)
             .HasForeignKey(a => a.OptionId)
             .IsRequired(false);
+
+        builder.Property(q => q.FeedbackThemes)
+            .HasConversion<string>()
+            .HasColumnType("VARCHAR(40)")
+            .IsRequired(false);
+
+        builder.Property(a => a.EvaluateComment)
+            .HasColumnType("NVARCHAR(3000)")
+            .IsRequired(false);
+
     }
 }

@@ -1,6 +1,7 @@
 using LMS.API.Controllers.Common;
 using LMS.API.Models;
 using LMS.Application.Features.Attempts.Commands.CreateAttempt;
+using LMS.Application.Features.Attempts.Commands.EvaluateAiGeneratedQuestionGrading;
 using LMS.Application.Features.Attempts.Commands.GradeSubmission;
 using LMS.Application.Features.Attempts.Commands.SaveAttempt;
 using LMS.Application.Features.Attempts.Commands.SubmitAttempt;
@@ -104,6 +105,23 @@ public class AttemptsController : ApiBaseController
     public async Task<ActionResult<ApiResponse>> GradeSubmission(Guid attemptId, [FromBody] GradeSubmissionCommand command)
     {
         command.Id = attemptId;
+        var result = await _mediator.Send(command);
+        return HandleResponse(this, result);
+    }
+
+    [SwaggerOperation(Summary = "Put attempt", Description = "Put an attempt.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Attempt retrieved successfully.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Forbidden.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "quiz not found.", typeof(ApiResponse))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error.", typeof(ApiResponse))]
+    [HttpPut("{attemptId}/questions/{questionId}/evaluate_ai_grading_question")]
+    [Authorize(Roles = UserRoles.Instructor)]
+    public async Task<ActionResult<ApiResponse>> EvaluateAiGradingQuestion(Guid attemptId,Guid questionId, [FromBody] EvaluateAiQuestionGradingCommand command)
+    {
+        command.AttemptId = attemptId;
+        command.QuestionId = questionId;
         var result = await _mediator.Send(command);
         return HandleResponse(this, result);
     }
